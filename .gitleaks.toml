@@ -1,0 +1,13 @@
+# Default gitleaks rules plus the allowlist for known false positives.
+# Project-specific patterns that would themselves reveal internal data
+# (hosts, IPs, account ids) live in the private export pipeline, not here.
+title = "promptops"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Known false positives"
+paths = [
+  '''(^|/)LICENSE$''',
+]

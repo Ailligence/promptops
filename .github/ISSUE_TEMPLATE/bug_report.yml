@@ -1,0 +1,57 @@
+name: Bug report
+description: Something does not work as expected
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report! Security problems go through SECURITY.md, not here.
+        Please remove tokens, paths and any private data from logs and screenshots.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open a session with …
+        2. Spawn a sub-agent with …
+        3. …
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: Settings → About
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS (Apple Silicon)
+        - macOS (Intel)
+        - Windows (x64)
+        - Windows (ARM64)
+        - Windows + WSL
+        - Linux (X11)
+        - Linux (Wayland)
+    validations:
+      required: true
+  - type: input
+    id: agent
+    attributes:
+      label: Agent CLI and version
+      placeholder: e.g. Claude Code 2.1.80, Codex 0.50.0
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      render: text

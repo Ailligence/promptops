@@ -1,0 +1,43 @@
+# Dependencies and build output
+node_modules/
+dist/
+out/
+.angular/
+target/
+**/src-tauri/gen/schemas/
+
+# Mobile build output
+android/app/build/
+ios/DerivedData/
+ios/App/Pods/
+
+# Environment and secrets: never commit them
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p8
+*.p12
+*.pfx
+*.keystore
+*.jks
+*.mobileprovision
+google-services.json
+GoogleService-Info.plist
+
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
+
+# Local agent/tooling state
+.claude/
+.promptops/
+CLAUDE.local.md

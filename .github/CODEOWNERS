@@ -1,0 +1,11 @@
+# Default reviewers
+*                         @lucamangiacotti-dev
+
+# Sensitive files: CI, security policy, app configuration
+/.github/                 @lucamangiacotti-dev
+/.gitleaks.toml           @lucamangiacotti-dev
+/.pre-commit-config.yaml  @lucamangiacotti-dev
+/SECURITY.md              @lucamangiacotti-dev
+/LICENSE                  @lucamangiacotti-dev
+/NOTICE                   @lucamangiacotti-dev
+/TRADEMARK.md             @lucamangiacotti-dev

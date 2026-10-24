@@ -195,7 +195,7 @@ Sin cuenta y sin servidor: todo se queda en tu ordenador. Su código fuente lleg
 
 ## Idiomas
 
-English, Italiano, Français, Español, Deutsch, Português, 中文, 日本語, Русский, العربية, हिन्दी, Polski, Nederlands, Svenska y 한국어, seleccionables desde la barra inferior.
+[English](../../README.md), [Italiano](README.it.md), [Français](README.fr.md), **Español**, [Deutsch](README.de.md), [Português](README.pt.md), [中文](README.zh.md), [日本語](README.ja.md), [Русский](README.ru.md), [العربية](README.ar.md), [हिन्दी](README.hi.md), [Polski](README.pl.md), [Nederlands](README.nl.md), [Svenska](README.sv.md) y [한국어](README.ko.md), seleccionables desde la barra inferior.
 
 ## Licencia
 

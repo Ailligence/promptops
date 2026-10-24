@@ -195,7 +195,7 @@ Chcesz pomóc? Zobacz [CONTRIBUTING.md](../../CONTRIBUTING.md). Commity są podp
 
 ## Języki
 
-English, Italiano, Français, Español, Deutsch, Português, 中文, 日本語, Русский, العربية, हिन्दी, Polski, Nederlands, Svenska i 한국어, do przełączenia z dolnego paska.
+[English](../../README.md), [Italiano](README.it.md), [Français](README.fr.md), [Español](README.es.md), [Deutsch](README.de.md), [Português](README.pt.md), [中文](README.zh.md), [日本語](README.ja.md), [Русский](README.ru.md), [العربية](README.ar.md), [हिन्दी](README.hi.md), **Polski**, [Nederlands](README.nl.md), [Svenska](README.sv.md) i [한국어](README.ko.md), do przełączenia z dolnego paska.
 
 ## Licencja
 

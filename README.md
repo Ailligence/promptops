@@ -195,7 +195,7 @@ Want to contribute? See [CONTRIBUTING.md](CONTRIBUTING.md). Commits are signed o
 
 ## Languages
 
-PromptOps speaks 15 languages: English, Italiano, Français, Español, Deutsch, Português, 中文, 日本語, Русский, العربية, हिन्दी, Polski, Nederlands, Svenska and 한국어. Switch from the bottom bar.
+PromptOps speaks 15 languages: **English**, [Italiano](docs/i18n/README.it.md), [Français](docs/i18n/README.fr.md), [Español](docs/i18n/README.es.md), [Deutsch](docs/i18n/README.de.md), [Português](docs/i18n/README.pt.md), [中文](docs/i18n/README.zh.md), [日本語](docs/i18n/README.ja.md), [Русский](docs/i18n/README.ru.md), [العربية](docs/i18n/README.ar.md), [हिन्दी](docs/i18n/README.hi.md), [Polski](docs/i18n/README.pl.md), [Nederlands](docs/i18n/README.nl.md), [Svenska](docs/i18n/README.sv.md) and [한국어](docs/i18n/README.ko.md). Switch from the bottom bar.
 
 ## License
 

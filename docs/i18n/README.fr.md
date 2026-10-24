@@ -195,7 +195,7 @@ Envie de contribuer ? Voir [CONTRIBUTING.md](../../CONTRIBUTING.md). Les commits
 
 ## Langues
 
-English, Italiano, Français, Español, Deutsch, Português, 中文, 日本語, Русский, العربية, हिन्दी, Polski, Nederlands, Svenska et 한국어, à changer depuis la barre inférieure.
+[English](../../README.md), [Italiano](README.it.md), **Français**, [Español](README.es.md), [Deutsch](README.de.md), [Português](README.pt.md), [中文](README.zh.md), [日本語](README.ja.md), [Русский](README.ru.md), [العربية](README.ar.md), [हिन्दी](README.hi.md), [Polski](README.pl.md), [Nederlands](README.nl.md), [Svenska](README.sv.md) et [한국어](README.ko.md), à changer depuis la barre inférieure.
 
 ## Licence
 

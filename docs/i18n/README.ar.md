@@ -195,7 +195,7 @@ macOS وWindows وLinux. يتضمن Teams والمزامنة بين الأجهز
 
 ## اللغات
 
-English, Italiano, Français, Español, Deutsch, Português, 中文, 日本語, Русский, العربية, हिन्दी, Polski, Nederlands, Svenska و 한국어، ويمكن التبديل بينها من الشريط السفلي.
+[English](../../README.md), [Italiano](README.it.md), [Français](README.fr.md), [Español](README.es.md), [Deutsch](README.de.md), [Português](README.pt.md), [中文](README.zh.md), [日本語](README.ja.md), [Русский](README.ru.md), **العربية**, [हिन्दी](README.hi.md), [Polski](README.pl.md), [Nederlands](README.nl.md), [Svenska](README.sv.md) و [한국어](README.ko.md)، ويمكن التبديل بينها من الشريط السفلي.
 
 ## الترخيص
 

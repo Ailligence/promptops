@@ -195,7 +195,7 @@ PromptOps 使用你已付费的账号启动官方 CLI。没有代理，不转售
 
 ## 语言
 
-English、Italiano、Français、Español、Deutsch、Português、中文、日本語、Русский、العربية、हिन्दी、Polski、Nederlands、Svenska 和 한국어，可在底部栏切换。
+[English](../../README.md)、[Italiano](README.it.md)、[Français](README.fr.md)、[Español](README.es.md)、[Deutsch](README.de.md)、[Português](README.pt.md)、**中文**、[日本語](README.ja.md)、[Русский](README.ru.md)、[العربية](README.ar.md)、[हिन्दी](README.hi.md)、[Polski](README.pl.md)、[Nederlands](README.nl.md)、[Svenska](README.sv.md) 和 [한국어](README.ko.md)，可在底部栏切换。
 
 ## 许可证
 

@@ -195,7 +195,7 @@ macOS, Windows, Linux 지원. Teams, 기기 간 동기화, 모바일 앱, SSO를
 
 ## 언어
 
-English, Italiano, Français, Español, Deutsch, Português, 中文, 日本語, Русский, العربية, हिन्दी, Polski, Nederlands, Svenska, 한국어. 하단 바에서 전환할 수 있습니다.
+[English](../../README.md), [Italiano](README.it.md), [Français](README.fr.md), [Español](README.es.md), [Deutsch](README.de.md), [Português](README.pt.md), [中文](README.zh.md), [日本語](README.ja.md), [Русский](README.ru.md), [العربية](README.ar.md), [हिन्दी](README.hi.md), [Polski](README.pl.md), [Nederlands](README.nl.md), [Svenska](README.sv.md), **한국어**. 하단 바에서 전환할 수 있습니다.
 
 ## 라이선스
 

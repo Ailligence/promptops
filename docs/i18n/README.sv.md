@@ -195,7 +195,7 @@ Vill du bidra? Se [CONTRIBUTING.md](../../CONTRIBUTING.md). Commits signeras med
 
 ## Språk
 
-English, Italiano, Français, Español, Deutsch, Português, 中文, 日本語, Русский, العربية, हिन्दी, Polski, Nederlands, Svenska och 한국어, valbara från den nedre listen.
+[English](../../README.md), [Italiano](README.it.md), [Français](README.fr.md), [Español](README.es.md), [Deutsch](README.de.md), [Português](README.pt.md), [中文](README.zh.md), [日本語](README.ja.md), [Русский](README.ru.md), [العربية](README.ar.md), [हिन्दी](README.hi.md), [Polski](README.pl.md), [Nederlands](README.nl.md), **Svenska** och [한국어](README.ko.md), valbara från den nedre listen.
 
 ## Licens
 

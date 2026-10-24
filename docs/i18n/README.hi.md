@@ -195,7 +195,7 @@ macOS, Windows और Linux। इसमें Teams, डिवाइसों �
 
 ## भाषाएँ
 
-English, Italiano, Français, Español, Deutsch, Português, 中文, 日本語, Русский, العربية, हिन्दी, Polski, Nederlands, Svenska और 한국어, नीचे की बार से बदली जा सकती हैं।
+[English](../../README.md), [Italiano](README.it.md), [Français](README.fr.md), [Español](README.es.md), [Deutsch](README.de.md), [Português](README.pt.md), [中文](README.zh.md), [日本語](README.ja.md), [Русский](README.ru.md), [العربية](README.ar.md), **हिन्दी**, [Polski](README.pl.md), [Nederlands](README.nl.md), [Svenska](README.sv.md) और [한국어](README.ko.md), नीचे की बार से बदली जा सकती हैं।
 
 ## लाइसेंस
 

@@ -15,8 +15,8 @@
 </p>
 
 <p align="center">
-  <strong>غرفة التحكم لوكلاء البرمجة لديك.</strong><br/>
-  شغّل Claude Code وCodex وGemini CLI وأي وكيل CLI آخر جنبًا إلى جنب، منظّمين حسب العميل والمشروع، على جهازك، وباشتراكاتك أنت.
+  <strong>بيئة ADE متعددة المشاريع والجلسات لوكلاء البرمجة بالذكاء الاصطناعي عبر CLI.</strong><br/>
+  شغّل Claude Code وCodex وGemini CLI وأي وكيل CLI آخر جنبًا إلى جنب، منظمة حسب العميل والمشروع والجلسة، على جهازك وباشتراكاتك الخاصة.
 </p>
 
 <h3 align="center"><a href="https://github.com/shellonback/promptops/releases/latest"><ins>نزّل PromptOps Desktop</ins></a></h3>

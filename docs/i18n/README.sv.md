@@ -15,8 +15,8 @@
 </p>
 
 <p align="center">
-  <strong>Kontrollrummet för dina kodagenter.</strong><br/>
-  Kör Claude Code, Codex, Gemini CLI och alla andra CLI-agenter sida vid sida — ordnade efter kund och projekt, på din egen dator, med dina egna abonnemang.
+  <strong>ADE:n för flera projekt och sessioner, byggd för CLI AI coding agents.</strong><br/>
+  Kör Claude Code, Codex, Gemini CLI och alla andra CLI-agenter sida vid sida, ordnade efter kund, projekt och session, på din egen dator och med dina egna abonnemang.
 </p>
 
 <h3 align="center"><a href="https://github.com/shellonback/promptops/releases/latest"><ins>Ladda ner PromptOps Desktop</ins></a></h3>

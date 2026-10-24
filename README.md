@@ -15,8 +15,8 @@
 </p>
 
 <p align="center">
-  <strong>The control room for your coding agents.</strong><br/>
-  Run Claude Code, Codex, Gemini CLI and every other CLI agent side by side — organized by client and project, on your machine, with your own subscriptions.
+  <strong>The multi-project, multi-session ADE for CLI AI coding agents.</strong><br/>
+  Run Claude Code, Codex, Gemini CLI and every other CLI agent side by side — organized by client, project and session, on your machine, with your own subscriptions.
 </p>
 
 <h3 align="center"><a href="https://github.com/shellonback/promptops/releases/latest"><ins>Download PromptOps Desktop</ins></a></h3>

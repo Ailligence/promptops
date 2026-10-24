@@ -15,8 +15,8 @@
 </p>
 
 <p align="center">
-  <strong>Centrum dowodzenia Twoimi agentami kodującymi.</strong><br/>
-  Uruchamiaj Claude Code, Codex, Gemini CLI i każdego innego agenta CLI obok siebie — uporządkowanych według klienta i projektu, na Twoim komputerze, z Twoimi własnymi subskrypcjami.
+  <strong>ADE do wielu projektów i sesji, stworzone dla CLI AI coding agents.</strong><br/>
+  Uruchamiaj Claude Code, Codex, Gemini CLI i każdego innego agenta CLI obok siebie, uporządkowanych według klienta, projektu i sesji, na swoim komputerze i z własnymi subskrypcjami.
 </p>
 
 <h3 align="center"><a href="https://github.com/shellonback/promptops/releases/latest"><ins>Pobierz PromptOps Desktop</ins></a></h3>

@@ -15,8 +15,8 @@
 </p>
 
 <p align="center">
-  <strong>코딩 에이전트를 위한 컨트롤 룸.</strong><br/>
-  Claude Code, Codex, Gemini CLI를 비롯한 모든 CLI 에이전트를 나란히 실행하세요. 클라이언트와 프로젝트별로 정리되고, 내 컴퓨터에서, 내 구독 그대로 사용합니다.
+  <strong>CLI AI 코딩 에이전트를 위한 멀티 프로젝트, 멀티 세션 ADE.</strong><br/>
+  Claude Code, Codex, Gemini CLI와 모든 CLI 에이전트를 나란히 실행하세요. 클라이언트, 프로젝트, 세션별로 정리되고, 내 컴퓨터에서 내 구독 그대로 사용합니다.
 </p>
 
 <h3 align="center"><a href="https://github.com/shellonback/promptops/releases/latest"><ins>PromptOps Desktop 다운로드</ins></a></h3>

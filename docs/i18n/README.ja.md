@@ -15,8 +15,8 @@
 </p>
 
 <p align="center">
-  <strong>コーディングエージェントのためのコントロールルーム。</strong><br/>
-  Claude Code、Codex、Gemini CLI をはじめ、あらゆる CLI エージェントを並べて実行。クライアントやプロジェクトごとに整理し、自分のマシンで、自分のサブスクリプションのまま使えます。
+  <strong>CLI AI コーディングエージェントのための、マルチプロジェクト・マルチセッション対応 ADE。</strong><br/>
+  Claude Code、Codex、Gemini CLI をはじめ、あらゆる CLI エージェントを並べて実行。クライアント、プロジェクト、セッションごとに整理し、自分のマシンで、自分のサブスクリプションのまま使えます。
 </p>
 
 <h3 align="center"><a href="https://github.com/shellonback/promptops/releases/latest"><ins>PromptOps Desktop をダウンロード</ins></a></h3>

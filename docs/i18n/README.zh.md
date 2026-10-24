@@ -15,8 +15,8 @@
 </p>
 
 <p align="center">
-  <strong>你的编程智能体控制中心。</strong><br/>
-  让 Claude Code、Codex、Gemini CLI 以及任何其他 CLI 智能体并排运行——按客户和项目组织，运行在你自己的电脑上，使用你自己的订阅。
+  <strong>面向 CLI AI 编程智能体的多项目、多会话 ADE。</strong><br/>
+  并排运行 Claude Code、Codex、Gemini CLI 以及任何其他 CLI 智能体，按客户、项目和会话整理，在你自己的电脑上，使用你自己的订阅。
 </p>
 
 <h3 align="center"><a href="https://github.com/shellonback/promptops/releases/latest"><ins>下载 PromptOps Desktop</ins></a></h3>

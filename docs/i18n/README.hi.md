@@ -15,8 +15,8 @@
 </p>
 
 <p align="center">
-  <strong>आपके कोडिंग एजेंट्स का कंट्रोल रूम।</strong><br/>
-  Claude Code, Codex, Gemini CLI और हर दूसरे CLI एजेंट को साथ-साथ चलाएँ — क्लाइंट और प्रोजेक्ट के हिसाब से व्यवस्थित, आपकी अपनी मशीन पर, आपके अपने सब्सक्रिप्शन के साथ।
+  <strong>CLI AI कोडिंग एजेंट्स के लिए मल्टी-प्रोजेक्ट, मल्टी-सेशन ADE।</strong><br/>
+  Claude Code, Codex, Gemini CLI और हर दूसरे CLI एजेंट को साथ-साथ चलाएं — क्लाइंट, प्रोजेक्ट और सेशन के हिसाब से व्यवस्थित, आपकी अपनी मशीन पर, आपके अपने सब्सक्रिप्शन के साथ।
 </p>
 
 <h3 align="center"><a href="https://github.com/shellonback/promptops/releases/latest"><ins>PromptOps Desktop डाउनलोड करें</ins></a></h3>

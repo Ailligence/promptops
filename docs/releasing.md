@@ -7,10 +7,11 @@ edition with Teams, sync and the mobile app.
 
 ## The open-source edition
 
-The desktop shell and the web interface share one version:
+The desktop shell and the web interface share one version, and it follows the
+version numbers of PromptOps Desktop (2.1.7 is the first public release):
 
 ```bash
-node scripts/versions.mjs set 0.2.0   # writes it everywhere
+node scripts/versions.mjs set 2.1.8   # writes it everywhere
 node scripts/versions.mjs check       # runs in CI; fails when any file disagrees
 ```
 

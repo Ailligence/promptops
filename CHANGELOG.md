@@ -3,7 +3,11 @@
 All notable changes to the open-source edition are listed here. Versions of
 PromptOps Desktop, the hosted edition, have their own release notes.
 
-## Unreleased
+## 2.1.7 — 2026-10-24
+
+First public release of the source. From here the open-source edition uses
+the same version numbers as PromptOps Desktop; each edition keeps its own
+list of changes.
 
 ### Added
 

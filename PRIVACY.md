@@ -1,8 +1,11 @@
 # Privacy
 
-PromptOps runs on your computer. It has no account, no sign-in and no
-PromptOps server behind it. This page lists everything the app stores and
-every network connection it can make, so you can check it against the code.
+The open-source edition of PromptOps runs on your computer. It has no
+account, no sign-in and no PromptOps server behind it. This page lists
+everything it stores and every network connection it can make, so you can
+check it against the code once it is published in this repository. The
+last section covers PromptOps Desktop, the ready-to-run app you download
+from the releases of this repository, which works differently.
 
 ## What stays on your device
 
@@ -94,11 +97,27 @@ with the same algorithm (AES-256-GCM). The difference is where the key lives:
 here it is on your device; in the hosted edition it is held by our servers,
 so your sessions can follow you across devices.
 
+Unlike the open-source edition, PromptOps Desktop:
+
+- needs an account and signs in to PromptOps servers;
+- checks GitHub Releases for updates and installs only builds signed with
+  the PromptOps release key;
+- sends your sessions' state to PromptOps servers so it can follow you
+  across devices;
+- records your active time and online presence, used by Teams and the
+  ranking;
+- sends usage signals for in-app announcements, interface experiments and
+  plugin statistics.
+
+The [PromptOps privacy policy](https://www.promptoperations.ai/legal/privacy/)
+covers this data in full.
+
 ## Check it yourself
 
 - Block the app's network access: everything listed under "What stays on your
   device" keeps working.
-- Search the code: `data-backend.ts` is the only way the interface reaches
-  your data, and `local_data.rs` is where it is stored.
+- Search the code, once it is published here: `data-backend.ts` is the only
+  way the interface reaches your data, and `local_data.rs` is where it is
+  stored.
 - Questions or findings: open an issue, or follow [SECURITY.md](SECURITY.md)
   for anything sensitive.

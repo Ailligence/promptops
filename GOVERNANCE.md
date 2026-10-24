@@ -23,7 +23,7 @@ sustained, good-quality work can be invited to become maintainers.
 
 The two editions share the same client. The line between them is simple:
 
-- **In this repository**: everything that runs on your computer. Sessions,
+- **In the open-source edition**: everything that runs on your computer. Sessions,
   agents, terminals, the prompt library, plugins, the MCP server, voice
   input, the Session Vault. It works with no account and no server.
 - **In PromptOps Desktop**: what needs a server because it involves other

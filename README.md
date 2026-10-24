@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://github.com/shellonback/promptops/stargazers"><img src="https://img.shields.io/github/stars/shellonback/promptops?style=flat&amp;label=%E2%98%85&amp;color=4F41FA" alt="GitHub stars" /></a>
   <img src="https://img.shields.io/badge/license-Apache--2.0-4F41FA?style=flat" alt="License: Apache-2.0" />
-  <img src="https://img.shields.io/badge/no%20account-no%20telemetry-0A0A0A?style=flat" alt="No account, no telemetry" />
+  <a href="https://github.com/shellonback/promptops/releases"><img src="https://img.shields.io/github/downloads/shellonback/promptops/total?color=4F41FA" alt="Downloads" /></a>
   <img src="https://img.shields.io/badge/macOS%20%7C%20Windows%20%7C%20Linux-4F41FA?style=flat-square" alt="Supported platforms: macOS, Windows, and Linux" />
 </p>
 
@@ -160,7 +160,7 @@ No account and no server: everything stays on your computer. Its source code is 
 ## Community &amp; Support
 
 - **Feedback &amp; ideas:** Missing something? [Open an issue](https://github.com/shellonback/promptops/issues).
-- **Privacy:** No telemetry, no analytics, no update checks. [PRIVACY.md](PRIVACY.md) lists every network connection the app can make.
+- **Privacy:** The open-source edition has no telemetry, no analytics and no update checks. PromptOps Desktop needs an account and talks to PromptOps servers. [PRIVACY.md](PRIVACY.md) explains what each edition sends and where.
 - **Security:** Report vulnerabilities privately, as described in [SECURITY.md](SECURITY.md).
 - **Open source and hosted:** what lives here and what needs PromptOps Desktop, and who decides: [GOVERNANCE.md](GOVERNANCE.md).
 - **Show support:** [Star](https://github.com/shellonback/promptops) the repo to follow along.

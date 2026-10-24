@@ -1,4 +1,4 @@
-# Contributing to PromptOps Manager
+# Contributing to PromptOps
 
 Thanks for helping! This guide covers how to report issues, propose changes and get a pull request merged.
 
@@ -44,7 +44,48 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/): `feat:`,
 
 ## Development setup
 
-Prerequisites: Node.js >= 20, Rust (rustup) and, on Linux, the webkit2gtk dependencies.
+New to the code? [docs/architecture.md](docs/architecture.md) maps the
+repository and shows how the web UI, the Rust shell and the agent CLIs talk
+to each other.
+
+Install the tools listed in step 1 of
+["Open-source edition — build it yourself"](README.md#open-source-edition--build-it-yourself)
+in the README, then:
+
+```bash
+cd apps/web && npm ci
+cd ../desktop && npm ci
+npm run dev
+```
+
+## Running the checks
+
+`scripts/check.sh` runs the tests, lints and the web build that the CI runs
+(`scripts/check.sh rust`, `cli` or `web` for one part). These are the
+commands it runs:
+
+```bash
+# Rust: formatting and lints
+cd apps/desktop/src-tauri && cargo fmt --check \
+  && cargo clippy --lib --all-targets -- -D warnings
+# Rust: unit tests
+cd apps/desktop/src-tauri && cargo test --lib
+# CLI and MCP server
+cd apps/desktop && npm run test:cli && node --test test/*.test.cjs
+# Web UI: types, unit tests, component specs, production build
+cd apps/web && npx tsc --noEmit -p tsconfig.app.json \
+  && node --test test/*.test.cjs \
+  && npx ng test --watch=false --browsers=ChromeHeadless \
+  && npx ng build --configuration=desktop
+```
+
+The CI also checks that every version number agrees and tests the npm
+launcher; run these too if you touch a version or `apps/npm`:
+
+```bash
+node scripts/versions.mjs check
+cd apps/npm && node --test test/*.test.mjs
+```
 
 ## Secret scanning on your machine
 
@@ -58,7 +99,20 @@ Every commit is then scanned with gitleaks before it is created.
 
 ## Adding a provider
 
-Support for a new agent CLI touches the provider registry, the launch and resume commands, models and effort levels, auto-approve flags, hooks, the icon and the translations. Open an issue first: we will point you to the exact files.
+Support for a new agent CLI is spread over a few well-known places: how it
+is launched and resumed, its models and effort levels, its auto-approve
+flags and hooks, accounts, its icon and the translations. The quickest way
+to find them all is to follow an existing provider:
+
+```bash
+git grep -l kimi -- apps ':!*.json'
+```
+
+Mirror what that provider does in each file, add the logo to
+`apps/web/src/assets/providers`, and add tests next to the existing ones for
+launch and resume commands. Open an issue first if the CLI behaves very
+differently from the others (no resume, no hooks): we will help you pick the
+right approach.
 
 ## License
 

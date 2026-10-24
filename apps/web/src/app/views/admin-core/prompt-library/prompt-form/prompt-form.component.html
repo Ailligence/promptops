@@ -1,0 +1,87 @@
+<div class="prompt-page">
+  <nav class="page-nav">
+    <a class="text-action" routerLink="/admin/prompt-library"><i class="ti ti-arrow-left me-1"></i>{{ 'PROMPTS.My Prompts' | translate }}</a>
+    <span class="muted">{{ (isEditMode ? 'PROMPTS.Edit prompt' : 'PROMPTS.New prompt') | translate }}</span>
+  </nav>
+  @if (form) {
+    <form [formGroup]="form" (ngSubmit)="submitPrompt()" [attr.aria-busy]="saving()">
+      <fieldset [disabled]="saving()">
+        <div class="field">
+          <label for="title" class="field-label">{{ 'PROMPTS.Title field' | translate }}</label>
+          <input id="title" type="text" class="form-control title-input" formControlName="title" maxlength="255" [placeholder]="'PROMPTS.Enter prompt title' | translate" [attr.aria-invalid]="form.controls.title?.invalid && form.controls.title?.touched" />
+          @if (form.controls.title?.invalid && form.controls.title?.touched) { <p class="error-text">{{ 'PROMPTS.Valid title hint' | translate }}</p> }
+        </div>
+        <div class="field">
+          <div class="section-heading">
+            <label for="body" class="field-label">{{ 'PROMPTS.Body' | translate }}</label>
+            <button type="button" class="text-action" (click)="openGenerateAiModal()"><i class="ti ti-sparkles me-1"></i>{{ 'AI_GENERATE.Button' | translate }}</button>
+          </div>
+          <textarea id="body" class="form-control body-input" formControlName="body" rows="15" [placeholder]="'PROMPTS.Enter prompt body' | translate" [attr.aria-invalid]="form.controls.body?.invalid && form.controls.body?.touched"></textarea>
+          @if (form.controls.body?.invalid && form.controls.body?.touched) { <p class="error-text">{{ 'ALERT.Field required' | translate : { field: translateField('Body') } }}</p> }
+          @if (extractedVariables().length) {
+            <div class="metadata mt-2"><span>{{ 'PROMPTS.Detected Variables' | translate }}</span>@for (variable of extractedVariables(); track variable) { <span class="tag-pill">{{ '{{' + variable + '}}' }}</span> }</div>
+          }
+        </div>
+        <details class="optional" [open]="!!form.controls.provider_ids?.value?.length">
+          <summary>{{ 'PROMPTS.Reference providers' | translate }} @if (form.controls.provider_ids?.value?.length) { <span class="muted">· {{ form.controls.provider_ids?.value?.length }}</span> }</summary>
+          <div class="provider-options">
+            @for (provider of providerOptions; track provider.value) {
+              <button type="button" class="provider-option" [class.selected]="form.controls.provider_ids?.value?.includes(provider.value)" [attr.aria-pressed]="!!form.controls.provider_ids?.value?.includes(provider.value)" (click)="toggleProvider(provider.value)"><img [src]="providerLogos[provider.value]" width="18" height="18" alt="" />{{ provider.labelKey | translate }}</button>
+            }
+          </div>
+        </details>
+        <details class="optional">
+          <summary>{{ 'PROMPTS.Category and tags' | translate }}</summary>
+          <div class="field"><label class="field-label" for="category_id">{{ 'PROMPTS.Category' | translate }}</label><select id="category_id" class="form-select" formControlName="category_id"><option [ngValue]="null">{{ 'PROMPTS.Select category' | translate }}</option>@for (cat of categories(); track cat.id) { <option [ngValue]="cat.id">{{ cat | categoryName }}</option> }</select></div>
+          <label class="field-label" for="existing-tag">{{ 'PROMPTS.Tags' | translate }}</label>
+          <div class="inline-options mb-2">@for (tag of selectedTags(); track tag.id) { <span class="tag-pill">{{ tag.name }}<button type="button" (click)="removeTag(tag.id)" [attr.aria-label]="('PROMPTS.Remove tag' | translate) + ' ' + tag.name"><i class="ti ti-x"></i></button></span> }</div>
+          <div class="variables">
+            <select id="existing-tag" class="form-select" (change)="onTagSelect($event)"><option value="">{{ 'PROMPTS.Add existing tag' | translate }}</option>@for (tag of allTags(); track tag.id) { <option [value]="tag.id">{{ tag.name }}</option> }</select>
+            <div class="input-group"><input class="form-control" [(ngModel)]="newTagInput" [ngModelOptions]="{standalone: true}" [placeholder]="'PROMPTS.New tag name' | translate" [attr.aria-label]="'PROMPTS.New tag name' | translate" (keydown.enter)="$event.preventDefault(); handleCreateTag()" /><button type="button" class="btn btn-outline-secondary" (click)="handleCreateTag()" [attr.aria-label]="'PROMPTS.Add existing tag' | translate"><i class="ti ti-plus"></i></button></div>
+          </div>
+        </details>
+        <details class="optional">
+          <summary>{{ 'PROMPTS.Advanced options' | translate }}</summary>
+          <div class="field"><label class="field-label" for="notes">{{ 'PROMPTS.Notes' | translate }}</label><textarea id="notes" class="form-control" formControlName="notes" rows="3" maxlength="2000"></textarea></div>
+          @if (isEditMode) { <div class="field"><label><input type="checkbox" [checked]="form.controls.status?.value === 'archived'" (change)="form.controls.status?.setValue($any($event.target).checked ? 'archived' : 'published')" /> {{ 'PROMPTS.Archived' | translate }}</label></div> }
+          <h2 class="field-label">{{ 'PROMPTS.Sub-Agents' | translate }}</h2>
+          @for (agent of subAgents(); track $index; let i = $index) {
+            <details class="optional">
+              <summary>{{ agent.name || ('PROMPTS.Sub-Agents' | translate) }} <span class="muted">· {{ i + 1 }}</span></summary>
+              <div class="variables">
+                <div><label class="field-label" [for]="'agent-name-' + i">{{ 'PROMPTS.Name' | translate }}</label><input class="form-control" [id]="'agent-name-' + i" [value]="agent.name" (input)="updateSubAgentField(i, 'name', $any($event.target).value)" /></div>
+                <div><label class="field-label" [for]="'agent-role-' + i">{{ 'PROMPTS.Role' | translate }}</label><input class="form-control" [id]="'agent-role-' + i" [value]="agent.role" (input)="updateSubAgentField(i, 'role', $any($event.target).value)" /></div>
+              </div>
+              <label class="field-label" [for]="'agent-prompt-' + i">{{ 'PROMPTS.Sub-agent prompt' | translate }}</label><textarea class="form-control" [id]="'agent-prompt-' + i" rows="5" [value]="agent.system_prompt" (input)="updateSubAgentField(i, 'system_prompt', $any($event.target).value)"></textarea>
+              <div class="inline-options mt-2">
+                <label><input type="checkbox" [checked]="agent.auto_run" (change)="updateSubAgentField(i, 'auto_run', $any($event.target).checked)" /> {{ 'PROMPTS.Auto-run' | translate }}</label>
+                <label><input type="checkbox" [checked]="agent.enabled" (change)="updateSubAgentField(i, 'enabled', $any($event.target).checked)" /> {{ 'PROMPTS.Enabled' | translate }}</label>
+                <button type="button" class="text-action" (click)="moveSubAgent(i, -1)" [disabled]="i === 0" [attr.aria-label]="'PROMPTS.Move up' | translate"><i class="ti ti-arrow-up"></i></button>
+                <button type="button" class="text-action" (click)="moveSubAgent(i, 1)" [disabled]="i === subAgents().length - 1" [attr.aria-label]="'PROMPTS.Move down' | translate"><i class="ti ti-arrow-down"></i></button>
+                <button type="button" class="text-action" (click)="removeSubAgent(i)">{{ 'PROMPTS.Remove' | translate }}</button>
+              </div>
+            </details>
+          }
+          <button type="button" class="text-action mt-2" (click)="addSubAgent()"><i class="ti ti-plus me-1"></i>{{ 'PROMPTS.Add Sub-Agent' | translate }}</button>
+        </details>
+        <footer class="publish-bar">
+          <div>
+            <label for="visibility" class="visually-hidden">{{ 'PROMPTS.Visibility' | translate }}</label>
+            <select id="visibility" class="form-select form-select-sm" formControlName="visibility"><option value="private">{{ 'PROMPTS.Private' | translate }}</option><option value="public">{{ 'PROMPTS.Public' | translate }}</option></select>
+          </div>
+          <div class="page-actions">
+            @if (isEditMode) { <button type="button" class="btn btn-link btn-sm text-danger" (click)="deletePrompt()" [disabled]="saving()"><i class="ti ti-trash me-1"></i>{{ 'BUTTONS.Delete' | translate }}</button> }
+            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="saveDraft()" [disabled]="saving()">{{ 'PROMPTS.Save draft' | translate }}</button>
+            <button type="submit" class="btn btn-primary btn-sm" [disabled]="saving()">@if (saving()) { <span class="spinner-border spinner-border-sm me-1"></span> }{{ (isEditMode && form.controls.status?.value !== 'draft' ? 'PROMPTS.Save changes' : form.controls.visibility?.value === 'public' ? 'PROMPTS.Publish prompt' : 'BUTTONS.Save') | translate }}</button>
+          </div>
+        </footer>
+        @if (showPublicationHint && form.controls.visibility?.value === 'public') { <p class="hint">{{ 'PROMPTS.Publication hint' | translate }}</p> }
+      </fieldset>
+    </form>
+  } @else if (loadError()) {
+    <p class="empty-state">{{ 'MESSAGE.Generic error' | translate }}</p>
+  } @else {
+    <div class="empty-state" role="status"><span class="spinner-border spinner-border-sm"></span></div>
+  }
+  <app-generate-ai-modal #generateAiModal [sessionProvider]="activeSessionProvider" (generated)="onAiPromptGenerated($event)" />
+</div>

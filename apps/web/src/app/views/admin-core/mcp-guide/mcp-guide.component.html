@@ -1,0 +1,119 @@
+<div class="container-fluid mcp-guide-page">
+  <!-- Header -->
+  <div class="page-header d-flex align-items-center gap-3 mb-4">
+    <div class="page-icon">
+      <i class="ti ti-plug-connected"></i>
+    </div>
+    <div>
+      <h4 class="mb-0 fw-bold">{{ 'MCP_GUIDE.Title' | translate }}</h4>
+      <p class="mb-0 text-muted page-subtitle">{{ 'MCP_GUIDE.Subtitle' | translate }}</p>
+    </div>
+  </div>
+
+  @if (!isDesktop) {
+    <div class="alert alert-warning d-flex align-items-center py-2 px-3 mb-3">
+      <i class="ti ti-alert-triangle me-2"></i>
+      {{ 'MCP_GUIDE.Desktop required' | translate }}
+    </div>
+  }
+
+  <!-- With the video: video + steps, then tools + limits. Without it: steps + limits, then tools. -->
+  <div class="row g-3">
+    @if (videoState() !== 'missing') {
+      <div class="col-12 col-xl-6">
+        <div class="card guide-card" [class.is-loading]="videoState() === 'loading'">
+          <div class="card-body">
+            <h6 class="fw-bold mb-1">{{ 'MCP_GUIDE.Video title' | translate }}</h6>
+            <p class="text-muted small mb-3">{{ 'MCP_GUIDE.Video caption' | translate }}</p>
+            <video
+              class="guide-video"
+              controls
+              playsinline
+              preload="metadata"
+              [poster]="videoState() === 'ready' ? posterUrl : null"
+              (loadedmetadata)="videoState.set('ready')"
+              (error)="videoState.set('missing')"
+            >
+              <source [src]="videoUrl" type="video/mp4" (error)="videoState.set('missing')" />
+            </video>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-xl-6"><ng-container *ngTemplateOutlet="stepsCard" /></div>
+      <div class="col-12 col-xl-6"><ng-container *ngTemplateOutlet="toolsCard" /></div>
+      <div class="col-12 col-xl-6"><ng-container *ngTemplateOutlet="limitsCard" /></div>
+    } @else {
+      <div class="col-12 col-xl-6"><ng-container *ngTemplateOutlet="stepsCard" /></div>
+      <div class="col-12 col-xl-6"><ng-container *ngTemplateOutlet="limitsCard" /></div>
+      <div class="col-12"><ng-container *ngTemplateOutlet="toolsCard" /></div>
+    }
+  </div>
+</div>
+
+<!-- ── Three steps ── -->
+<ng-template #stepsCard>
+  <div class="card guide-card">
+    <div class="card-body">
+      <h6 class="fw-bold mb-3">{{ 'MCP_GUIDE.How title' | translate }}</h6>
+      <ol class="steps">
+        <li>
+          <strong>{{ 'MCP_GUIDE.Step 1 title' | translate }}</strong>
+          <span>{{ 'MCP_GUIDE.Step 1 text' | translate }}</span>
+          <code class="inline-check">/mcp</code>
+        </li>
+        <li>
+          <strong>{{ 'MCP_GUIDE.Step 2 title' | translate }}</strong>
+          <span>{{ 'MCP_GUIDE.Step 2 text' | translate }}</span>
+          <div class="prompt-box">
+            <pre>{{ examplePrompt }}</pre>
+            <button type="button" class="btn btn-sm btn-light copy-btn" (click)="copyPrompt()">
+              <i class="ti" [ngClass]="copied() ? 'ti-check' : 'ti-copy'"></i>
+              {{ (copied() ? 'MCP_GUIDE.Copied' : 'MCP_GUIDE.Copy') | translate }}
+            </button>
+          </div>
+        </li>
+        <li>
+          <strong>{{ 'MCP_GUIDE.Step 3 title' | translate }}</strong>
+          <span>{{ 'MCP_GUIDE.Step 3 text' | translate }}</span>
+        </li>
+      </ol>
+    </div>
+  </div>
+</ng-template>
+
+<!-- ── What an agent can do ── -->
+<ng-template #toolsCard>
+  <div class="card guide-card">
+    <div class="card-body">
+      <h6 class="fw-bold mb-3">{{ 'MCP_GUIDE.Tools title' | translate }}</h6>
+      <div class="tool-grid">
+        @for (tool of tools; track tool.key) {
+          <div class="tool">
+            <span class="tool-icon"><i class="ti" [ngClass]="tool.icon"></i></span>
+            <span class="tool-text">
+              <code>promptops_agent_{{ tool.key }}</code>
+              <span>{{ 'MCP_GUIDE.Tool ' + tool.key | translate }}</span>
+            </span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<!-- ── Limits ── -->
+<ng-template #limitsCard>
+  <div class="card guide-card">
+    <div class="card-body">
+      <h6 class="fw-bold mb-3">{{ 'MCP_GUIDE.Limits title' | translate }}</h6>
+      <ul class="limits">
+        @for (limit of limits; track limit) {
+          <li>
+            <i class="ti ti-shield-check"></i>
+            <span>{{ 'MCP_GUIDE.Limit ' + limit | translate }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+</ng-template>

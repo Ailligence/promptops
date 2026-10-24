@@ -26,7 +26,7 @@
 </p>
 
 <p align="center">
-  <sub>アカウント不要、サインイン不要、PromptOps サーバーも不要なオープンソース版のソースコードを、このリポジトリで近日公開予定です。PromptOps Desktop はすぐに使えるアプリで、Teams、同期、モバイルアプリを備えています。<a href="../../PRIVACY.md">マシンの外に送られるデータ →</a></sub>
+  <sub>このリポジトリには PromptOps Desktop のリリースとオープンソース版があります。アカウント不要、サインイン不要、PromptOps サーバー不要で、<a href="../../README.md#open-source-edition--build-it-yourself">自分でビルド</a>して使います。PromptOps Desktop はすぐに使えるアプリで、Teams、同期、モバイルアプリを備えています。<a href="../../PRIVACY.md">マシンの外に送られるデータ →</a></sub>
 </p>
 
 ## クイックスタート
@@ -170,7 +170,7 @@ macOS、Windows、Linux に対応。Teams、デバイス間の同期、モバイ
 
 ### オープンソース版
 
-アカウントもサーバーも不要：すべてがあなたのコンピューター内に留まります。ソースコードは、macOS、Windows、Linux で自分でビルドするためのコマンドとともに、このリポジトリで近日公開予定です。リポジトリに [Star](https://github.com/shellonback/promptops) を付けて、公開時に通知を受け取りましょう。
+アカウントもサーバーも不要で、すべてがあなたのコンピューターに残ります。コードはこのリポジトリにあります。この版のビルド済みバイナリはありません。macOS、Windows、Linux でのビルド手順は[英語の README](../../README.md#open-source-edition--build-it-yourself)にあります。
 
 ---
 

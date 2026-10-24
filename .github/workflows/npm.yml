@@ -1,0 +1,79 @@
+name: npm
+
+# Publishes the launcher @shellonback/promptops when a stable PromptOps
+# Desktop release (tag v<version>) is published in this repository. The
+# package takes the release version, so `npx @shellonback/promptops@<version>`
+# installs exactly that release, and it goes out only once the release and
+# its signed installers are public.
+#
+# npmjs.com: trusted publishing over OpenID Connect, no npm token stored here;
+# the package settings on npmjs.com list this repository and this workflow.
+# GitHub Packages: the workflow token, so the package shows on the repository page.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Published PromptOps Desktop release, for example v2.1.8
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+  packages: write
+
+env:
+  TAG: ${{ github.event.inputs.tag || github.event.release.tag_name }}
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  publish:
+    if: startsWith(github.event.inputs.tag || github.event.release.tag_name, 'v') && !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: apps/npm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Check the release and set the package version
+        run: |
+          set -euo pipefail
+          version="${TAG#v}"
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::$TAG is not a stable release tag"; exit 1; }
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json isDraft,isPrerelease,assets \
+            --jq 'if .isDraft or .isPrerelease then error("not a published stable release") else (.assets | map(.name) | index("PromptOps-Desktop-v2-'"$version"'-x64-setup.exe.sig") // error("the release has no signed installers")) end' >/dev/null
+          npm version "$version" --no-git-tag-version --allow-same-version
+          node --test test/*.test.mjs
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Publish to npmjs.com
+        run: |
+          set -euo pipefail
+          if npm view "@shellonback/promptops@$VERSION" version >/dev/null 2>&1; then
+            echo "@shellonback/promptops@$VERSION is already on npm."
+            exit 0
+          fi
+          npm publish --access public --provenance
+
+      - name: Publish to GitHub Packages
+        env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          npm config set //npm.pkg.github.com/:_authToken "$NODE_AUTH_TOKEN"
+          if npm view "@shellonback/promptops@$VERSION" version --registry=https://npm.pkg.github.com >/dev/null 2>&1; then
+            echo "@shellonback/promptops@$VERSION is already on GitHub Packages."
+            exit 0
+          fi
+          npm publish --registry=https://npm.pkg.github.com

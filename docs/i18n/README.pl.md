@@ -26,7 +26,7 @@
 </p>
 
 <p align="center">
-  <sub>Kod źródłowy edycji open source, bez konta, bez logowania i bez serwera PromptOps, wkrótce trafi do tego repozytorium. PromptOps Desktop to gotowa do uruchomienia aplikacja z Teams, synchronizacją i aplikacją mobilną. <a href="../../PRIVACY.md">Co opuszcza Twój komputer →</a></sub>
+  <sub>To repozytorium zawiera wydania PromptOps Desktop i edycję open source: bez konta, bez logowania, bez serwera PromptOps, a <a href="../../README.md#open-source-edition--build-it-yourself">kompilujesz ją samodzielnie</a>. PromptOps Desktop to gotowa do uruchomienia aplikacja z Teams, synchronizacją i aplikacją mobilną. <a href="../../PRIVACY.md">Co opuszcza Twój komputer →</a></sub>
 </p>
 
 ## Szybki start
@@ -170,7 +170,7 @@ Szyfruje dane Twoich sesji tym samym algorytmem co edycja open source; różnica
 
 ### Edycja open source
 
-Bez konta i bez serwera: wszystko zostaje na Twoim komputerze. Jej kod źródłowy wkrótce trafi do tego repozytorium, wraz z poleceniami do samodzielnego zbudowania na macOS, Windows i Linux. Daj repozytorium [gwiazdkę](https://github.com/shellonback/promptops), aby wiedzieć, kiedy się pojawi.
+Bez konta i bez serwera: wszystko zostaje na twoim komputerze. Kod jest w tym repozytorium; nie ma gotowych plików binarnych tej edycji: polecenia do zbudowania jej na macOS, Windows i Linux są w [README po angielsku](../../README.md#open-source-edition--build-it-yourself).
 
 ---
 

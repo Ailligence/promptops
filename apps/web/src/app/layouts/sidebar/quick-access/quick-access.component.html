@@ -1,0 +1,187 @@
+<!-- Section Header -->
+<li class="po-nav-heading quick-access-header">
+  <span>{{ 'QUICK_ACCESS.Title' | translate }}</span>
+  <button
+    class="quick-access-edit-toggle"
+    (click)="toggleEditMode()"
+    [title]="editMode() ? ('QUICK_ACCESS.DoneEditing' | translate) : ('QUICK_ACCESS.EditMode' | translate)"
+  >
+    <i class="ti" [ngClass]="editMode() ? 'ti-check' : 'ti-pencil'"></i>
+  </button>
+</li>
+
+<!-- View Mode -->
+@if (!editMode()) {
+  @if (shortcuts().length === 0 && !loading()) {
+    <!-- Empty State -->
+    <li class="quick-access-empty">
+      <span class="quick-access-empty-text">
+        {{ 'QUICK_ACCESS.EmptyState' | translate }}
+      </span>
+      <button class="quick-access-add-empty" (click)="toggleEditMode(); openPromptPicker()">
+        <i class="ti ti-plus"></i>
+      </button>
+    </li>
+  } @else {
+    @for (shortcut of shortcuts(); track shortcut.id) {
+      <li class="po-nav-item quick-access-item">
+        @if (shortcut.type === 'session' || shortcut.type === 'workspace') {
+          <!-- Opened in code: the Sessions view ignores ?session= without focus, and ?workspace= entirely. -->
+          <a
+            class="po-nav-link quick-access-link"
+            [class.session-link]="shortcut.type === 'session'"
+            [class.workspace-link]="shortcut.type === 'workspace'"
+            href=""
+            (click)="$event.preventDefault(); openTarget(shortcut)"
+          >
+            <span class="po-nav-icon quick-access-icon">
+              <i class="ti" [ngClass]="shortcut.type === 'workspace' ? 'ti-folder-code' : 'ti-terminal-2'"></i>
+            </span>
+            <span class="po-nav-label">{{ shortcut.label }}</span>
+          </a>
+        } @else {
+          <a
+            class="po-nav-link quick-access-link"
+            [routerLink]="['/admin/prompt-library', shortcut.prompt_id]"
+            routerLinkActive="active"
+          >
+            <span class="po-nav-icon quick-access-icon">
+              <i class="ti" [ngClass]="shortcut.icon"></i>
+            </span>
+            <span class="po-nav-label">{{ shortcut.label }}</span>
+          </a>
+        }
+      </li>
+    }
+  }
+}
+
+<!-- Edit Mode -->
+@if (editMode()) {
+  <li class="quick-access-edit-container">
+    <div
+      cdkDropList
+      [cdkDropListData]="shortcuts()"
+      (cdkDropListDropped)="onDrop($event)"
+      class="quick-access-drop-list"
+    >
+      @for (shortcut of shortcuts(); track shortcut.id) {
+        <div cdkDrag class="quick-access-drag-item">
+          <!-- Drag Handle -->
+          <i cdkDragHandle class="ti ti-grip-vertical drag-handle"></i>
+
+          <!-- Icon (clickable to change) -->
+          <button
+            class="drag-icon-btn"
+            (click)="openIconPicker(shortcut)"
+            [title]="'QUICK_ACCESS.PickIcon' | translate"
+          >
+            <i class="ti {{ shortcut.icon }}"></i>
+
+            <!-- Icon Picker Popover -->
+            @if (showIconPicker() && editingShortcutId() === shortcut.id) {
+              <app-icon-picker
+                [currentIcon]="shortcut.icon"
+                (selected)="onIconSelected($event)"
+                (closed)="showIconPicker.set(false)"
+              />
+            }
+          </button>
+
+          <!-- Label -->
+          <span class="drag-label">{{ shortcut.label }}</span>
+
+          <!-- Type badge -->
+          <span class="drag-type-badge" [class.session]="shortcut.type === 'session'" [class.workspace]="shortcut.type === 'workspace'">
+            <i class="ti" [ngClass]="shortcut.type === 'workspace' ? 'ti-folder-code' : shortcut.type === 'session' ? 'ti-terminal-2' : 'ti-book-2'"></i>
+          </span>
+
+          <!-- Remove button -->
+          <button
+            class="drag-remove-btn"
+            (click)="removeShortcut(shortcut)"
+            [title]="'QUICK_ACCESS.Remove' | translate"
+          >
+            <i class="ti ti-x"></i>
+          </button>
+
+          <!-- Drag Placeholder -->
+          <div *cdkDragPlaceholder class="drag-placeholder"></div>
+        </div>
+      }
+    </div>
+
+    <!-- Add Buttons -->
+    <div class="quick-access-add-row">
+      <button class="quick-access-add-btn" (click)="openPromptPicker()">
+        <i class="ti ti-book-2"></i>
+        <span>{{ 'QUICK_ACCESS.AddPrompt' | translate }}</span>
+      </button>
+      @if (sessionService.isDesktop) {
+        <button class="quick-access-add-btn session" (click)="openSessionPicker()">
+          <i class="ti ti-terminal-2"></i>
+          <span>{{ 'QUICK_ACCESS.AddSession' | translate }}</span>
+        </button>
+      }
+    </div>
+  </li>
+}
+
+<!-- Prompt Picker Modal -->
+@if (showPromptPicker()) {
+  <app-prompt-picker-modal
+    [excludedIds]="excludedPromptIds()"
+    (selected)="onPromptSelected($event)"
+    (closed)="showPromptPicker.set(false)"
+  />
+}
+
+<!-- Session Picker Modal (rendered via portal to body) -->
+<ng-template #sessionPickerTpl>
+  <div class="session-picker-host">
+    <div class="session-picker-backdrop" (click)="closeSessionPicker()"></div>
+    <div class="session-picker-modal" appEscClose (escClose)="closeSessionPicker()">
+      <div class="session-picker-header">
+        <h6>{{ 'QUICK_ACCESS.PickSession' | translate }}</h6>
+        <button class="session-picker-close" (click)="closeSessionPicker()">
+          <i class="ti ti-x"></i>
+        </button>
+      </div>
+      <div class="session-picker-list">
+        @if (liveWorkspaces().length === 0 && liveSessions().length === 0) {
+          <div class="session-picker-empty">
+            {{ 'QUICK_ACCESS.NoSessions' | translate }}
+          </div>
+        } @else {
+          @if (liveWorkspaces().length > 0) {
+            <div class="session-picker-section-label workspace">
+              <i class="ti ti-folder-code"></i>
+              <span>{{ 'QUICK_ACCESS.Workspaces' | translate }}</span>
+            </div>
+            @for (ws of liveWorkspaces(); track ws.id) {
+              <button class="session-picker-item workspace" (click)="onWorkspaceSelected(ws)">
+                <i class="ti ti-folder-code session-picker-icon workspace"></i>
+                <span class="session-picker-name">{{ ws.name }}</span>
+                @if (ws.activeSessionsCount > 0) {
+                  <span class="session-picker-badge workspace">{{ ws.activeSessionsCount }}</span>
+                }
+              </button>
+            }
+          }
+          @if (liveSessions().length > 0) {
+            <div class="session-picker-section-label">
+              <i class="ti ti-terminal-2"></i>
+              <span>{{ 'QUICK_ACCESS.Sessions' | translate }}</span>
+            </div>
+            @for (session of liveSessions(); track session.id) {
+              <button class="session-picker-item" (click)="onSessionSelected(session)">
+                <i class="ti ti-terminal-2 session-picker-icon"></i>
+                <span class="session-picker-name">{{ session.name || session.id.substring(0, 8) }}</span>
+              </button>
+            }
+          }
+        }
+      </div>
+    </div>
+  </div>
+</ng-template>

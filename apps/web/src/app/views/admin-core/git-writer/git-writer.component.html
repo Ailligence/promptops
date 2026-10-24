@@ -1,0 +1,564 @@
+<div class="container-fluid git-writer-page">
+  <!-- Header -->
+  <div class="page-header d-flex align-items-center gap-3 mb-4">
+    <div class="page-icon">
+      <i class="ti ti-git-branch"></i>
+    </div>
+    <div>
+      <h4 class="mb-0 fw-bold">{{ 'GIT_WRITER.Title' | translate }}</h4>
+      <p class="mb-0 text-muted page-subtitle">{{ 'GIT_WRITER.Subtitle' | translate }}</p>
+    </div>
+  </div>
+
+  @if (!writer.isDesktop) {
+    <div class="alert alert-warning d-flex align-items-center py-2 px-3 mb-3">
+      <i class="ti ti-alert-triangle me-2"></i>
+      {{ 'GIT_WRITER.Desktop required' | translate }}
+    </div>
+  }
+
+  <div class="row g-3">
+    <!-- ── Compose column ── -->
+    <div class="col-12 col-xl-5">
+      <div class="card writer-card">
+        <div class="card-body">
+          <!-- Artifact type: the first choice on the page -->
+          <label class="form-label fw-semibold">{{ 'GIT_WRITER.Artifact question' | translate }}</label>
+          <div class="artifact-grid">
+            @for (t of artifactTypes; track t.type) {
+              <button
+                type="button"
+                class="artifact-card"
+                [class.selected]="writer.artifactType() === t.type"
+                (click)="selectType(t.type)"
+              >
+                <span class="artifact-icon"><i class="ti" [ngClass]="t.icon"></i></span>
+                <span class="artifact-text">
+                  <span class="artifact-name">{{ 'GIT_WRITER.Type ' + t.type | translate }}</span>
+                  <span class="artifact-desc">{{ 'GIT_WRITER.Type ' + t.type + ' desc' | translate }}</span>
+                </span>
+                <i class="ti ti-check artifact-check"></i>
+              </button>
+            }
+          </div>
+
+          <!-- Draft -->
+          <label class="form-label fw-semibold mt-3">
+            {{ 'GIT_WRITER.Your notes' | translate }}
+            @if (!writer.currentDef().draftOptionalWithContext) {
+              <span class="text-danger">*</span>
+            } @else {
+              <span class="text-muted fw-normal">({{ 'GIT_WRITER.Notes optional' | translate }})</span>
+            }
+          </label>
+          <textarea
+            class="form-control draft-input"
+            rows="5"
+            [ngModel]="writer.draft()"
+            (ngModelChange)="writer.draft.set($event)"
+            (input)="autoGrow($event)"
+            [placeholder]="'GIT_WRITER.Draft placeholder ' + writer.artifactType() | translate"
+          ></textarea>
+
+          <!-- Tone (mail only) -->
+          @if (writer.currentDef().usesTone) {
+            <label class="form-label fw-semibold mt-3">{{ 'GIT_WRITER.Tone' | translate }}</label>
+            <div class="tone-tabs">
+              @for (t of tones; track t.value) {
+                <button
+                  type="button"
+                  class="tone-tab"
+                  [class.active]="writer.tone() === t.value"
+                  (click)="writer.tone.set(t.value)"
+                >
+                  <i class="ti" [ngClass]="t.icon"></i>
+                  {{ 'GIT_WRITER.Tone ' + t.value | translate }}
+                </button>
+              }
+            </div>
+          }
+
+          <!-- Language + recipient -->
+          <div class="row g-2 mt-1">
+            <div [class]="writer.currentDef().usesRecipient ? 'col-6' : 'col-12'">
+              <label class="form-label fw-semibold">{{ 'GIT_WRITER.Language' | translate }}</label>
+              <select
+                class="form-select form-select-sm"
+                [ngModel]="writer.language()"
+                (ngModelChange)="writer.language.set($event)"
+              >
+                @for (lang of languages; track lang) {
+                  <option [ngValue]="lang">{{ 'GIT_WRITER.Lang ' + lang | translate }}</option>
+                }
+              </select>
+            </div>
+            @if (writer.currentDef().usesRecipient) {
+              <div class="col-6">
+                <label class="form-label fw-semibold">
+                  {{ 'GIT_WRITER.Recipient' | translate }}
+                  <span class="text-muted fw-normal">({{ 'GIT_WRITER.Optional' | translate }})</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control form-control-sm"
+                  [ngModel]="writer.recipient()"
+                  (ngModelChange)="writer.recipient.set($event)"
+                  [placeholder]="'GIT_WRITER.Recipient placeholder' | translate"
+                />
+              </div>
+            }
+          </div>
+
+          <!-- Provider -->
+          <label class="form-label fw-semibold mt-3">{{ 'GIT_WRITER.Provider' | translate }}</label>
+          <div class="provider-grid">
+            @for (p of providers; track p.value) {
+              <div
+                class="provider-card"
+                [class.selected]="writer.provider() === p.value"
+                (click)="writer.selectProvider(p.value)"
+              >
+                <i class="ti" [ngClass]="p.icon"></i>
+                <span>{{ p.label }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- Model picker (Claude / Codex only) -->
+          @if (writer.modelOptions().length > 0) {
+            <div class="row g-2 mt-1">
+              <div class="col-6">
+                <label class="form-label fw-semibold">{{ 'GIT_WRITER.Model' | translate }}</label>
+                <select
+                  class="form-select form-select-sm"
+                  [ngModel]="writer.model()"
+                  (ngModelChange)="writer.selectModel($event)"
+                >
+                  <option [ngValue]="null">{{ 'GIT_WRITER.Model auto' | translate }}</option>
+                  @for (m of writer.modelOptions(); track m.id) {
+                    <option [ngValue]="m.id">{{ m.label }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+          }
+
+          <!-- Context link: feeds the AI and doubles as the save destination -->
+          <div class="context-box mt-3">
+            <label class="form-label fw-semibold d-flex align-items-center gap-1 mb-1">
+              <i class="ti ti-git-branch"></i>
+              {{ 'GIT_WRITER.Link context' | translate }}
+            </label>
+            <p class="context-hint text-muted mb-2">{{ 'GIT_WRITER.Link context hint' | translate }}</p>
+            <div class="d-flex gap-2 align-items-center">
+              <select
+                class="form-select form-select-sm"
+                [(ngModel)]="selectedTargetKey"
+                (ngModelChange)="onTargetChange()"
+              >
+                <option [ngValue]="null">{{ 'GIT_WRITER.No context' | translate }}</option>
+                <optgroup [label]="'GIT_WRITER.Workspaces' | translate">
+                  @for (ws of workspaces(); track ws.id) {
+                    <option [ngValue]="'workspace:' + ws.id">{{ ws.name }} — {{ ws.projectPath }}</option>
+                  }
+                </optgroup>
+                <optgroup [label]="'GIT_WRITER.Sessions' | translate">
+                  @for (s of linkableSessions(); track s.id) {
+                    <option [ngValue]="'session:' + s.id">{{ s.name }} · {{ s.provider }}</option>
+                  }
+                </optgroup>
+              </select>
+              @if (writer.linked()) {
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary btn-sm flex-shrink-0"
+                  (click)="unlink()"
+                >
+                  {{ 'GIT_WRITER.Unlink' | translate }}
+                </button>
+              }
+            </div>
+
+            @if (writer.contextLoading()) {
+              <div class="context-hint text-muted mt-2">
+                <span class="spinner-border spinner-border-sm me-1"></span>
+                {{ 'GIT_WRITER.Loading context' | translate }}
+              </div>
+            }
+
+            @if (writer.notARepo()) {
+              <div class="alert alert-warning py-1 px-2 mt-2 mb-0 context-hint">
+                <i class="ti ti-alert-circle me-1"></i>
+                {{ 'GIT_WRITER.Not a repo' | translate }}
+              </div>
+            }
+
+            <!-- Sub-repo picker: shown when the linked folder holds git repos -->
+            @if (writer.discoveredRepos().length > 0) {
+              <div class="repo-picker mt-2">
+                @if (writer.discoveredRepos().length > 1) {
+                  <p class="context-hint text-muted mb-1">{{ 'GIT_WRITER.Repos found' | translate }}</p>
+                }
+                @for (r of writer.discoveredRepos(); track r.path) {
+                  <div class="form-check form-check-sm mb-0">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      [id]="'gwRepo-' + r.path"
+                      [checked]="r.selected"
+                      (change)="toggleRepo(r.path)"
+                    />
+                    <label class="form-check-label context-hint" [for]="'gwRepo-' + r.path">
+                      <strong>{{ r.name }}</strong>
+                      <span class="text-muted"> · {{ r.branch }}</span>
+                    </label>
+                  </div>
+                }
+              </div>
+            }
+
+            @if (writer.contexts().length > 0) {
+              <div class="context-preview mt-2">
+                @for (ctx of writer.contexts(); track ctx.path) {
+                  <div class="d-flex flex-wrap gap-2 mb-1">
+                    @if (writer.discoveredRepos().length > 0) {
+                      <span class="badge context-chip repo-chip">
+                        <i class="ti ti-folder me-1"></i>{{ ctx.name }}
+                      </span>
+                    }
+                    <span class="badge context-chip">
+                      <i class="ti ti-git-branch me-1"></i>{{ ctx.branch }}
+                    </span>
+                    <span class="badge context-chip">
+                      <i class="ti ti-file-diff me-1"></i>
+                      {{ ctx.changedFiles.length }} {{ 'GIT_WRITER.Changed files' | translate }}
+                    </span>
+                  </div>
+                }
+                @if (writer.contexts().length === 1 && writer.contexts()[0].commits.length > 0) {
+                  <div class="commit-list">
+                    @for (c of writer.contexts()[0].commits; track c.shortHash) {
+                      <div class="commit-line">
+                        <code>{{ c.shortHash }}</code> {{ c.message }}
+                        <span class="text-muted">· {{ c.relativeDate }}</span>
+                      </div>
+                    }
+                  </div>
+                }
+                <div class="d-flex flex-wrap gap-3 mt-2">
+                  <div class="form-check form-check-sm">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="gwIncludeDiff"
+                      [ngModel]="writer.includeDiff()"
+                      (ngModelChange)="writer.includeDiff.set($event)"
+                    />
+                    <label class="form-check-label context-hint" for="gwIncludeDiff">
+                      {{ 'GIT_WRITER.Include diff' | translate }}
+                    </label>
+                  </div>
+                  <div class="form-check form-check-sm">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="gwIncludeCommits"
+                      [ngModel]="writer.includeCommits()"
+                      (ngModelChange)="writer.includeCommits.set($event)"
+                    />
+                    <label class="form-check-label context-hint" for="gwIncludeCommits">
+                      {{ 'GIT_WRITER.Include commits' | translate }}
+                    </label>
+                  </div>
+                  <div class="form-check form-check-sm">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="gwIncludeFiles"
+                      [ngModel]="writer.includeFiles()"
+                      (ngModelChange)="writer.includeFiles.set($event)"
+                    />
+                    <label class="form-check-label context-hint" for="gwIncludeFiles">
+                      {{ 'GIT_WRITER.Include files' | translate }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Error -->
+          @if (writer.error()) {
+            <div class="alert alert-danger d-flex align-items-center py-2 px-3 mt-3 mb-0 context-hint">
+              <i class="ti ti-alert-circle me-2"></i>
+              {{ writer.error() }}
+            </div>
+          }
+
+          <!-- Generate -->
+          <button
+            type="button"
+            class="btn btn-primary w-100 mt-3 d-flex align-items-center justify-content-center gap-1"
+            (click)="generate()"
+            [disabled]="writer.generating() || !writer.canGenerate() || !writer.isDesktop"
+          >
+            @if (writer.generating()) {
+              <span class="spinner-border spinner-border-sm"></span>
+              {{ 'GIT_WRITER.Generating' | translate }}
+            } @else {
+              <i class="ti ti-sparkles"></i>
+              {{ 'GIT_WRITER.Generate ' + writer.artifactType() | translate }}
+            }
+          </button>
+          @if (writer.currentDef().draftOptionalWithContext && !writer.canGenerate()) {
+            <p class="context-hint text-muted mt-2 mb-0">{{ 'GIT_WRITER.Generate needs input' | translate }}</p>
+          }
+          @if (writer.currentDef().requiresContext && writer.contexts().length === 0) {
+            <p class="context-hint text-muted mt-2 mb-0">{{ 'GIT_WRITER.Estimate needs context' | translate }}</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Output column ── -->
+    <div class="col-12 col-xl-7">
+      <div class="card writer-card output-card">
+        <div class="card-body d-flex flex-column p-3">
+          @if (hasResult()) {
+            <!-- Header: generated artifact + regenerate -->
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="output-title">
+                <i class="ti me-1" [ngClass]="writer.generatedDef().icon"></i>
+                {{ 'GIT_WRITER.Result ' + writer.generatedType() | translate }}
+              </span>
+              <button
+                type="button"
+                class="btn btn-link btn-sm output-action p-0"
+                (click)="generate()"
+                [disabled]="writer.generating() || !writer.canGenerate()"
+              >
+                @if (writer.generating()) {
+                  <span class="spinner-border spinner-border-sm me-1"></span>
+                } @else {
+                  <i class="ti ti-refresh me-1"></i>
+                }
+                {{ 'GIT_WRITER.Regenerate' | translate }}
+              </button>
+            </div>
+
+            @if (writer.generatedType() === 'mail') {
+              <!-- Subject field -->
+              <div class="field-block mb-2">
+                <div class="field-label-row">
+                  <label class="field-label" for="gwSubject">{{ 'GIT_WRITER.Email subject' | translate }}</label>
+                  <button type="button" class="copy-chip" (click)="copyField('subject')">
+                    @if (copiedField() === 'subject') {
+                      <i class="ti ti-check"></i>
+                      {{ 'GIT_WRITER.Copied' | translate }}
+                    } @else {
+                      <i class="ti ti-copy"></i>
+                      {{ 'GIT_WRITER.Copy' | translate }}
+                    }
+                  </button>
+                </div>
+                <input
+                  id="gwSubject"
+                  type="text"
+                  class="form-control subject-input"
+                  [ngModel]="writer.resultSubject()"
+                  (ngModelChange)="writer.resultSubject.set($event)"
+                />
+              </div>
+
+              <!-- Body field: rich-text editor, formatting pre-applied by the AI -->
+              <div class="field-block d-flex flex-column flex-grow-1">
+                <div class="field-label-row">
+                  <label class="field-label" for="gwBody">{{ 'GIT_WRITER.Email body' | translate }}</label>
+                  <div class="d-flex align-items-center gap-1">
+                    <div class="editor-toolbar">
+                      <button
+                        type="button"
+                        class="toolbar-btn"
+                        [title]="'GIT_WRITER.Bold' | translate"
+                        (mousedown)="format($event, 'bold')"
+                      >
+                        <i class="ti ti-bold"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="toolbar-btn"
+                        [title]="'GIT_WRITER.Italic' | translate"
+                        (mousedown)="format($event, 'italic')"
+                      >
+                        <i class="ti ti-italic"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="toolbar-btn"
+                        [title]="'GIT_WRITER.Bullet list' | translate"
+                        (mousedown)="format($event, 'insertUnorderedList')"
+                      >
+                        <i class="ti ti-list"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="toolbar-btn"
+                        [title]="'GIT_WRITER.Numbered list' | translate"
+                        (mousedown)="format($event, 'insertOrderedList')"
+                      >
+                        <i class="ti ti-list-numbers"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="toolbar-btn"
+                        [title]="'GIT_WRITER.Clear formatting' | translate"
+                        (mousedown)="format($event, 'removeFormat')"
+                      >
+                        <i class="ti ti-clear-formatting"></i>
+                      </button>
+                    </div>
+                    <button type="button" class="copy-chip" (click)="copyField('body')">
+                      @if (copiedField() === 'body') {
+                        <i class="ti ti-check"></i>
+                        {{ 'GIT_WRITER.Copied' | translate }}
+                      } @else {
+                        <i class="ti ti-copy"></i>
+                        {{ 'GIT_WRITER.Copy' | translate }}
+                      }
+                    </button>
+                  </div>
+                </div>
+                <div
+                  id="gwBody"
+                  class="email-editor flex-grow-1"
+                  contenteditable="true"
+                  [innerHTML]="writer.resultBody()"
+                  (input)="onBodyInput($event)"
+                ></div>
+              </div>
+            } @else {
+              <!-- Markdown document: what you see is exactly what gets saved -->
+              <div class="field-block d-flex flex-column flex-grow-1">
+                <div class="field-label-row">
+                  <label class="field-label" for="gwMarkdown">{{ 'GIT_WRITER.Document' | translate }}</label>
+                  <button type="button" class="copy-chip" (click)="copyField('markdown')">
+                    @if (copiedField() === 'markdown') {
+                      <i class="ti ti-check"></i>
+                      {{ 'GIT_WRITER.Copied' | translate }}
+                    } @else {
+                      <i class="ti ti-copy"></i>
+                      {{ 'GIT_WRITER.Copy' | translate }}
+                    }
+                  </button>
+                </div>
+                <textarea
+                  id="gwMarkdown"
+                  class="form-control markdown-editor flex-grow-1"
+                  spellcheck="false"
+                  [ngModel]="writer.resultBody()"
+                  (ngModelChange)="writer.resultBody.set($event)"
+                ></textarea>
+              </div>
+            }
+
+            <!-- Refine -->
+            <div class="d-flex gap-2 mt-2">
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                [(ngModel)]="refineText"
+                [placeholder]="'GIT_WRITER.Refine placeholder' | translate"
+                (keydown.enter)="refine()"
+              />
+              <button
+                type="button"
+                class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 flex-shrink-0"
+                (click)="refine()"
+                [disabled]="writer.refining() || !refineText.trim()"
+              >
+                @if (writer.refining()) {
+                  <span class="spinner-border spinner-border-sm"></span>
+                } @else {
+                  <i class="ti ti-wand"></i>
+                }
+                {{ 'GIT_WRITER.Refine' | translate }}
+              </button>
+            </div>
+
+            <!-- Save into the linked repo's docs/ folder -->
+            <div class="save-bar mt-3">
+              <label class="field-label d-flex align-items-center gap-1 mb-1">
+                <i class="ti ti-device-floppy"></i>
+                {{ 'GIT_WRITER.Save to repo' | translate }}
+              </label>
+              @if (writer.saveTargets().length === 0) {
+                <p class="context-hint text-muted mb-0">{{ 'GIT_WRITER.Save needs link' | translate }}</p>
+              } @else {
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                  @if (writer.saveTargets().length > 1) {
+                    <select
+                      class="form-select form-select-sm save-repo-select"
+                      [ngModel]="$safeNavigationMigration(writer.saveTarget()?.path)"
+                      (ngModelChange)="writer.saveRepoPath.set($event)"
+                    >
+                      @for (t of writer.saveTargets(); track t.path) {
+                        <option [ngValue]="t.path">{{ t.name }}</option>
+                      }
+                    </select>
+                  }
+                  <div class="input-group input-group-sm filename-group">
+                    <span class="input-group-text">docs/</span>
+                    <input
+                      type="text"
+                      class="form-control"
+                      [ngModel]="writer.fileName()"
+                      (ngModelChange)="writer.fileName.set($event)"
+                      [placeholder]="writer.defaultFileName(writer.generatedType())"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    class="btn btn-sm flex-shrink-0 d-flex align-items-center gap-1"
+                    [ngClass]="writer.overwritePending() ? 'btn-warning' : 'btn-primary'"
+                    (click)="save()"
+                    [disabled]="writer.saving() || !writer.isDesktop"
+                  >
+                    @if (writer.saving()) {
+                      <span class="spinner-border spinner-border-sm"></span>
+                    } @else {
+                      <i class="ti ti-device-floppy"></i>
+                    }
+                    {{ (writer.overwritePending() ? 'GIT_WRITER.Overwrite' : 'GIT_WRITER.Save') | translate }}
+                  </button>
+                </div>
+                @if (writer.overwritePending()) {
+                  <div class="alert alert-warning py-1 px-2 mt-2 mb-0 context-hint">
+                    <i class="ti ti-alert-circle me-1"></i>
+                    {{ 'GIT_WRITER.File exists' | translate }}
+                  </div>
+                }
+                @if (writer.savedPath()) {
+                  <div class="context-hint text-success mt-2">
+                    <i class="ti ti-check me-1"></i>
+                    {{ 'GIT_WRITER.Saved to' | translate }} <code>{{ writer.savedPath() }}</code>
+                  </div>
+                }
+                @if (writer.saveError()) {
+                  <div class="alert alert-danger py-1 px-2 mt-2 mb-0 context-hint">
+                    <i class="ti ti-alert-circle me-1"></i>
+                    {{ writer.saveError() }}
+                  </div>
+                }
+              }
+            </div>
+          } @else {
+            <div class="empty-state flex-grow-1">
+              <i class="ti" [ngClass]="writer.currentDef().icon"></i>
+              <p>{{ 'GIT_WRITER.Empty state' | translate }}</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

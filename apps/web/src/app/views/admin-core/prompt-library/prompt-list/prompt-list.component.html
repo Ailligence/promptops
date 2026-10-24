@@ -1,0 +1,202 @@
+<div class="my-prompts-container">
+  <!-- Header -->
+  <div class="my-prompts-header">
+    <h2 class="my-prompts-title">
+      <i class="ti ti-file-text"></i>
+      {{ "PROMPTS.My Prompts" | translate }}
+    </h2>
+    <div class="header-actions">
+      <button
+        class="btn btn-outline-primary btn-sm"
+        (click)="handleExplore()"
+      >
+        <i class="ti ti-world me-1"></i>
+        {{ "PROMPTS.Explore Public" | translate }}
+      </button>
+      <button class="btn btn-primary btn-sm" (click)="handleAddEntity()">
+        <i class="ti ti-plus me-1"></i>
+        {{ "PROMPTS.Create Prompt" | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-bar">
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'all'"
+      (click)="setTab('all')"
+    >
+      <i class="ti ti-list"></i>
+      {{ "PROMPTS.All" | translate }}
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'public'"
+      (click)="setTab('public')"
+    >
+      <i class="ti ti-world"></i>
+      {{ "PROMPTS.Public" | translate }}
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'private'"
+      (click)="setTab('private')"
+    >
+      <i class="ti ti-lock"></i>
+      {{ "PROMPTS.Private" | translate }}
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'starred'"
+      (click)="setTab('starred')"
+    >
+      <i class="ti ti-star"></i>
+      {{ "PROMPTS.Starred" | translate }}
+    </button>
+    @if (showSharedTab) {
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'shared'"
+      (click)="setTab('shared')"
+    >
+      <i class="ti ti-share"></i>
+      {{ "PROMPTS.Shared with me" | translate }}
+    </button>
+    }
+  </div>
+
+  <!-- Filters -->
+  @if (activeTab() !== 'starred' && activeTab() !== 'shared') {
+  <div class="filters-row">
+    <div class="search-wrapper">
+      <i class="ti ti-search search-icon"></i>
+      <input
+        type="text"
+        class="search-input"
+        [(ngModel)]="searchQuery"
+        [placeholder]="'PROMPTS.Search prompts' | translate"
+        (keyup.enter)="onSearch()"
+      />
+    </div>
+    <select
+      class="filter-select"
+      [(ngModel)]="selectedCategoryId"
+      (ngModelChange)="onCategoryChange()"
+    >
+      <option [ngValue]="null">{{ "COMMON.All categories" | translate }}</option>
+      @for (cat of categories(); track cat.id) {
+      <option [ngValue]="cat.id">{{ cat | categoryName }}</option>
+      }
+    </select>
+    @if (activeTab() === 'all') {
+    <select
+      class="filter-select"
+      [(ngModel)]="selectedStatus"
+      (ngModelChange)="onStatusChange()"
+    >
+      <option [ngValue]="null">{{ "COMMON.All statuses" | translate }}</option>
+      <option value="draft">{{ "PROMPTS.Draft" | translate }}</option>
+      <option value="published">{{ "PROMPTS.Published" | translate }}</option>
+      <option value="archived">{{ "PROMPTS.Archived" | translate }}</option>
+    </select>
+    }
+    <select
+      class="filter-select"
+      [(ngModel)]="sortBy"
+      (ngModelChange)="onSortChange()"
+    >
+      <option value="newest">{{ "PROMPTS.Newest" | translate }}</option>
+      <option value="updated">{{ "PROMPTS.Recently Updated" | translate }}</option>
+      <option value="stars">{{ "PROMPTS.Most Stars" | translate }}</option>
+      <option value="title">{{ "PROMPTS.Title A-Z" | translate }}</option>
+    </select>
+  </div>
+  } @else if (activeTab() === 'starred') {
+  <div class="filters-row">
+    <div class="search-wrapper">
+      <i class="ti ti-search search-icon"></i>
+      <input
+        type="text"
+        class="search-input"
+        [(ngModel)]="searchQuery"
+        [placeholder]="'PROMPTS.Search starred' | translate"
+        (keyup.enter)="onSearch()"
+      />
+    </div>
+  </div>
+  }
+
+  <!-- Results count -->
+  @if (!loading() && pagination) {
+  <div class="results-count">
+    {{ pagination.total || 0 }} {{ "PROMPTS.Results" | translate }}
+  </div>
+  }
+
+  <!-- Loading -->
+  @if (loading()) {
+  <div class="list-loading">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+  } @else {
+    <!-- Card Grid -->
+    @if (prompts().length > 0) {
+    <div class="prompt-grid-card">
+      <div class="prompt-grid">
+        @for (prompt of prompts(); track prompt.id) {
+        <app-prompt-card
+          [prompt]="prompt"
+          [showAuthor]="activeTab() === 'starred' || activeTab() === 'shared'"
+          [isOwner]="activeTab() !== 'starred' && activeTab() !== 'shared'"
+          (starClicked)="toggleStar($event)"
+          (cardClicked)="openPrompt($event)"
+          (authorClicked)="openProfile($event)"
+          (injectClicked)="injectToSession($event)"
+          (deleteClicked)="deletePrompt($event)"
+        ></app-prompt-card>
+        }
+      </div>
+
+      <!-- Pagination -->
+      @if (pagination && pagination.last_page > 1) {
+      <div class="pagination-bar">
+        <button
+          class="page-btn"
+          [disabled]="pagination.current_page <= 1"
+          (click)="goToPage(pagination.current_page - 1)"
+        >
+          <i class="ti ti-chevron-left"></i>
+        </button>
+        <span class="page-info">
+          {{ "COMMON.Page" | translate }} {{ pagination.current_page }}
+          / {{ pagination.last_page }}
+        </span>
+        <button
+          class="page-btn"
+          [disabled]="pagination.current_page >= pagination.last_page"
+          (click)="goToPage(pagination.current_page + 1)"
+        >
+          <i class="ti ti-chevron-right"></i>
+        </button>
+      </div>
+      }
+    </div>
+    } @else {
+    <div class="list-empty">
+      @if (activeTab() === 'starred') {
+        <i class="ti ti-star-off"></i>
+        <p>{{ "PROMPTS.No starred prompts" | translate }}</p>
+      } @else if (activeTab() === 'shared') {
+        <i class="ti ti-share-off"></i>
+        <p>{{ "PROMPTS.No shared prompts" | translate }}</p>
+      } @else {
+        <i class="ti ti-file-off"></i>
+        <p>{{ "COMMON.No data" | translate }}</p>
+      }
+    </div>
+    }
+  }
+</div>

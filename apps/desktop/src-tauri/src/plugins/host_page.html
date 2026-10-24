@@ -1,0 +1,132 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>PromptOps plugin host</title>
+<body>
+<script>
+// Plugin host page. It is OUR code: it runs in a webview without any
+// Tauri capability and never interprets third-party HTML in its own document.
+// Plugin code lives only inside sandboxed iframes with an opaque origin.
+(() => {
+  'use strict';
+  const TOKEN = '__PO_HOST_TOKEN__';
+  const SDK = __PO_SDK_JSON__;
+  const MAX_BODY = 4000000; // = MAX_HOST_BODY in host.rs
+  const frames = new Map(); // pluginId -> iframe
+  const permissions = new Map(); // pluginId -> granted permissions
+
+  const api = (path, body) => fetch(path, {
+    method: body ? 'POST' : 'GET',
+    headers: { 'X-PO-Host-Token': TOKEN, 'Content-Type': 'application/json' },
+    body: body ? JSON.stringify(body) : undefined,
+  }).then(r => r.json());
+
+  // WARNING: the literal sequences that open an HTML comment or open/close
+  // the script tag must not appear in this file: inside an inline script they
+  // put the HTML parser into the "double escaped" state and the tag never closes.
+  const LT = String.fromCharCode(60);
+  const OPEN = LT + 'script>';
+  const CLOSE = LT + '/script>';
+  // The same sequences, inside a plugin bundle, must be neutralized.
+  const inlineSafe = (js) => js
+    .replace(new RegExp(LT + '/(script)', 'gi'), LT + '\\/$1')
+    .replace(new RegExp(LT + '!--', 'g'), LT + '\\!--');
+
+  const report = (message) => fetch('/host-log', {
+    method: 'POST', headers: { 'X-PO-Host-Token': TOKEN }, body: String(message).slice(0, 500),
+  }).catch(() => {});
+  addEventListener('error', (e) => report('error: ' + e.message + ' @' + e.lineno));
+  addEventListener('unhandledrejection', (e) => report('rejection: ' + (e.reason && e.reason.message || e.reason)));
+
+  const mount = (plugin) => {
+    const f = document.createElement('iframe');
+    f.setAttribute('sandbox', 'allow-scripts');
+    f.setAttribute('aria-hidden', 'true');
+    f.style.display = 'none';
+    f.srcdoc = LT + '!doctype html>' + LT + 'meta charset="utf-8">'
+      + LT + 'meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'unsafe-inline\'">'
+      // No DNS prefetch: a link to <data>.attacker.example must not leak through a lookup.
+      + LT + 'meta http-equiv="x-dns-prefetch-control" content="off">'
+      + OPEN + inlineSafe(SDK) + CLOSE
+      + OPEN + inlineSafe(plugin.bundle) + CLOSE;
+    frames.set(plugin.pluginId, f);
+    permissions.set(plugin.pluginId, plugin.permissions || []);
+    document.body.appendChild(f);
+  };
+
+  addEventListener('message', async (ev) => {
+    const msg = ev.data;
+    if (!msg || typeof msg !== 'object') return;
+    // The plugin is identified by the window it writes from, never by what it declares.
+    let pluginId = null;
+    for (const [id, f] of frames) if (f.contentWindow === ev.source) { pluginId = id; break; }
+    if (!pluginId) return;
+    if (msg.__po === 'ready') {
+      api('/contributions', { pluginId, contributions: msg.contributions || [], events: msg.events || [], actions: msg.actions || [] });
+      return;
+    }
+    if (msg.__po === 'invokeResult') {
+      let reply = { requestId: String(msg.invokeId), pluginId, ok: !!msg.ok, result: msg.result, error: msg.error };
+      try {
+        if (JSON.stringify(reply).length > MAX_BODY) reply = { requestId: reply.requestId, pluginId, ok: false, error: 'the plugin answered with too much data' };
+      } catch (e) {
+        reply = { requestId: reply.requestId, pluginId, ok: false, error: 'the plugin answered with data that is not JSON' };
+      }
+      api('/invoke-result', reply).catch(() => {});
+      return;
+    }
+    if (msg.__po !== 'call') return;
+    let reply;
+    try {
+      const body = { pluginId, method: String(msg.method).slice(0, 100), params: msg.params || {} };
+      // Rust refuses anything larger: say why here instead of sending megabytes for nothing.
+      if (JSON.stringify(body).length > MAX_BODY) throw new Error('too large');
+      const res = await api('/broker', body);
+      reply = res.ok ? { ok: true, result: res.result } : { ok: false, error: res.error };
+    } catch (e) {
+      reply = { ok: false, error: e && e.message === 'too large' ? 'message too large' : 'broker unreachable' };
+    }
+    ev.source.postMessage(Object.assign({ __po: 'result', callId: msg.callId }, reply), '*');
+  });
+
+  const reload = async () => {
+    for (const f of frames.values()) f.remove();
+    frames.clear();
+    permissions.clear();
+    const res = await api('/plugins');
+    for (const plugin of (res.plugins || [])) mount(plugin);
+    report('mounted ' + (res.plugins || []).length + ' plugin(s)');
+  };
+
+  // App events reach only the plugins that have permission to receive them.
+  const eventPermission = (name) => (name.indexOf('task.') === 0 ? 'tasks:read' : 'sessions:read');
+
+  window.__poHost = Object.freeze({
+    reload,
+    invoke: (requestId, pluginId, kind, method, args) => {
+      const f = frames.get(pluginId);
+      if (!f || !f.contentWindow) {
+        api('/invoke-result', { requestId, pluginId, ok: false, error: 'plugin not running' });
+        return;
+      }
+      f.contentWindow.postMessage({ __po: 'invoke', invokeId: requestId, kind, method, args }, '*');
+    },
+    event: (name, payload) => {
+      for (const [id, f] of frames) {
+        if ((permissions.get(id) || []).indexOf(eventPermission(String(name))) === -1) continue;
+        if (f.contentWindow) f.contentWindow.postMessage({ __po: 'event', name: String(name), payload }, '*');
+      }
+    },
+    // Event for a single plugin, on a job it requested itself: the progress of a measurement.
+    notify: (pluginId, name, payload) => {
+      const f = frames.get(pluginId);
+      if (f && f.contentWindow) f.contentWindow.postMessage({ __po: 'event', name: String(name), payload }, '*');
+    },
+    action: (pluginId, actionId, context) => {
+      const f = frames.get(pluginId);
+      if (f && f.contentWindow) f.contentWindow.postMessage({ __po: 'action', actionId, context }, '*');
+    },
+  });
+
+  reload();
+})();
+</script>

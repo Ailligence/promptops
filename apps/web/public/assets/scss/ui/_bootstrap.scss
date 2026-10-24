@@ -1,0 +1,122 @@
+// Adjustments to Bootstrap components that apply everywhere in the app.
+
+// ── Buttons ─────────────────────────────────────────────────────────────────
+// Icon + text buttons center their content on both axes.
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+[data-bs-theme=dark] .btn-secondary {
+  box-shadow: var(--#{$prefix}btn-box-shadow) rgba(var(--#{$prefix}light-rgb), 0.5);
+}
+
+.badge {
+  vertical-align: middle;
+}
+
+// ── Cards ───────────────────────────────────────────────────────────────────
+.card {
+  margin-bottom: $spacer;
+  box-shadow: var(--#{$prefix}box-shadow);
+
+  .card-header {
+    border-bottom: 0;
+  }
+}
+
+// ── Menus ───────────────────────────────────────────────────────────────────
+// Menus rise into place when they open (or drop, when opened upwards).
+.dropdown-menu {
+  position: absolute;
+  z-index: 1000;
+  box-shadow: var(--#{$prefix}dropdown-box-shadow);
+  animation: po-menu-rise 0.3s both;
+  will-change: transform;
+
+  &[data-popper-placement=top],
+  &[data-popper-placement=top-start] {
+    animation-name: po-menu-drop;
+  }
+
+  .dropdown-item {
+    border-radius: var(--#{$prefix}border-radius);
+
+    &:not(:last-child) {
+      margin-bottom: 4px;
+    }
+  }
+}
+
+@keyframes po-menu-rise {
+  from {
+    margin-top: 5px;
+  }
+  to {
+    margin-top: -1px;
+  }
+}
+
+@keyframes po-menu-drop {
+  from {
+    margin-bottom: 5px;
+  }
+  to {
+    margin-bottom: 0;
+  }
+}
+
+// ── Form fields ─────────────────────────────────────────────────────────────
+// Validation shows through the border color only.
+.form-control:valid:focus,
+.form-control:invalid:focus,
+.form-control.is-valid:focus,
+.form-control.is-invalid:focus {
+  box-shadow: none !important;
+}
+
+// ── Modals ──────────────────────────────────────────────────────────────────
+.modal-title {
+  color: inherit;
+}
+
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+// ── Tables ──────────────────────────────────────────────────────────────────
+// Narrow screens: wide tables scroll sideways, with a soft shadow on the
+// edge that still has hidden columns.
+@media (max-width: 768px) {
+  .table-responsive {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    background:
+      linear-gradient(to right, var(--po-bg-0) 30%, transparent),
+      linear-gradient(to right, transparent, var(--po-bg-0) 70%) 100% 0,
+      radial-gradient(farthest-side at 0 50%, rgba(0, 0, 0, 0.15), transparent),
+      radial-gradient(farthest-side at 100% 50%, rgba(0, 0, 0, 0.15), transparent) 100% 0;
+    background-color: var(--po-bg-0);
+    background-repeat: no-repeat;
+    background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
+    background-attachment: local, local, scroll, scroll;
+
+    // Optional: keep the first column in view while scrolling.
+    &.po-table-sticky-first > table > thead > tr > th:first-child,
+    &.po-table-sticky-first > table > tbody > tr > td:first-child,
+    &.po-table-sticky-first > table > tfoot > tr > td:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background: var(--po-bg-0);
+      box-shadow: 1px 0 0 var(--po-border-subtle);
+    }
+
+    // Optional: minimum width before the table starts to scroll.
+    table.po-table-min-lg {
+      min-width: 960px;
+    }
+  }
+}

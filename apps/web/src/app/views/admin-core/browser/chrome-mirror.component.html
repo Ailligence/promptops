@@ -1,0 +1,126 @@
+<section class="cm-pane">
+  @if (svc.chromeMode() === 'own') {
+    <!-- Live view of the user's NORMAL Chrome window (where the extension is,
+         so where the agent really acts). View-only: interact in Chrome itself. -->
+    <div class="cm-navbar">
+      <span class="cm-live-label"><i class="ti ti-brand-chrome"></i> {{ 'BROWSER_PAGE.Live view' | translate }}</span>
+      <span class="cm-live-hint">{{ 'BROWSER_PAGE.View only' | translate: { provider: providerLabel } }}</span>
+      <button type="button" class="cm-nav cm-nav-wide" (click)="focusChrome()" [title]="'BROWSER_PAGE.Focus chrome tooltip' | translate">
+        <i class="ti ti-external-link"></i> {{ 'BROWSER_PAGE.Focus chrome' | translate }}
+      </button>
+      <span class="cm-fps" [title]="'BROWSER_PAGE.Captured fps' | translate">{{ windowMirrorId() ? fps() + ' fps' : ('BROWSER_PAGE.Offline' | translate) }}</span>
+    </div>
+    <div class="cm-body">
+      <div class="cm-host cm-host-live">
+        @if (frameSrc(); as src) {
+          <img class="cm-frame" [src]="src" [alt]="'BROWSER_PAGE.Your chrome window' | translate" draggable="false" />
+        } @else if (windowStatus()) {
+          <div class="cm-empty cm-empty-col">
+            <i class="ti" [class.ti-lock]="windowStatus()!.permission" [class.ti-browser-off]="!windowStatus()!.permission"></i>
+            <span>{{ windowStatus()!.message }}</span>
+            @if (windowStatus()!.permission) {
+              <button type="button" class="btn btn-primary btn-sm" (click)="svc.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture')">
+                {{ 'BROWSER_PAGE.Open screen recording' | translate }}
+              </button>
+            } @else {
+              <button type="button" class="btn btn-outline-light btn-sm" (click)="focusChrome()"><i class="ti ti-brand-chrome"></i> {{ 'BROWSER_PAGE.Open chrome' | translate }}</button>
+            }
+          </div>
+        } @else {
+          <div class="cm-empty"><i class="ti ti-loader-2 cm-spin"></i> {{ 'BROWSER_PAGE.Capturing' | translate }}</div>
+        }
+      </div>
+      @if (windowStatus() && frameSrc()) {
+        <div class="cm-error"><i class="ti ti-alert-triangle"></i> {{ windowStatus()!.message }}</div>
+      }
+    </div>
+  } @else {
+  <div class="cm-navbar">
+    <button type="button" class="cm-nav" (click)="goBack()" [disabled]="!mirrorId()" [title]="'BROWSER_PAGE.Back' | translate" [attr.aria-label]="'BROWSER_PAGE.Back' | translate"><i class="ti ti-arrow-left"></i></button>
+    <button type="button" class="cm-nav" (click)="goForward()" [disabled]="!mirrorId()" [title]="'BROWSER_PAGE.Forward' | translate" [attr.aria-label]="'BROWSER_PAGE.Forward' | translate"><i class="ti ti-arrow-right"></i></button>
+    <button type="button" class="cm-nav" (click)="reload()" [disabled]="!mirrorId()" [title]="'BROWSER_PAGE.Reload' | translate" [attr.aria-label]="'BROWSER_PAGE.Reload' | translate"><i class="ti ti-reload"></i></button>
+    <input class="cm-url" type="text" [placeholder]="'BROWSER_PAGE.Url placeholder' | translate" [attr.aria-label]="'BROWSER_PAGE.Url placeholder' | translate"
+           [ngModel]="urlInput()" (ngModelChange)="urlInput.set($event)"
+           (focus)="urlFocused.set(true)" (blur)="urlFocused.set(false)"
+           (keydown.enter)="navigate()" [disabled]="!mirrorId()" spellcheck="false" />
+    <span class="cm-fps" [title]="'BROWSER_PAGE.Mirror fps' | translate">{{ mirrorId() ? fps() + ' fps' : ('BROWSER_PAGE.Offline' | translate) }}</span>
+  </div>
+
+  @if (status()?.reachable) {
+    <div class="cm-tabs">
+      @for (t of targets(); track trackTarget($index, t)) {
+        <button type="button" class="cm-tab" [class.active]="t.id === activeTargetId()" (click)="selectTab(t)" [title]="t.url">
+          <span class="cm-tab-title">{{ shortTitle(t) }}</span>
+          <span class="cm-tab-close" (click)="closeTab(t, $event)" [title]="'BROWSER_PAGE.Close tab' | translate"><i class="ti ti-x"></i></span>
+        </button>
+      }
+      <button type="button" class="cm-tab cm-tab-new" (click)="newTab()" [title]="'BROWSER_PAGE.New tab' | translate" [attr.aria-label]="'BROWSER_PAGE.New tab' | translate"><i class="ti ti-plus"></i></button>
+    </div>
+  }
+
+  <div class="cm-body">
+    @if (!status()) {
+      <div class="cm-empty"><i class="ti ti-loader-2 cm-spin"></i> {{ 'BROWSER_PAGE.Looking for chrome' | translate }}</div>
+    } @else if (!status()!.reachable) {
+      <div class="cm-setup">
+        <div class="cm-setup-icon"><i class="ti ti-brand-chrome"></i></div>
+        <h4>{{ 'BROWSER_PAGE.Not reachable' | translate }}</h4>
+        <p>{{ status()!.reason }}</p>
+        <p>
+          <span [innerHTML]="'BROWSER_PAGE.Mirror explain' | translate: { provider: providerLabel }"></span>
+          <a href="#" class="cm-link" (click)="$event.preventDefault(); openGuide.emit()">{{ 'BROWSER_PAGE.Setup guide link' | translate }}</a>.
+        </p>
+        <button type="button" class="btn btn-primary btn-sm" (click)="launchChrome()"
+                [disabled]="svc.launching() || !status()!.chromeInstalled">
+          @if (svc.launching()) { <i class="ti ti-loader-2 cm-spin"></i> {{ 'BROWSER_PAGE.Launching' | translate }} } @else { <i class="ti ti-rocket"></i> {{ 'BROWSER_PAGE.Launch chrome' | translate }} }
+        </button>
+        @if (svc.statusError(); as err) { <p class="cm-setup-hint cm-err"><i class="ti ti-alert-triangle"></i> {{ err }}</p> }
+        <p class="cm-setup-hint">
+          {{ 'BROWSER_PAGE.Start chrome yourself' | translate }} <code>--remote-debugging-port={{ svc.port }} --user-data-dir=&lt;profile&gt;</code>
+        </p>
+        @if (svc.launchInfo(); as dir) { <p class="cm-setup-hint">{{ 'BROWSER_PAGE.Profile' | translate }} <code>{{ dir }}</code></p> }
+      </div>
+    } @else {
+      <div #mirrorHost class="cm-host" tabindex="0"
+           (mousemove)="onMouseMove($event)" (mousedown)="onMouseDown($event)" (mouseup)="onMouseUp($event)"
+           (wheel)="onWheel($event)" (contextmenu)="onContextMenu($event)"
+           (keydown)="onKey($event)" (keyup)="onKey($event)">
+        @if (frameSrc(); as src) {
+          <img #mirrorImg class="cm-frame" [src]="src" [alt]="'BROWSER_PAGE.Mirror alt' | translate" draggable="false" />
+        } @else if (mirrorId()) {
+          <div class="cm-empty"><i class="ti ti-loader-2 cm-spin"></i> {{ 'BROWSER_PAGE.First frame' | translate }}</div>
+        } @else {
+          <div class="cm-empty"><i class="ti ti-browser"></i> {{ 'BROWSER_PAGE.Pick tab' | translate }}</div>
+        }
+      </div>
+    }
+    @if (error(); as err) {
+      <div class="cm-error"><i class="ti ti-alert-triangle"></i> {{ err }} <button type="button" class="cm-nav" (click)="error.set(null)" [attr.aria-label]="'BROWSER_PAGE.Dismiss' | translate"><i class="ti ti-x"></i></button></div>
+    }
+    <!-- Mirror mode, but the extension is only in the normal Chrome: the agent
+         acts THERE. Say it here, where the user is looking, with the two ways out. -->
+    @if (svc.mirrorMismatch() && svc.probe(); as p) {
+      <div class="cm-mismatch">
+        <div class="cm-mismatch-card">
+          <div class="cm-setup-icon"><i class="ti ti-alert-triangle"></i></div>
+          <h4>{{ 'BROWSER_PAGE.Mismatch title' | translate: { provider: providerLabel } }}</h4>
+          <p>{{ 'BROWSER_PAGE.Mismatch text' | translate: { name: p.extensionElsewhere[0].extension.name, profile: p.extensionElsewhere[0].name } }}</p>
+          <div class="cm-mismatch-actions">
+            @for (hit of p.extensionElsewhere; track hit.dir) {
+              <button type="button" class="btn btn-primary btn-sm" (click)="importFromNormalChrome(hit)" [disabled]="svc.importing()">
+                @if (svc.importing()) { <i class="ti ti-loader-2 cm-spin"></i> } @else { <i class="ti ti-download"></i> }
+                {{ 'BROWSER_PAGE.Import and mirror' | translate: { name: hit.name } }}
+              </button>
+            }
+            <button type="button" class="btn btn-outline-light btn-sm" (click)="svc.setChromeMode('own')">
+              <i class="ti ti-brand-chrome"></i> {{ 'BROWSER_PAGE.Use my chrome' | translate }}
+            </button>
+          </div>
+          @if (svc.statusError(); as err) { <p class="cm-setup-hint cm-err"><i class="ti ti-alert-triangle"></i> {{ err }}</p> }
+          <p class="cm-setup-hint">{{ 'BROWSER_PAGE.After import' | translate }}</p>
+        </div>
+      </div>
+    }
+  </div>
+  }
+</section>

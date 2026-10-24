@@ -1,0 +1,26 @@
+name: Question
+description: Ask how something works or how to do something with PromptOps
+labels: ["question", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Security problems never go in a public issue: see SECURITY.md.
+        Questions about PromptOps Desktop, the hosted edition, go to info@shellonback.com.
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+      description: What are you trying to do, and where did you get stuck?
+    validations:
+      required: true
+  - type: textarea
+    id: tried
+    attributes:
+      label: What you tried
+      description: Commands, settings or pages you already looked at.
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, app version (Settings → About) and the agent CLI involved, if any.

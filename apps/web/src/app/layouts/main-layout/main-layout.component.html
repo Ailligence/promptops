@@ -1,0 +1,26 @@
+<div class="po-shell">
+  @if (!offline.online()) {
+    <div class="offline-banner" role="status">
+      <i class="ti ti-wifi-off"></i>
+      <span>{{ 'OFFLINE.Banner' | translate }}</span>
+    </div>
+  }
+
+  <app-sidebar />
+
+  <app-topbar (mobileMenuButtonClicked)="onToggleMobileMenu()" />
+
+  <div class="po-main" [class.po-main-fullscreen]="isFullscreenView()" style="padding-bottom: 28px;">
+    <div class="container-fluid po-page" [class.po-common-pages]="sharedPageStyle()" [class.po-page-fullscreen]="isFullscreenView()">
+      <router-outlet />
+    </div>
+
+  </div>
+
+  <app-bottom-bar />
+
+  <app-tutorial-overlay />
+
+  <!-- Plugin toasts and proposals (Tauri desktop only; empty elsewhere) -->
+  <app-plugin-runtime-overlay />
+</div>

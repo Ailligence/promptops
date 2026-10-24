@@ -1,0 +1,825 @@
+<div
+  class="session-sidebar"
+  [class.collapsed]="collapsed()"
+  [class.drag-over]="dragOver()"
+  appFileDropZone
+  [fileDropDisabled]="!minimal()"
+  (fileDropOver)="dragOver.set($event)"
+  (fileDropped)="onFolderDrop($event)"
+>
+  <!-- Drop-a-folder overlay (minimal UI only) -->
+  @if (dragOver() && minimal()) {
+    <div class="drop-overlay">
+      <iconify-icon icon="solar:folder-with-files-bold-duotone" width="34"></iconify-icon>
+      <span>{{ 'SESSIONS.DROP_FOLDER.Overlay' | translate }}</span>
+    </div>
+  }
+  <!-- Collapsed view -->
+  @if (collapsed()) {
+    <div class="collapsed-bar">
+      <button class="btn-toggle-sidebar" (click)="toggleCollapse.emit()" [appTooltip]="'SESSIONS.TOOLTIPS.Expand sidebar' | translate">
+        <iconify-icon icon="solar:alt-arrow-right-bold" width="16"></iconify-icon>
+      </button>
+      <button class="btn-collapsed-action" (click)="onCreateSession.emit()" [appTooltip]="'SESSIONS.TOOLTIPS.New session' | translate">
+        <iconify-icon icon="solar:add-circle-bold" width="18"></iconify-icon>
+      </button>
+      @if (builtins.isOn('floor-plan')) {
+        <button class="btn-collapsed-action collapsed-plugin-entry" [class.active]="floorPlan.mode() !== 'off'" (click)="toggleFloorPlan()" [appTooltip]="('SESSIONS.FLOOR_PLAN.Title' | translate) + ' · PromptOps'" [attr.aria-label]="'SESSIONS.FLOOR_PLAN.Title' | translate">
+          <i class="ti ti-map-2" aria-hidden="true"></i>
+          @if (floorPlan.alertCount()) { <span class="collapsed-plugin-alert" aria-hidden="true"></span> }
+          <i class="ti ti-puzzle plugin-entry-puzzle" aria-hidden="true"></i>
+        </button>
+      }
+      @for (entry of pluginEntries(); track entry.pluginId + entry.pageId) {
+        <button class="btn-collapsed-action collapsed-plugin-entry" (click)="openPluginEntry(entry)" [appTooltip]="entry.title + ' · ' + entry.pluginName">
+          <i class="ti" [ngClass]="entry.icon" aria-hidden="true"></i>
+          <i class="ti ti-puzzle plugin-entry-puzzle" aria-hidden="true"></i>
+        </button>
+      }
+      <!-- Collapsed rail mirrors the expanded tree: folders → workspaces → sessions → sub-agents.
+           Icons (not monograms) + guide lines; full names live in the tooltips. -->
+      <div class="collapsed-sessions">
+        @for (fs of folderSections(); track fs.folder.id) {
+          @let fOpen = isFolderExpanded(fs.folder.id);
+          <div class="collapsed-folder" [style.--rail-folder-color]="fs.folder.color || null">
+            <div
+              class="collapsed-node collapsed-folder-node"
+              [class.open]="fOpen"
+              [class.active]="!fOpen && folderHasActive(fs)"
+              (click)="toggleFolder(fs.folder.id)"
+              (contextmenu)="onFolderContext($event, fs.folder)"
+              [appTooltip]="fs.folder.name + ' · ' + folderItemCount(fs) + (fOpen ? '' : railAttentionSuffix(folderAttention(fs)))"
+            >
+              <iconify-icon icon="solar:library-bold-duotone" width="17"></iconify-icon>
+              @if (!fOpen) {
+                <span class="collapsed-ws-count">{{ folderItemCount(fs) }}</span>
+                @if (folderNeedsAttention(fs)) {
+                  <span class="collapsed-attention-dot"></span>
+                }
+              }
+            </div>
+            @if (fOpen && folderItemCount(fs) > 0) {
+              <div class="collapsed-children collapsed-folder-children">
+                @for (group of fs.groups; track group.workspace.id) {
+                  <ng-container *ngTemplateOutlet="railWsTpl; context: { group: group }"></ng-container>
+                }
+                @if (fs.standalone.length > 0) {
+                  <ng-container *ngTemplateOutlet="railSessionsTpl; context: { sessions: fs.standalone }"></ng-container>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        @for (group of ungroupedWorkspaceGroups(); track group.workspace.id) {
+          <ng-container *ngTemplateOutlet="railWsTpl; context: { group: group }"></ng-container>
+        }
+
+        <!-- Standalone sessions (no workspace, no folder) -->
+        @if (ungroupedStandalone().length > 0) {
+          @if (ungroupedWorkspaceGroups().length > 0 || folderSections().length > 0) {
+            <div class="collapsed-rail-sep" [appTooltip]="'SESSIONS.Standalone label' | translate"></div>
+          }
+          <ng-container *ngTemplateOutlet="railSessionsTpl; context: { sessions: ungroupedStandalone() }"></ng-container>
+        }
+      </div>
+    </div>
+
+    <!-- Rail: one workspace (folder glyph, sessions nested under a guide line) -->
+    <ng-template #railWsTpl let-group="group">
+      @let solo = soloSession(group);
+      @let wOpen = !solo && isWorkspaceExpanded(group.workspace.id);
+      <div class="collapsed-ws-group">
+        <div
+          class="collapsed-node collapsed-ws-node"
+          [class.open]="wOpen"
+          [class.active]="solo ? solo.id === activeSessionId() : (!wOpen && isActiveInGroup(group))"
+          [class.attention]="solo ? solo.status === 'waiting_input' : (!wOpen && groupNeedsAttention(group))"
+          [class.standby]="solo ? !!solo.standbyAt : false"
+          (click)="solo ? selectSession.emit(solo.id) : toggleWorkspace(group.workspace.id)"
+          (contextmenu)="solo ? onSessionContext($event, solo) : onWorkspaceContext($event, group.workspace)"
+          [appTooltip]="(solo ? group.workspace.name : group.workspace.name + ' · ' + group.sessions.length) + (wOpen ? '' : railAttentionSuffix(groupAttention(group)))"
+        >
+          <iconify-icon [icon]="wOpen ? 'solar:folder-open-bold-duotone' : 'solar:folder-bold-duotone'" width="18"></iconify-icon>
+          @if (solo) {
+            <img [src]="getProviderLogo(solo.provider)" width="10" height="10" alt="" class="collapsed-ws-provider" />
+            @if (hasAutoApprove(solo.id)) {
+              <span class="collapsed-aa-dot"></span>
+            }
+            @if (solo.status === 'waiting_input') {
+              <span class="collapsed-attention-dot"></span>
+            }
+          } @else if (!wOpen) {
+            <span class="collapsed-ws-count">{{ group.sessions.length }}</span>
+            @if (groupHasAutoApprove(group)) {
+              <span class="collapsed-aa-dot"></span>
+            }
+            @if (groupNeedsAttention(group)) {
+              <span class="collapsed-attention-dot"></span>
+            }
+          }
+        </div>
+        @if (solo) {
+          @if (getSessionPanes(solo.id).length > 0) {
+            <div class="collapsed-children">
+              <ng-container *ngTemplateOutlet="railSubAgentsTpl; context: { sessionId: solo.id }"></ng-container>
+            </div>
+          }
+        } @else if (wOpen) {
+          <div class="collapsed-children">
+            <ng-container *ngTemplateOutlet="railSessionsTpl; context: { sessions: group.sessions }"></ng-container>
+          </div>
+        }
+      </div>
+    </ng-template>
+
+    <!-- Rail: a flat list of sessions, each followed by its sub-agents -->
+    <ng-template #railSessionsTpl let-sessions="sessions">
+      @for (session of sessions; track session.id) {
+        <div
+          class="collapsed-session-icon in-group"
+          [class.active]="session.id === activeSessionId()"
+          [class.attention]="session.status === 'waiting_input'"
+          [class.aa-on]="hasAutoApprove(session.id)"
+          [class.standby]="!!session.standbyAt"
+          (click)="selectSession.emit(session.id)"
+          (contextmenu)="onSessionContext($event, session)"
+          [appTooltip]="(hasAutoApprove(session.id) ? (session.name + ' — ' + ('SESSIONS.AUTO_APPROVE.Active indicator' | translate)) : session.name) + (waitingFor(session.id) ? ' · ' + ('SESSIONS.ATTENTION.Waiting tooltip' | translate: { time: waitingFor(session.id) }) : '')"
+        >
+          <img [src]="getProviderLogo(session.provider)" width="16" height="16" alt="" class="collapsed-session-logo" />
+          @if (hasAutoApprove(session.id)) {
+            <span class="collapsed-aa-dot"></span>
+          }
+          @if (session.status === 'waiting_input') {
+            <span class="collapsed-attention-dot"></span>
+          }
+        </div>
+        <ng-container *ngTemplateOutlet="railSubAgentsTpl; context: { sessionId: session.id }"></ng-container>
+      }
+    </ng-template>
+
+    <!-- Rail: sub-agents of one session — smallest items, real provider logo -->
+    <ng-template #railSubAgentsTpl let-sessionId="sessionId">
+      @for (sa of getSessionPanes(sessionId); track sa.id) {
+        <div
+          class="collapsed-subagent-icon"
+          [class.active]="sa.sessionId === activeSessionId()"
+          [class.attention]="sa.status === 'waiting_input'"
+          (click)="onSubAgentClick(sa)"
+          [appTooltip]="(sa.title || sa.role) + ' · ' + getProviderLabel(sa.provider) + (subAgentWaitingFor(sa) ? ' · ' + ('SESSIONS.ATTENTION.Waiting tooltip' | translate: { time: subAgentWaitingFor(sa) }) : '')"
+        >
+          <img [src]="getProviderLogo(sa.provider)" width="13" height="13" alt="" class="collapsed-subagent-logo" />
+          @if (sa.status === 'waiting_input') {
+            <span class="collapsed-attention-dot"></span>
+          }
+        </div>
+      }
+    </ng-template>
+  } @else {
+    <!-- Expanded view -->
+    <div class="sidebar-header">
+      <div class="sidebar-header-left">
+        @if (minimal() && profilesEnabled) {
+          <app-session-profile-switcher></app-session-profile-switcher>
+        }
+        <h6 class="sidebar-title">{{ 'SESSIONS.Sessions' | translate }}</h6>
+      </div>
+      <div class="sidebar-header-actions">
+        @if (minimal()) {
+          <!-- Compact vertical "New" (big + with tiny label) + new-folder icon button -->
+          <button class="btn-new-vert" (click)="onCreateSession.emit()" [appTooltip]="'SESSIONS.TOOLTIPS.Create new session' | translate">
+            <iconify-icon icon="solar:add-circle-linear" width="17"></iconify-icon>
+            <span class="btn-new-vert-label">{{ 'SESSIONS.New' | translate }}</span>
+          </button>
+          <button class="btn-new-folder" (click)="createFolderInline()" [appTooltip]="'SESSIONS.FOLDERS.New folder' | translate">
+            <iconify-icon icon="solar:add-folder-linear" width="17"></iconify-icon>
+          </button>
+        } @else {
+          <button class="btn-new-session" (click)="onCreateSession.emit()" [appTooltip]="'SESSIONS.TOOLTIPS.Create new session' | translate">
+            <iconify-icon icon="solar:add-circle-linear" width="12"></iconify-icon>
+            <span>{{ 'SESSIONS.New' | translate }}</span>
+          </button>
+        }
+        <button class="btn-toggle-sidebar" (click)="toggleCollapse.emit()" [appTooltip]="'SESSIONS.TOOLTIPS.Collapse sidebar' | translate">
+          <iconify-icon icon="solar:alt-arrow-left-bold" width="14"></iconify-icon>
+        </button>
+      </div>
+    </div>
+
+    @if (builtins.isOn('floor-plan') && floorPlan.mode() === 'docked') {
+      <!-- Inside a session opened from the floor plan: the floor plan takes the tree's place, the X brings it back -->
+      <app-floor-plan-view class="sidebar-floor-plan" [compact]="true" [activeSession]="activeSessionId()" (openSession)="selectSession.emit($event)" />
+    } @else {
+    <div class="session-list">
+      <!-- Reusable chunks: one per workspace group, one per standalone session.
+           Rendered both inside folder sections (minimal only) and in the flat
+           list, so the classic markup stays exactly as before folders existed. -->
+      <!-- A session's sub-agents, lined up below it (workspace group and "solo" workspace) -->
+      <ng-template #saListTpl let-sessionId="sessionId">
+        @for (sa of getSessionPanes(sessionId); track sa.id) {
+          <div class="sub-agent-item"
+            [class.active]="sa.sessionId === activeSessionId()"
+            [class.needs-attention]="sa.status === 'waiting_input'"
+            [class.aa-on]="isSubAgentAutoApproved(sa)"
+            [appTooltip]="sa.userPrompt || sa.autoPrompt || (sa.title || sa.role)"
+            (click)="onSubAgentClick(sa)">
+            <div class="sub-agent-connector"></div>
+            <img [src]="getProviderLogo(sa.provider)" width="12" height="12" alt="" class="provider-logo" [appTooltip]="getProviderLabel(sa.provider)" />
+            <span class="sub-agent-title">{{ sa.title || sa.role }}</span>
+            @if (ecoService.enabled() && sa.sessionId && ecoService.isActiveForSession(sa.sessionId)) {
+              <span class="eco-indicator small" [appTooltip]="'BOTTOM_BAR.ECO.Eco active' | translate">
+                <iconify-icon icon="solar:leaf-bold" width="11"></iconify-icon>
+              </span>
+            }
+            @if (isSubAgentAutoApproved(sa)) {
+              <span class="aa-indicator small" [appTooltip]="'SESSIONS.AUTO_APPROVE.Active indicator' | translate">
+                <iconify-icon icon="solar:shield-warning-bold" width="11"></iconify-icon>
+              </span>
+            }
+            @if (sa.status === 'waiting_input') {
+              <span class="attention-dot"></span>
+              @if (minimal() && subAgentWaitingFor(sa); as wf) {
+                <span class="attention-timer" [appTooltip]="'SESSIONS.ATTENTION.Waiting tooltip' | translate: { time: wf }">{{ wf }}</span>
+              }
+            } @else {
+              <span class="status-dot small" [class]="'status-' + sa.status"></span>
+            }
+          </div>
+        }
+      </ng-template>
+
+      <!-- Indicators to the right of the session name (eco, auto-approve, lead closed, status, pending) -->
+      <ng-template #sessionMetaTpl let-session="session">
+        <div class="session-meta">
+          @if (ecoService.enabled() && ecoService.isActiveForSession(session.id)) {
+            <span class="eco-indicator" [appTooltip]="'BOTTOM_BAR.ECO.Eco active' | translate">
+              <iconify-icon icon="solar:leaf-bold" width="13"></iconify-icon>
+            </span>
+          }
+          @if (hasAutoApprove(session.id)) {
+            <span class="aa-indicator" [appTooltip]="'SESSIONS.AUTO_APPROVE.Active indicator' | translate">
+              <iconify-icon icon="solar:shield-warning-bold" width="13"></iconify-icon>
+            </span>
+          }
+          @if (minimal() && isLeadClosed(session.id)) {
+            <span class="standby-icon" [appTooltip]="'SUBAGENTS.Lead closed tooltip' | translate">
+              <iconify-icon icon="mdi:monitor-off" width="13"></iconify-icon>
+            </span>
+          }
+          @if (session.standbyAt) {
+            <span class="standby-icon" [appTooltip]="'SESSIONS.Standby tooltip' | translate">
+              <iconify-icon icon="solar:moon-sleep-bold-duotone" width="13"></iconify-icon>
+            </span>
+          } @else if (session.status === 'waiting_input') {
+            <span class="attention-dot"></span>
+            @if (minimal() && waitingFor(session.id); as wf) {
+              <span class="attention-timer" [appTooltip]="'SESSIONS.ATTENTION.Waiting tooltip' | translate: { time: wf }">{{ wf }}</span>
+            }
+          } @else if (minimal()) {
+            <!-- Different shape per status + accessible name: readable even
+                 without telling colors apart (UX audit 10/2026, P1). -->
+            <span class="status-glyph" [class]="'status-glyph status-' + session.status" role="img"
+                  [attr.aria-label]="'SESSIONS.Status ' + session.status | translate"
+                  [appTooltip]="'SESSIONS.Status ' + session.status | translate">
+              <iconify-icon [icon]="statusIcon(session.status)" width="11"></iconify-icon>
+            </span>
+          } @else {
+            <span class="status-dot" [class]="'status-' + session.status"></span>
+          }
+          @if (session.pendingInteractionCount > 0 && session.id !== activeSessionId()) {
+            <span class="pending-badge">{{ session.pendingInteractionCount }}</span>
+          }
+        </div>
+      </ng-template>
+
+      <ng-template #wsGroupTpl let-group="group">
+        @if (soloSession(group); as solo) {
+          <!-- "Multi-session workspace" plugin off and a single session: the workspace IS the session.
+               One clickable row (folder + workspace name + indicators) with its sub-agents below. -->
+          <div class="workspace-group solo">
+            <div
+              class="workspace-header solo"
+              [class.active]="solo.id === activeSessionId()"
+              [class.needs-attention]="minimal() && !!waitingFor(solo.id)"
+              [class.standby]="!!solo.standbyAt"
+              [class.po-running-surface]="(solo.status === 'running' || solo.status === 'in_progress') && solo.id === activeSessionId()"
+              [attr.draggable]="minimal() ? 'true' : null"
+              (dragstart)="onItemDragStart($event, 'workspace', group.workspace.id)"
+              (dragend)="onItemDragEnd()"
+              (click)="onSessionClick(solo)"
+              (contextmenu)="onSessionContext($event, solo)"
+              [appTooltip]="solo.name !== group.workspace.name ? solo.name : null"
+            >
+              <!-- Chevron always present: collapses the sub-agents even with a single-session workspace.
+                   stopPropagation: clicking the row opens the session, clicking the chevron does not. -->
+              <iconify-icon
+                class="workspace-chevron workspace-chevron-btn"
+                [icon]="isWorkspaceExpanded(group.workspace.id) ? 'solar:alt-arrow-down-bold' : 'solar:alt-arrow-right-bold'"
+                width="12"
+                (click)="$event.stopPropagation(); toggleWorkspace(group.workspace.id)"
+              ></iconify-icon>
+              <iconify-icon class="workspace-icon" icon="solar:folder-bold-duotone" width="16"></iconify-icon>
+              <span class="workspace-name">{{ group.workspace.name }}</span>
+              <ng-container *ngTemplateOutlet="sessionMetaTpl; context: { session: solo }"></ng-container>
+            </div>
+            @if (isWorkspaceExpanded(group.workspace.id)) {
+              <div class="workspace-sessions">
+                <ng-container *ngTemplateOutlet="saListTpl; context: { sessionId: solo.id }"></ng-container>
+              </div>
+            }
+          </div>
+        } @else {
+        <div class="workspace-group">
+          <div
+            class="workspace-header"
+            [class.needs-attention]="minimal() && !!groupAttention(group)"
+            [attr.draggable]="minimal() ? 'true' : null"
+            (dragstart)="onItemDragStart($event, 'workspace', group.workspace.id)"
+            (dragend)="onItemDragEnd()"
+            (click)="toggleWorkspace(group.workspace.id)"
+            (contextmenu)="onWorkspaceContext($event, group.workspace)"
+          >
+            <iconify-icon
+              class="workspace-chevron"
+              [icon]="isWorkspaceExpanded(group.workspace.id) ? 'solar:alt-arrow-down-bold' : 'solar:alt-arrow-right-bold'"
+              width="12"
+            ></iconify-icon>
+            <iconify-icon class="workspace-icon" icon="solar:folder-bold-duotone" width="16"></iconify-icon>
+            <span class="workspace-name">{{ group.workspace.name }}</span>
+            @if (minimal() && groupAttention(group); as ga) {
+              <span class="attention-badge" [appTooltip]="attentionTooltip(ga)">
+                <span class="attention-dot"></span>{{ attentionLabel(ga) }}
+              </span>
+            }
+            <span class="workspace-badge">{{ group.sessions.length }}</span>
+          </div>
+
+          @if (isWorkspaceExpanded(group.workspace.id)) {
+            <div class="workspace-sessions">
+              @for (session of group.sessions; track session.id) {
+                <div
+                  class="session-item nested"
+                  [class.active]="session.id === activeSessionId()"
+                  [class.needs-attention]="minimal() && !!waitingFor(session.id)"
+                  [class.aa-on]="hasAutoApprove(session.id)"
+                  [class.standby]="!!session.standbyAt"
+                  [class.po-running-surface]="(session.status === 'running' || session.status === 'in_progress') && session.id === activeSessionId()"
+                  (click)="onSessionClick(session)"
+                  (contextmenu)="onSessionContext($event, session)"
+                >
+                  <div class="session-icon">
+                    @if (session.standbyAt) {
+                      <!-- Parked: sleeping "zzz" replaces the provider icon -->
+                      <iconify-icon icon="mdi:sleep" width="16"></iconify-icon>
+                    } @else {
+                      @switch (session.provider) {
+                        @case ('claude-code-cli') {
+                          <iconify-icon icon="solar:magic-stick-3-bold-duotone" width="16"></iconify-icon>
+                        }
+                        @case ('codex') {
+                          <iconify-icon icon="solar:code-square-bold-duotone" width="16"></iconify-icon>
+                        }
+                        @case ('gemini-cli') {
+                          <iconify-icon icon="solar:star-bold-duotone" width="16"></iconify-icon>
+                        }
+                        @case ('antigravity') {
+                          <iconify-icon icon="solar:rocket-2-bold-duotone" width="16"></iconify-icon>
+                        }
+                        @case ('copilot') {
+                          <iconify-icon icon="solar:ghost-bold-duotone" width="16"></iconify-icon>
+                        }
+                        @case ('cursor') {
+                          <iconify-icon icon="solar:cursor-bold-duotone" width="16"></iconify-icon>
+                        }
+                        @default {
+                          <iconify-icon icon="solar:monitor-bold" width="16"></iconify-icon>
+                        }
+                      }
+                    }
+                  </div>
+                  @if (getDeviceStatus(session); as dws) {
+                    <span class="device-status-icon" [class]="'device-' + dws" [appTooltip]="getDeviceStatusTooltip(dws)">
+                      <iconify-icon [icon]="getDeviceStatusIcon(dws)" width="13"></iconify-icon>
+                    </span>
+                  }
+                  <div class="session-info">
+                    <span class="session-name">{{ session.name }}</span>
+                  </div>
+                  <ng-container *ngTemplateOutlet="sessionMetaTpl; context: { session: session }"></ng-container>
+                </div>
+                <ng-container *ngTemplateOutlet="saListTpl; context: { sessionId: session.id }"></ng-container>
+              }
+            </div>
+          }
+        </div>
+        }
+      </ng-template>
+
+      <ng-template #standaloneTpl let-session="session">
+        <div
+          class="session-item"
+          [class.active]="session.id === activeSessionId()"
+          [class.needs-attention]="minimal() && !!waitingFor(session.id)"
+          [class.aa-on]="hasAutoApprove(session.id)"
+          [class.standby]="!!session.standbyAt"
+          [class.po-running-surface]="(session.status === 'running' || session.status === 'in_progress') && session.id === activeSessionId()"
+          [attr.draggable]="minimal() && session.dbId ? 'true' : null"
+          (dragstart)="onItemDragStart($event, 'session', session.dbId)"
+          (dragend)="onItemDragEnd()"
+          (click)="onSessionClick(session)"
+          (contextmenu)="onSessionContext($event, session)"
+        >
+          <div class="session-icon">
+            @if (session.standbyAt) {
+              <!-- Parked: sleeping "zzz" replaces the provider icon -->
+              <iconify-icon icon="mdi:sleep" width="18"></iconify-icon>
+            } @else {
+              @switch (session.provider) {
+                @case ('claude-code-cli') {
+                  <iconify-icon icon="solar:magic-stick-3-bold-duotone" width="18"></iconify-icon>
+                }
+                @case ('codex') {
+                  <iconify-icon icon="solar:code-square-bold-duotone" width="18"></iconify-icon>
+                }
+                @case ('gemini-cli') {
+                  <iconify-icon icon="solar:star-bold-duotone" width="18"></iconify-icon>
+                }
+                @case ('antigravity') {
+                  <iconify-icon icon="solar:rocket-2-bold-duotone" width="18"></iconify-icon>
+                }
+                @case ('copilot') {
+                  <iconify-icon icon="solar:ghost-bold-duotone" width="18"></iconify-icon>
+                }
+                @case ('cursor') {
+                  <iconify-icon icon="solar:cursor-bold-duotone" width="18"></iconify-icon>
+                }
+                @default {
+                  <iconify-icon icon="solar:monitor-bold" width="18"></iconify-icon>
+                }
+              }
+            }
+          </div>
+          @if (getDeviceStatus(session); as dws) {
+            <span class="device-status-icon" [class]="'device-' + dws" [appTooltip]="getDeviceStatusTooltip(dws)">
+              <iconify-icon [icon]="getDeviceStatusIcon(dws)" width="13"></iconify-icon>
+            </span>
+          }
+          <div class="session-info">
+            <span class="session-name">{{ session.name }}</span>
+            @if (session.workspace) {
+              <span class="session-workspace">{{ session.workspace.name }}</span>
+            }
+          </div>
+          <div class="session-meta">
+            @if (ecoService.enabled() && ecoService.isActiveForSession(session.id)) {
+              <span class="eco-indicator" [appTooltip]="'BOTTOM_BAR.ECO.Eco active' | translate">
+                <iconify-icon icon="solar:leaf-bold" width="11"></iconify-icon>
+              </span>
+            }
+            @if (hasAutoApprove(session.id)) {
+              <span class="aa-indicator" [appTooltip]="'SESSIONS.AUTO_APPROVE.Active indicator' | translate">
+                <iconify-icon icon="solar:shield-warning-bold" width="13"></iconify-icon>
+              </span>
+            }
+            @if (minimal() && isLeadClosed(session.id)) {
+              <span class="standby-icon" [appTooltip]="'SUBAGENTS.Lead closed tooltip' | translate">
+                <iconify-icon icon="mdi:monitor-off" width="13"></iconify-icon>
+              </span>
+            }
+            @if (session.standbyAt) {
+              <span class="standby-icon" [appTooltip]="'SESSIONS.Standby tooltip' | translate">
+                <iconify-icon icon="solar:moon-sleep-bold-duotone" width="13"></iconify-icon>
+              </span>
+            } @else if (session.status === 'waiting_input') {
+              <span class="attention-dot"></span>
+              @if (minimal() && waitingFor(session.id); as wf) {
+                <span class="attention-timer" [appTooltip]="'SESSIONS.ATTENTION.Waiting tooltip' | translate: { time: wf }">{{ wf }}</span>
+              }
+            } @else if (minimal()) {
+              <span class="status-glyph" [class]="'status-glyph status-' + session.status" role="img"
+                    [attr.aria-label]="'SESSIONS.Status ' + session.status | translate"
+                    [appTooltip]="'SESSIONS.Status ' + session.status | translate">
+                <iconify-icon [icon]="statusIcon(session.status)" width="11"></iconify-icon>
+              </span>
+            } @else {
+              <span class="status-dot" [class]="'status-' + session.status"></span>
+            }
+            @if (session.pendingInteractionCount > 0 && session.id !== activeSessionId()) {
+              <span class="pending-badge">{{ session.pendingInteractionCount }}</span>
+            }
+          </div>
+        </div>
+        <!-- Sub-agents for this session -->
+        @for (sa of getSessionPanes(session.id); track sa.id) {
+          <div class="sub-agent-item"
+            [class.active]="sa.sessionId === activeSessionId()"
+            [class.needs-attention]="sa.status === 'waiting_input'"
+            [class.aa-on]="isSubAgentAutoApproved(sa)"
+            [appTooltip]="sa.userPrompt || sa.autoPrompt || (sa.title || sa.role)"
+            (click)="onSubAgentClick(sa)">
+            <div class="sub-agent-connector"></div>
+            <img [src]="getProviderLogo(sa.provider)" width="12" height="12" alt="" class="provider-logo" [appTooltip]="getProviderLabel(sa.provider)" />
+            <span class="sub-agent-title">{{ sa.title || sa.role }}</span>
+            @if (ecoService.enabled() && sa.sessionId && ecoService.isActiveForSession(sa.sessionId)) {
+              <span class="eco-indicator small" [appTooltip]="'BOTTOM_BAR.ECO.Eco active' | translate">
+                <iconify-icon icon="solar:leaf-bold" width="9"></iconify-icon>
+              </span>
+            }
+            @if (isSubAgentAutoApproved(sa)) {
+              <span class="aa-indicator small" [appTooltip]="'SESSIONS.AUTO_APPROVE.Active indicator' | translate">
+                <iconify-icon icon="solar:shield-warning-bold" width="11"></iconify-icon>
+              </span>
+            }
+            @if (sa.status === 'waiting_input') {
+              <span class="attention-dot"></span>
+              @if (minimal() && subAgentWaitingFor(sa); as wf) {
+                <span class="attention-timer" [appTooltip]="'SESSIONS.ATTENTION.Waiting tooltip' | translate: { time: wf }">{{ wf }}</span>
+              }
+            } @else {
+              <span class="status-dot small" [class]="'status-' + sa.status"></span>
+            }
+          </div>
+        }
+      </ng-template>
+
+      <!-- Plugin entries ("sidebar" zone): at the top, separate from folders and workspaces -->
+      @if (hasTopEntries()) {
+        <div class="plugin-entries">
+          @if (builtins.isOn('floor-plan')) {
+            <button type="button" class="plugin-entry" [class.active]="floorPlan.mode() !== 'off'" (click)="toggleFloorPlan()" [appTooltip]="('SESSIONS.FLOOR_PLAN.Title' | translate) + ' · PromptOps'">
+              <i class="ti ti-map-2" aria-hidden="true"></i>
+              <span class="plugin-entry-title">{{ 'SESSIONS.FLOOR_PLAN.Title' | translate }}</span>
+              @if (floorPlan.alertCount()) { <span class="plugin-entry-alert" [attr.aria-label]="'SESSIONS.FLOOR_PLAN.Canvas.Updates' | translate: { count: floorPlan.alertCount() }">{{ floorPlan.alertCount() }}</span> }
+              <i class="ti ti-puzzle plugin-entry-puzzle" aria-hidden="true"></i>
+            </button>
+          }
+          @for (entry of pluginEntries(); track entry.pluginId + entry.pageId) {
+            <button type="button" class="plugin-entry" (click)="openPluginEntry(entry)" [appTooltip]="entry.pluginName">
+              <i class="ti" [ngClass]="entry.icon" aria-hidden="true"></i>
+              <span class="plugin-entry-title">{{ entry.title }}</span>
+              <i class="ti ti-puzzle plugin-entry-puzzle" aria-hidden="true"></i>
+            </button>
+          }
+        </div>
+      }
+
+      <!-- Folder sections (minimal UI only). Folders always render, even when
+           empty, so a fresh one is immediately usable as a drop target. -->
+      @for (fs of folderSections(); track fs.folder.id) {
+        <div
+          class="folder-section"
+          [class.drop-target]="dropTargetFolderId() === fs.folder.id"
+          (dragover)="onFolderTargetDragOver($event, fs.folder.id)"
+          (dragleave)="onFolderTargetDragLeave($event, fs.folder.id)"
+          (drop)="onFolderTargetDrop($event, fs.folder.id)"
+        >
+          <div
+            class="folder-header"
+            [class.needs-attention]="!!folderAttention(fs)"
+            [attr.draggable]="folderEditingId() === fs.folder.id ? null : 'true'"
+            (dragstart)="onItemDragStart($event, 'folder', fs.folder.id)"
+            (dragend)="onItemDragEnd()"
+            (click)="toggleFolder(fs.folder.id)"
+            (contextmenu)="onFolderContext($event, fs.folder)"
+          >
+            <iconify-icon
+              class="folder-chevron"
+              [icon]="isFolderExpanded(fs.folder.id) ? 'solar:alt-arrow-down-bold' : 'solar:alt-arrow-right-bold'"
+              width="12"
+            ></iconify-icon>
+            <!-- Deliberately NOT a folder glyph — workspaces already use one and
+                 the two rows would look identical at this size -->
+            <iconify-icon
+              class="folder-icon"
+              [style.color]="fs.folder.color"
+              icon="solar:library-bold-duotone"
+              width="15"
+            ></iconify-icon>
+            @if (folderEditingId() === fs.folder.id) {
+              <input
+                class="folder-edit-input"
+                [id]="'po-folder-edit-' + fs.folder.id"
+                type="text"
+                [value]="fs.folder.name"
+                (click)="$event.stopPropagation()"
+                (keydown.enter)="commitFolderRename(fs.folder.id, $any($event.target).value)"
+                (keydown.escape)="cancelFolderRename()"
+                (blur)="commitFolderRename(fs.folder.id, $any($event.target).value)"
+              />
+            } @else {
+              <span class="folder-name">{{ fs.folder.name }}</span>
+            }
+            @if (folderAttention(fs); as fa) {
+              <span class="attention-badge" [appTooltip]="attentionTooltip(fa)">
+                <span class="attention-dot"></span>{{ attentionLabel(fa) }}
+              </span>
+            }
+            <span class="folder-badge">{{ folderItemCount(fs) }}</span>
+          </div>
+          @if (isFolderExpanded(fs.folder.id)) {
+            <div class="folder-content">
+              @for (group of fs.groups; track group.workspace.id) {
+                <ng-container *ngTemplateOutlet="wsGroupTpl; context: { group: group }"></ng-container>
+              }
+              @for (session of fs.standalone; track session.id) {
+                <ng-container *ngTemplateOutlet="standaloneTpl; context: { session: session }"></ng-container>
+              }
+              @if (fs.groups.length === 0 && fs.standalone.length === 0) {
+                <div class="folder-empty-hint">{{ 'SESSIONS.FOLDERS.Empty hint' | translate }}</div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- "Remove from folder" drop zone — appears only while dragging an item
+           that currently sits inside a folder -->
+      @if (draggedItemInFolder()) {
+        <div
+          class="folder-unfile-zone"
+          [class.drop-target]="dropTargetFolderId() === UNFILE_ZONE"
+          (dragover)="onUnfileDragOver($event)"
+          (dragleave)="onFolderTargetDragLeave($event, UNFILE_ZONE)"
+          (drop)="onUnfileDrop($event)"
+        >
+          <iconify-icon icon="solar:folder-error-bold-duotone" width="14"></iconify-icon>
+          <span>{{ 'SESSIONS.FOLDERS.Remove drop zone' | translate }}</span>
+        </div>
+      }
+
+      <!-- Workspace groups (outside folders; the full list in classic) -->
+      @if (ungroupedWorkspaceGroups().length > 0) {
+        <div class="section-label">{{ 'SESSIONS.Workspace label' | translate }}</div>
+      }
+      @for (group of ungroupedWorkspaceGroups(); track group.workspace.id) {
+        <ng-container *ngTemplateOutlet="wsGroupTpl; context: { group: group }"></ng-container>
+      }
+
+      <!-- Standalone sessions (no workspace) -->
+      @if (ungroupedStandalone().length > 0) {
+        <div class="section-label">{{ 'SESSIONS.Standalone label' | translate }}</div>
+      }
+      @for (session of ungroupedStandalone(); track session.id) {
+        <ng-container *ngTemplateOutlet="standaloneTpl; context: { session: session }"></ng-container>
+      }
+      @if (ungroupedStandalone().length === 0 && ungroupedWorkspaceGroups().length === 0 && folderSections().length === 0) {
+        <div class="empty-state">
+          <iconify-icon icon="solar:chat-square-2-bold-duotone" width="28"></iconify-icon>
+          <span class="empty-title">{{ 'SESSIONS.No sessions' | translate }}</span>
+          <span class="empty-hint">{{ 'SESSIONS.Create first session hint' | translate }}</span>
+        </div>
+      }
+    </div>
+    }
+  }
+</div>
+
+<!-- Context menu -->
+@if (ctxTarget()) {
+  <div class="ctx-backdrop" (click)="closeCtxMenu()"></div>
+  <div #ctxMenuEl class="ctx-menu" [style.left.px]="ctxPos().x" [style.top.px]="ctxPos().y">
+    @if (ctxFolder(); as folder) {
+      <!-- Folder actions (minimal UI only — folders don't render in classic) -->
+      <button class="ctx-item" (click)="ctxRenameFolder()">
+        <iconify-icon icon="solar:pen-bold" width="14"></iconify-icon>
+        {{ 'SESSIONS.FOLDERS.Rename folder' | translate }}
+      </button>
+      <div class="ctx-color-row">
+        @for (c of folderColors; track $index) {
+          <button
+            class="ctx-color-swatch"
+            [class.selected]="(folder.color ?? null) === c"
+            [class.none]="c === null"
+            [style.background]="c"
+            (click)="ctxSetFolderColor(c)"
+          ></button>
+        }
+      </div>
+      <div class="ctx-divider"></div>
+      <button class="ctx-item" (click)="ctxCreateFolder()">
+        <iconify-icon icon="solar:add-folder-bold" width="14"></iconify-icon>
+        {{ 'SESSIONS.FOLDERS.New folder' | translate }}
+      </button>
+      <div class="ctx-divider"></div>
+      <button class="ctx-item ctx-item-danger" (click)="ctxDeleteFolder(); $event.stopPropagation()">
+        <iconify-icon icon="solar:trash-bin-trash-bold" width="14"></iconify-icon>
+        @if (ctxDeleteArmed()) {
+          {{ 'SESSIONS.FOLDERS.Confirm delete' | translate }}
+        } @else {
+          {{ 'SESSIONS.FOLDERS.Delete folder' | translate }}
+        }
+      </button>
+    } @else if (ctxView() === 'move') {
+      <!-- "Move to folder" picker -->
+      <button class="ctx-item" (click)="ctxView.set('main'); $event.stopPropagation()">
+        <iconify-icon icon="solar:alt-arrow-left-bold" width="12"></iconify-icon>
+        {{ 'SESSIONS.FOLDERS.Move to folder' | translate }}
+      </button>
+      <div class="ctx-divider"></div>
+      @for (f of foldersService.folders(); track f.id) {
+        <button class="ctx-item" (click)="ctxMoveTo(f.id)">
+          <span class="ctx-folder-dot" [style.background]="f.color ?? 'var(--po-accent)'"></span>
+          <span class="ctx-folder-name">{{ f.name }}</span>
+          @if (ctxCurrentFolderId() === f.id) {
+            <iconify-icon icon="solar:check-circle-bold" width="14"></iconify-icon>
+          }
+        </button>
+      }
+      @if (ctxCurrentFolderId()) {
+        <button class="ctx-item" (click)="ctxMoveTo(null)">
+          <iconify-icon icon="solar:folder-error-bold-duotone" width="14"></iconify-icon>
+          {{ 'SESSIONS.FOLDERS.Remove from folder' | translate }}
+        </button>
+      }
+      <div class="ctx-divider"></div>
+      <button class="ctx-item" (click)="ctxMoveToNewFolder()">
+        <iconify-icon icon="solar:add-folder-bold" width="14"></iconify-icon>
+        {{ 'SESSIONS.FOLDERS.New folder' | translate }}…
+      </button>
+    } @else {
+      <button class="ctx-item" (click)="ctxEdit()">
+        <iconify-icon icon="solar:pen-bold" width="14"></iconify-icon>
+        @if (ctxTarget()?.type === 'workspace') {
+          {{ 'SESSIONS.Rename workspace' | translate }}
+        } @else {
+          {{ 'SESSIONS.Edit session' | translate }}
+        }
+      </button>
+      @if (canOpenSessionWindow && ctxWindowSession()) {
+        <button class="ctx-item" (click)="ctxOpenSessionWindow()">
+          <iconify-icon icon="solar:window-frame-bold" width="14"></iconify-icon>
+          {{ 'SESSIONS.DETACHED.Menu' | translate }}
+        </button>
+      }
+      <div class="ctx-divider"></div>
+      <button class="ctx-item" (click)="ctxOpenTerminal()">
+        <iconify-icon icon="solar:command-bold" width="14"></iconify-icon>
+        {{ 'SESSIONS.Open in terminal' | translate }}
+      </button>
+      <button class="ctx-item" (click)="ctxCopyPath()">
+        <iconify-icon icon="solar:copy-bold" width="14"></iconify-icon>
+        {{ 'SESSIONS.Copy path' | translate }}
+      </button>
+      <button class="ctx-item" (click)="ctxCopyRelativePath()">
+        <iconify-icon icon="solar:copy-line-duotone" width="14"></iconify-icon>
+        {{ 'SESSIONS.Copy relative path' | translate }}
+      </button>
+      <button class="ctx-item" (click)="ctxRevealInFinder()">
+        <iconify-icon icon="solar:folder-open-bold" width="14"></iconify-icon>
+        {{ 'SESSIONS.Reveal in finder' | translate }}
+      </button>
+      @if (canPromoteCtxTarget()) {
+        <div class="ctx-divider"></div>
+        <button class="ctx-item" (click)="ctxPromote()">
+          <iconify-icon icon="solar:folder-with-files-bold" width="14"></iconify-icon>
+          {{ 'SESSIONS.Promote to workspace' | translate }}
+        </button>
+      }
+      @if (ctxCanMoveToFolder()) {
+        <div class="ctx-divider"></div>
+        <button class="ctx-item" (click)="ctxOpenMoveView(); $event.stopPropagation()">
+          <iconify-icon icon="solar:library-bold-duotone" width="14"></iconify-icon>
+          <span class="ctx-grow">{{ 'SESSIONS.FOLDERS.Move to folder' | translate }}</span>
+          <iconify-icon icon="solar:alt-arrow-right-bold" width="12"></iconify-icon>
+        </button>
+      }
+      @if (minimal()) {
+        <div class="ctx-divider"></div>
+        @if (ctxTarget()?.type === 'workspace') {
+          <button class="ctx-item" (click)="ctxToggleWorkspaceStandby()">
+            <iconify-icon [icon]="ctxWorkspaceAllStandby() ? 'solar:play-circle-bold' : 'solar:moon-sleep-bold-duotone'" width="14"></iconify-icon>
+            @if (ctxWorkspaceAllStandby()) {
+              {{ 'SESSIONS.Wake all sessions' | translate }}
+            } @else {
+              {{ 'SESSIONS.Park all sessions' | translate }}
+            }
+          </button>
+        } @else {
+          <button class="ctx-item" (click)="ctxToggleStandby()">
+            <iconify-icon [icon]="ctxIsStandby() ? 'solar:play-circle-bold' : 'solar:moon-sleep-bold-duotone'" width="14"></iconify-icon>
+            @if (ctxIsStandby()) {
+              {{ 'SESSIONS.Wake' | translate }}
+            } @else {
+              {{ 'SESSIONS.Standby' | translate }}
+            }
+          </button>
+          @if (ctxIsLeadClosed()) {
+            <button class="ctx-item" (click)="ctxReopenLead()">
+              <iconify-icon icon="solar:monitor-bold" width="14"></iconify-icon>
+              {{ 'SUBAGENTS.Reopen lead' | translate }}
+            </button>
+          }
+        }
+      }
+      <div class="ctx-divider"></div>
+      <button class="ctx-item ctx-item-danger" (click)="ctxDestroy()">
+        <iconify-icon icon="solar:trash-bin-trash-bold" width="14"></iconify-icon>
+        @if (ctxTarget()?.type === 'workspace') {
+          {{ 'SESSIONS.Delete workspace' | translate }}
+        } @else {
+          {{ 'SESSIONS.Delete session' | translate }}
+        }
+      </button>
+    }
+  </div>
+}

@@ -1,0 +1,429 @@
+<div class="speed-test-page">
+
+  <!-- ── Header ─────────────────────────────────────────────────────── -->
+  <div class="st-header">
+    <div>
+      <h2 class="st-title"><i class="ti ti-gauge"></i> {{ 'MENU.AI Agent Evals' | translate }}</h2>
+      <p class="st-subtitle" [innerHTML]="'SPEED_TEST.Subtitle' | translate"></p>
+    </div>
+  </div>
+
+  @if (!svc.isDesktopHost()) {
+    <div class="alert alert-warning st-alert">
+      <i class="ti ti-device-desktop-off" aria-hidden="true"></i>
+      {{ 'SPEED_TEST.Browser only' | translate }}
+    </div>
+  } @else if (!svc.isDesktop()) {
+    <!-- Inside the app but without the command (old version): do not say "open the desktop app". -->
+    <div class="alert alert-warning st-alert">
+      <i class="ti ti-refresh-alert" aria-hidden="true"></i>
+      {{ 'SPEED_TEST.Old version' | translate }}
+    </div>
+  }
+  @if (svc.error()) {
+    <div class="alert alert-danger st-alert">
+      <i class="ti ti-alert-triangle"></i> {{ svc.error() | translate }}
+    </div>
+  }
+
+  <!-- ═══════════ SETUP (hidden while a run is in progress) ═══════════ -->
+  @if (!svc.running()) {
+    <!-- ── Model selection — 3 comparison slots (hdblog-compara style) ── -->
+    <div class="st-section-label">
+      {{ 'SPEED_TEST.Models' | translate }} <span class="st-count">{{ 'SPEED_TEST.Selected' | translate: { count: svc.selected().length, max: maxModels } }}</span>
+    </div>
+    <div class="st-slots">
+      @for (i of slotIndexes; track i) {
+        @if (i > 0) {
+          <div class="st-vs">VS</div>
+        }
+        <div class="st-slot" [class.st-filled]="!!modelAt(i)">
+          @if (modelAt(i) || slotProvider()[i]) {
+            <button type="button" class="st-slot-clear" (click)="clearSlot(i)" [title]="'SPEED_TEST.Remove' | translate" [attr.aria-label]="'SPEED_TEST.Remove' | translate">
+              <i class="ti ti-x"></i>
+            </button>
+          }
+
+          @if (modelAt(i); as m) {
+            <div class="st-slot-icon" [style.background]="providerColor(m.provider)">
+              <iconify-icon [attr.icon]="providerIcon(m.provider)" width="30"></iconify-icon>
+            </div>
+            <div class="st-slot-name">{{ m.label }}</div>
+            <div class="st-slot-provider">{{ m.providerLabel }}</div>
+            @if (m.available === false) {
+              <div class="st-slot-warning"><i class="ti ti-alert-triangle"></i> {{ 'SPEED_TEST.CLI not installed' | translate }}</div>
+            } @else {
+              @if (m.baseline; as b) {
+                <div class="st-slot-baseline">
+                  <span class="st-tier-chip" [attr.data-tier]="b.tier">{{ tierLabel(b.tier) }}</span>
+                  <span>
+                    {{ 'SPEED_TEST.Expected' | translate: { min: b.expectedTps.min, max: b.expectedTps.max } }}
+                    @if (m.history?.medianTps; as median) {
+                      {{ 'SPEED_TEST.Your median' | translate: { median: median, runs: m.history?.runs } }}
+                    }
+                  </span>
+                </div>
+              }
+            }
+          } @else {
+            <div class="st-slot-icon empty"><i class="ti ti-plus"></i></div>
+            <div class="st-slot-name st-name-empty">{{ 'SPEED_TEST.Model n' | translate: { n: i + 1 } }}</div>
+            <div class="st-slot-provider">{{ (i === 0 ? 'SPEED_TEST.Required' : 'SPEED_TEST.Optional') | translate }}</div>
+          }
+
+          <!-- Step 1: provider -->
+          <select
+            class="form-select st-slot-select"
+            [value]="slotProvider()[i] ?? ''"
+            (change)="onProviderChange(i, $event)"
+          >
+            <option value="">{{ 'SPEED_TEST.Provider option' | translate }}</option>
+            @for (p of providerList(); track p.id) {
+              <option [value]="p.id">{{ p.label }}</option>
+            }
+          </select>
+
+          <!-- Step 2: model of that provider -->
+          <select
+            class="form-select st-slot-select"
+            [value]="modelAt(i)?.id ?? ''"
+            (change)="onModelChange(i, $event)"
+            [disabled]="!slotProvider()[i]"
+          >
+            <option value="">{{ 'SPEED_TEST.Model option' | translate }}</option>
+            @for (m of modelsForProvider(slotProvider()[i]); track m.id) {
+              <option [value]="m.id" [disabled]="isChosenElsewhere(m.id, i) || m.available === false">
+                {{ m.label }}{{ m.available === false ? ' (' + ('SPEED_TEST.CLI not installed' | translate) + ')' : '' }}
+              </option>
+            }
+          </select>
+        </div>
+      }
+    </div>
+
+    <!-- Run button, front and center below the model picks -->
+    <div class="st-run-row">
+      <button
+        type="button"
+        class="btn st-run-btn-big"
+        [disabled]="!svc.canRun()"
+        (click)="svc.run()"
+      >
+        <i class="ti ti-rocket"></i>
+        {{ 'SPEED_TEST.Run' | translate }}
+        @if (svc.selected().length > 1) {
+          <span class="st-run-sub">{{ 'SPEED_TEST.Race together' | translate: { count: svc.selected().length } }}</span>
+        }
+      </button>
+    </div>
+  }
+
+  <!-- ═══════════ RUNNING — the race: one live card per model ═══════════ -->
+  @if (svc.running()) {
+    <div class="st-run-panel">
+      <!-- ONE clock for the whole race: everyone started on this gun. -->
+      <div class="st-global-clock">
+        <div class="st-clock-value">{{ runClock() }}</div>
+        <div class="st-clock-sub">{{ runningInfo() }} · {{ 'SPEED_TEST.Fair' | translate }}</div>
+        <div class="st-queue-bar">
+          <div class="st-queue-fill" [style.width.%]="queuePct()"></div>
+        </div>
+      </div>
+
+      <div class="st-race">
+        @for (id of svc.selected(); track id) {
+          @if (raceModel(id); as m) {
+            <div
+              class="st-race-card"
+              [class.done]="liveFor(id).status === 'done'"
+              [class.failed]="liveFor(id).status === 'failed' || liveFor(id).status === 'cli-missing'"
+              [class.st-queued]="liveFor(id).status === 'pending' || liveFor(id).status === 'skipped'"
+              [class.st-running]="liveFor(id).status === 'running'"
+              [class.st-celebrate]="justFinished(id)"
+            >
+              @if (justFinished(id)) {
+                <div class="st-confetti" aria-hidden="true">
+                  @for (p of confettiPieces; track p) { <span></span> }
+                </div>
+              }
+              <div
+                class="st-spinner-ring"
+                [class.indeterminate]="liveFor(id).status === 'running' && !liveFor(id).timeoutMs"
+                [class.finished]="liveFor(id).status !== 'running' && liveFor(id).status !== 'pending'"
+                [style.--pct.%]="racePct(id)"
+              >
+                <div class="st-spinner-core" [style.background]="providerColor(m.provider)">
+                  @if (liveFor(id).status === 'done') {
+                    <i class="ti ti-flag-filled"></i>
+                  } @else if (liveFor(id).status === 'failed' || liveFor(id).status === 'cli-missing') {
+                    <i class="ti ti-x"></i>
+                  } @else if (liveFor(id).status === 'skipped') {
+                    <i class="ti ti-player-skip-forward"></i>
+                  } @else {
+                    <iconify-icon [attr.icon]="providerIcon(m.provider)" width="26"></iconify-icon>
+                  }
+                </div>
+              </div>
+              <div class="st-spinner-model">{{ m.label }}</div>
+              @switch (liveFor(id).status) {
+                @case ('done') {
+                  <div class="st-spinner-round">{{ 'SPEED_TEST.Finished' | translate }} 🏁</div>
+                  <!-- Its finish time: crossed the line at this mark on the race clock. -->
+                  <div class="st-spinner-timer done">{{ secs(liveFor(id).wallMs ?? 0) }}</div>
+                }
+                @case ('failed') {
+                  <div class="st-spinner-round">{{ 'SPEED_TEST.Failed' | translate }}</div>
+                  <div class="st-spinner-timer failed">—</div>
+                }
+                @case ('cli-missing') {
+                  <div class="st-spinner-round">{{ 'SPEED_TEST.CLI not installed' | translate }}</div>
+                  <div class="st-spinner-timer failed">—</div>
+                }
+                @default {
+                  <!-- No per-card timer, no waiting state: everyone races on
+                       the ONE global clock above. -->
+                  <div class="st-spinner-round">
+                    {{ raceRoundLabel(id) }}
+                    @if (isStreaming(id)) { <span class="st-stream-dot" [title]="'SPEED_TEST.Streaming' | translate"></span> }
+                  </div>
+                  <div class="st-wait-quip">{{ waitQuip(id) }}</div>
+                }
+              }
+            </div>
+          }
+        }
+      </div>
+
+      <button type="button" class="btn st-stop-btn" (click)="svc.abort()">
+        <i class="ti ti-player-stop-filled"></i> {{ 'SPEED_TEST.Stop' | translate }}
+      </button>
+    </div>
+  }
+
+  <!-- ═══════════ BENCHMARK TABLE (primary result) ═══════════ -->
+  @if (svc.results().length >= 1) {
+    <div class="st-results-header">
+      <div class="st-section-label">{{ 'SPEED_TEST.Results' | translate }}</div>
+      <div class="st-share-actions">
+        <button class="st-share-btn" type="button" (click)="downloadImage()" [disabled]="exporting()">
+          <i class="ti ti-download"></i>
+          <span class="st-share-btn-label">{{ 'SPEED_TEST.Save image' | translate }}</span>
+        </button>
+        <button class="st-share-btn" type="button" (click)="copyImage()" [disabled]="exporting()" [title]="'SPEED_TEST.Copy image' | translate" [attr.aria-label]="'SPEED_TEST.Copy image' | translate">
+          <i class="ti ti-copy"></i>
+        </button>
+        <span class="st-share-sep">{{ 'SPEED_TEST.Share' | translate }}</span>
+        <button class="st-share-btn brand fb" type="button" (click)="shareToNetwork('facebook')" [disabled]="exporting()">
+          <i class="ti ti-brand-facebook"></i>
+          <span class="st-share-btn-label">Facebook</span>
+        </button>
+        <button class="st-share-btn brand li" type="button" (click)="shareToNetwork('linkedin')" [disabled]="exporting()">
+          <i class="ti ti-brand-linkedin"></i>
+          <span class="st-share-btn-label">LinkedIn</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="st-share-surface" [class.exporting]="exporting()" #shareSurface>
+      <div class="st-export-title">
+        <i class="ti ti-gauge"></i>
+        <span>PromptOps AI Agent Evals</span>
+      </div>
+
+      <div class="st-leaders">
+        <div class="st-leader-axis">
+          <span class="st-leader-label">🚀 {{ 'SPEED_TEST.Speed' | translate }}</span>
+          @if (speedLeader(); as s) {
+            @if (s.decisive) {
+              <span class="st-leader-name">{{ s.result.label }}</span>
+              <span class="st-leader-detail">{{ speedOf(s.result)?.tokensPerSec }} tok/s · CLI</span>
+            } @else {
+              <span class="st-leader-tie">{{ 'SPEED_TEST.Too close' | translate }}</span>
+            }
+          } @else {
+            <span class="st-leader-tie">—</span>
+          }
+        </div>
+
+        @if (gradedRun()) {
+          <div class="st-leader-axis">
+            <span class="st-leader-label">🎯 {{ 'SPEED_TEST.Accuracy' | translate }}</span>
+            @if (accuracyLeader(); as a) {
+              @if (a.decisive) {
+                <span class="st-leader-name">{{ a.result.label }}</span>
+                <span class="st-leader-detail">{{ 'SPEED_TEST.Correct' | translate: { pct: a.result.accuracyPct } }}</span>
+              } @else {
+                <span class="st-leader-tie">{{ 'SPEED_TEST.Tied' | translate }}</span>
+              }
+            } @else {
+              <span class="st-leader-tie">—</span>
+            }
+          </div>
+        }
+
+        @if (hasTaskRound()) {
+        <div class="st-leader-axis">
+          <span class="st-leader-label">⏱️ {{ 'SPEED_TEST.Task time' | translate }}</span>
+          @if (timeLeader(); as t) {
+            @if (t.decisive) {
+              <span class="st-leader-name">{{ t.result.label }}</span>
+              <span class="st-leader-detail">{{ secs(taskOf(t.result)?.totalMs ?? 0) }}</span>
+            } @else {
+              <span class="st-leader-tie">{{ 'SPEED_TEST.Within noise' | translate }}</span>
+            }
+          } @else {
+            <span class="st-leader-tie">—</span>
+          }
+        </div>
+        }
+      </div>
+
+      <p class="st-axes-note" [innerHTML]="'SPEED_TEST.Axes note' | translate"></p>
+
+      <div class="st-compare-wrap">
+        <table class="st-compare" [attr.data-cols]="svc.results().length">
+          <thead>
+            <tr>
+              <th class="st-metric-col"></th>
+              @for (r of svc.results(); track r.modelId) {
+                <th>
+                  <div class="st-th-model">
+                    <span class="st-th-icon" [style.background]="providerColor(r.provider)">
+                      <iconify-icon [attr.icon]="providerIcon(r.provider)" width="16"></iconify-icon>
+                    </span>
+                    <span class="st-th-name">{{ r.label }}</span>
+                  </div>
+                  @if (!r.ok) { <span class="st-fail">{{ 'SPEED_TEST.Error' | translate }}</span> }
+                </th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of visibleMetricRows(); track row.key) {
+              <tr>
+                <td class="st-metric-col">
+                  <div class="st-metric-name">{{ row.label | translate }}</div>
+                  <div class="st-metric-hint">{{ row.hint | translate }}</div>
+                </td>
+                @for (r of svc.results(); track r.modelId) {
+                  <td>
+                    @if (r.ok) {
+                      <div class="st-value" [attr.title]="row.title ? row.title(r) : null">{{ row.display(r) }}</div>
+                      <div class="st-bar">
+                        <div
+                          class="st-bar-fill"
+                          [class.st-bar-best]="svc.barPct(row.value(r), metricValues(row), row.lowerIsBetter) === 100"
+                          [style.width.%]="svc.barPct(row.value(r), metricValues(row), row.lowerIsBetter)"
+                        ></div>
+                      </div>
+                    } @else {
+                      <div class="st-value st-fail">{{ r.error || ('SPEED_TEST.Failed' | translate) }}</div>
+                    }
+                  </td>
+                }
+              </tr>
+            }
+            @if (hasBaselines()) {
+              <tr>
+                <td class="st-metric-col">
+                  <div class="st-metric-name">📏 {{ 'SPEED_TEST.Expected range' | translate }}</div>
+                  <div class="st-metric-hint">{{ 'SPEED_TEST.Expected range hint' | translate }}</div>
+                </td>
+                @for (r of svc.results(); track r.modelId) {
+                  <td>
+                    @if (r.baseline; as b) {
+                      <div class="st-baseline-cell">
+                        <span class="st-tier-chip" [attr.data-tier]="b.tier">{{ tierLabel(b.tier) }}</span>
+                        <span class="st-baseline-chip" [attr.data-class]="b.classification">
+                          {{ b.tokensEstimated ? '~' : '' }}{{ baselineChipText(b) }}
+                        </span>
+                      </div>
+                      @if (b.historyMedianTps) {
+                        <div class="st-baseline-hist">{{ 'SPEED_TEST.Median history' | translate: { median: b.historyMedianTps, runs: b.historyRuns } }}</div>
+                      }
+                    } @else {
+                      <div class="st-value">—</div>
+                    }
+                  </td>
+                }
+              </tr>
+            }
+            <tr>
+              <td class="st-metric-col">
+                <div class="st-metric-name">{{ 'SPEED_TEST.Rounds' | translate }}</div>
+                <div class="st-metric-hint">{{ (hasTaskRound() ? 'SPEED_TEST.Rounds hint task' : 'SPEED_TEST.Rounds hint') | translate }}</div>
+              </td>
+              @for (r of svc.results(); track r.modelId) {
+                <td>
+                  <div class="st-rounds">
+                    <span>🚀 {{ roundMetric(r, 'speed') }}</span>
+                    @if (hasTaskRound()) {
+                      <span>🔍 {{ roundMetric(r, 'analysis') }}</span>
+                    }
+                  </div>
+                </td>
+              }
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="st-brand">
+        <span>{{ 'MENU.AI Agent Evals' | translate }}</span>
+        <span class="st-brand-sep">·</span>
+        <img class="st-brand-logo" src="/assets/logos/promptops-wordmark.png" alt="PromptOps" />
+      </div>
+    </div>
+
+    @if (accuracyAudit(); as audit) {
+      <details class="st-audit">
+        <summary>🎯 {{ 'SPEED_TEST.Accuracy detail' | translate }}</summary>
+        <div class="st-audit-wrap">
+          <table class="st-audit-table">
+            <thead>
+              <tr>
+                <th>{{ 'SPEED_TEST.Question' | translate }}</th>
+                <th>{{ 'SPEED_TEST.Ground truth' | translate }}</th>
+                @for (m of audit.models; track m) { <th>{{ m }}</th> }
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of audit.rows; track row.id) {
+                <tr>
+                  <td class="st-audit-q">{{ row.question }}</td>
+                  <td class="st-audit-exp">{{ row.expected }}</td>
+                  @for (c of row.cells; track c.label) {
+                    <td [class.ok]="c.correct" [class.no]="!c.correct">
+                      {{ c.correct ? '✓' : '✗' }} {{ c.answer }}
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </details>
+    }
+  }
+
+  <!-- ── Small collapsible terminal (raw CLI output, for consultation) ── -->
+  @if (svc.logLines().length || svc.running()) {
+    <div class="st-log-toggle-row">
+      <button type="button" class="st-log-toggle" (click)="showLog.set(!showLog())">
+        <i class="ti" [class.ti-chevron-right]="!showLog()" [class.ti-chevron-down]="showLog()"></i>
+        {{ 'SPEED_TEST.Raw log' | translate }}
+        <span class="st-count">{{ 'SPEED_TEST.Lines' | translate: { count: svc.logLines().length } }}</span>
+      </button>
+    </div>
+    @if (showLog()) {
+      <div class="st-terminal" #terminal>
+        @for (line of svc.logLines(); track $index) {
+          <div class="st-line">{{ line }}</div>
+        }
+        @if (!svc.logLines().length) {
+          <div class="st-line st-muted">{{ 'SPEED_TEST.Waiting output' | translate }}</div>
+        }
+      </div>
+    }
+  }
+</div>

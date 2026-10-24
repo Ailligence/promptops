@@ -1,0 +1,334 @@
+// =============================================================================
+//  Quick Access — tokenized (purple/green hardcoded → --po-accent / --po-success)
+// =============================================================================
+
+// ─── Quick Access Header ───
+.quick-access-header {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: var(--po-space-3) !important;
+  pointer-events: auto !important;
+}
+
+.quick-access-edit-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid transparent;
+  border-radius: var(--po-radius-md);
+  background: var(--po-accent-muted-bg);
+  color: var(--po-accent);
+  cursor: pointer;
+  transition: background var(--po-duration-fast) var(--po-ease-out),
+              color var(--po-duration-fast) var(--po-ease-out);
+  font-size: var(--po-text-sm);
+  padding: 0;
+
+  &:hover {
+    background: var(--po-accent-muted-bg);
+    color: var(--po-accent-hover);
+    border-color: var(--po-accent);
+  }
+}
+
+// ─── View Mode Items ───
+.quick-access-item {
+  padding: 0 var(--po-space-3);
+
+  .quick-access-link {
+    .quick-access-icon {
+      background: var(--qa-icon-bg, var(--po-accent-muted-bg)) !important;
+
+      i {
+        color: var(--qa-icon-color, var(--po-accent)) !important;
+      }
+    }
+
+    &:hover .quick-access-icon {
+      background: var(--qa-icon-bg-hover, var(--po-accent-muted-bg)) !important;
+
+      i {
+        color: var(--qa-icon-color-hover, var(--po-accent-hover)) !important;
+      }
+    }
+
+    // Session type — success tint
+    &.session-link .quick-access-icon {
+      background: var(--qa-session-bg, var(--po-success-bg)) !important;
+
+      i {
+        color: var(--qa-session-color, var(--po-success)) !important;
+      }
+    }
+
+    &.session-link:hover .quick-access-icon {
+      background: var(--qa-session-bg-hover, var(--po-success-bg)) !important;
+
+      i {
+        color: var(--qa-session-color-hover, var(--po-success)) !important;
+      }
+    }
+
+    // Workspace type — warning tint
+    &.workspace-link .quick-access-icon {
+      background: var(--qa-workspace-bg, var(--po-warning-bg)) !important;
+
+      i {
+        color: var(--qa-workspace-color, var(--po-warning)) !important;
+      }
+    }
+
+    &.workspace-link:hover .quick-access-icon {
+      background: var(--qa-workspace-bg-hover, var(--po-warning-bg)) !important;
+
+      i {
+        color: var(--qa-workspace-color-hover, var(--po-warning)) !important;
+      }
+    }
+  }
+}
+
+// ─── Empty State ───
+.quick-access-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--po-space-2);
+  padding: var(--po-space-3) var(--po-space-4);
+  margin: var(--po-space-1) var(--po-space-4);
+  border-radius: var(--po-radius-lg);
+  background: var(--po-bg-2);
+  border: 1px dashed var(--po-border-subtle);
+}
+
+.quick-access-empty-text {
+  font-size: var(--po-text-xs);
+  color: var(--po-text-tertiary);
+  font-weight: var(--po-weight-medium);
+}
+
+.quick-access-add-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px dashed var(--po-border-subtle);
+  border-radius: var(--po-radius-md);
+  background: var(--po-bg-2);
+  color: var(--po-text-tertiary);
+  cursor: pointer;
+  transition: background var(--po-duration-fast) var(--po-ease-out),
+              color var(--po-duration-fast) var(--po-ease-out);
+  font-size: var(--po-text-base);
+  padding: 0;
+
+  &:hover {
+    background: var(--po-accent-muted-bg);
+    border-color: var(--po-accent);
+    color: var(--po-accent);
+  }
+}
+
+// ─── Edit Mode ───
+.quick-access-edit-container {
+  list-style: none;
+  padding: var(--po-space-1) var(--po-space-4);
+}
+
+.quick-access-drop-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--po-space-1);
+  min-height: 20px;
+}
+
+.quick-access-drag-item {
+  display: flex;
+  align-items: center;
+  gap: var(--po-space-2);
+  padding: var(--po-space-2);
+  border-radius: var(--po-radius-md);
+  background: var(--po-bg-2);
+  border: 1px solid var(--po-border-subtle);
+  transition: background var(--po-duration-fast) var(--po-ease-out),
+              border-color var(--po-duration-fast) var(--po-ease-out);
+  cursor: default;
+  position: relative;
+
+  &:hover {
+    background: var(--po-bg-3);
+    border-color: var(--po-border-strong);
+  }
+
+  &.cdk-drag-animating {
+    transition: transform 250ms var(--po-ease-out);
+  }
+}
+
+.cdk-drag-preview {
+  display: flex;
+  align-items: center;
+  gap: var(--po-space-2);
+  padding: var(--po-space-2);
+  border-radius: var(--po-radius-md);
+  background: var(--po-bg-3);
+  border: 1px solid var(--po-border-strong);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.45);
+  font-size: var(--po-text-base);
+  color: var(--po-text-primary);
+}
+
+.drag-placeholder {
+  height: 40px;
+  border: 2px dashed var(--po-border-subtle);
+  border-radius: var(--po-radius-md);
+  background: var(--po-bg-2);
+  transition: border-color var(--po-duration-fast) var(--po-ease-out);
+}
+
+.drag-handle {
+  cursor: grab;
+  color: var(--po-text-tertiary);
+  font-size: 0.9rem;
+  transition: color var(--po-duration-fast) var(--po-ease-out);
+  flex-shrink: 0;
+
+  &:hover { color: var(--po-text-secondary); }
+  &:active { cursor: grabbing; }
+}
+
+.drag-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid transparent;
+  border-radius: var(--po-radius-md);
+  background: var(--po-accent-muted-bg);
+  color: var(--po-accent);
+  cursor: pointer;
+  transition: background var(--po-duration-fast) var(--po-ease-out),
+              color var(--po-duration-fast) var(--po-ease-out);
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  position: relative;
+  padding: 0;
+
+  &:hover {
+    background: var(--po-accent-muted-bg);
+    color: var(--po-accent-hover);
+    border-color: var(--po-accent);
+  }
+}
+
+.drag-label {
+  flex: 1;
+  font-size: var(--po-text-base);
+  font-weight: var(--po-weight-medium);
+  color: var(--po-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.drag-remove-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid transparent;
+  border-radius: var(--po-radius-sm);
+  background: transparent;
+  color: var(--po-text-tertiary);
+  cursor: pointer;
+  transition: background var(--po-duration-fast) var(--po-ease-out),
+              color var(--po-duration-fast) var(--po-ease-out);
+  font-size: var(--po-text-sm);
+  flex-shrink: 0;
+  padding: 0;
+
+  &:hover {
+    background: var(--po-error-bg);
+    color: var(--po-error);
+  }
+}
+
+// ─── Type Badge ───
+.drag-type-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--po-radius-sm);
+  font-size: var(--po-text-xs);
+  flex-shrink: 0;
+  background: var(--po-accent-muted-bg);
+  color: var(--po-accent);
+
+  &.session {
+    background: var(--po-success-bg);
+    color: var(--po-success);
+  }
+
+  &.workspace {
+    background: var(--po-warning-bg);
+    color: var(--po-warning);
+  }
+}
+
+// ─── Add Buttons (Edit Mode) ───
+.quick-access-add-row {
+  display: flex;
+  gap: var(--po-space-1);
+  margin-top: var(--po-space-2);
+}
+
+.quick-access-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--po-space-2);
+  flex: 1;
+  padding: var(--po-space-2);
+  border: 1px dashed var(--po-border-subtle);
+  border-radius: var(--po-radius-md);
+  background: var(--po-bg-2);
+  color: var(--po-text-tertiary);
+  font-size: var(--po-text-sm);
+  font-weight: var(--po-weight-medium);
+  cursor: pointer;
+  transition: background var(--po-duration-fast) var(--po-ease-out),
+              border-color var(--po-duration-fast) var(--po-ease-out),
+              color var(--po-duration-fast) var(--po-ease-out);
+
+  i { font-size: 0.85rem; }
+
+  &:hover {
+    background: var(--po-accent-muted-bg);
+    border-color: var(--po-accent);
+    color: var(--po-accent);
+  }
+
+  &.session {
+    border-color: var(--po-border-subtle);
+    background: var(--po-success-bg);
+    color: var(--po-success);
+
+    &:hover {
+      background: var(--po-bg-3);
+      border-color: var(--po-success);
+      color: var(--po-success);
+    }
+  }
+}
+
+// Session picker styles are in styles.scss (global) because
+// the session picker is rendered via portal to document.body

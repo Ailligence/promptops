@@ -1,0 +1,20 @@
+<ng-progress
+  #progressBar
+  [trickleSpeed]="10"
+  [speed]="10"
+  [spinner]="false"
+  [thick]="true"
+  color="#4F46E5"
+  [ease]="'linear'"
+></ng-progress>
+
+<router-outlet />
+
+<!-- Global Claude Hook Modal — appears on any screen -->
+<app-claude-hook-modal />
+
+<!-- macOS folder-access banner — recovery for TCC-denied session folders -->
+<app-folder-access-modal />
+
+<!-- Local data file problems (set aside, read-only, unreadable records): shown once per start, on any route. -->
+<app-store-health-banner />

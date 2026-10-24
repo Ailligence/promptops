@@ -1,0 +1,245 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <iconify-icon icon="solar:monitor-smartphone-bold-duotone" width="20"></iconify-icon>
+    {{ 'SESSIONS.DEVICE_WORKSPACE.Title' | translate }}
+  </h5>
+  <button type="button" class="btn-close" (click)="modal.dismiss()" [attr.aria-label]="'COMMON.Close' | translate"></button>
+</div>
+
+<div class="modal-body">
+  <div class="session-info-card">
+    <div class="info-row">
+      <span class="info-label">{{ 'SESSIONS.Session' | translate }}</span>
+      <span class="info-value">{{ sessionName }}</span>
+    </div>
+    @if (sessionProvider) {
+      <div class="info-row">
+        <span class="info-label">{{ 'SESSIONS.Provider' | translate }}</span>
+        <span class="info-value provider-badge">{{ sessionProvider }}</span>
+      </div>
+    }
+  </div>
+
+  @if (mode() === 'not_configured') {
+    <div class="alert-banner warning">
+      <iconify-icon icon="solar:info-circle-bold" width="18"></iconify-icon>
+      <span>{{ 'SESSIONS.DEVICE_WORKSPACE.Not configured message' | translate }}</span>
+    </div>
+  }
+
+  @if (mode() === 'invalid_path') {
+    <div class="alert-banner error">
+      <iconify-icon icon="solar:danger-triangle-bold" width="18"></iconify-icon>
+      <span>{{ 'SESSIONS.DEVICE_WORKSPACE.Invalid path message' | translate }}</span>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="alert-banner error">
+      <iconify-icon icon="solar:close-circle-bold" width="18"></iconify-icon>
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  @if (selectedPath()) {
+    <div class="selected-path">
+      <iconify-icon icon="solar:folder-check-bold-duotone" width="18"></iconify-icon>
+      <span class="path-text">{{ selectedPath() }}</span>
+      <button type="button" class="btn-clear" (click)="clearSelection()" [title]="'ASSETS.Clear selection' | translate" [attr.aria-label]="'ASSETS.Clear selection' | translate">
+        <iconify-icon icon="solar:close-circle-line-duotone" width="16"></iconify-icon>
+      </button>
+    </div>
+  }
+
+  <!-- Windows-only: terminal shell for this session (PowerShell/pwsh/cmd/Git Bash/WSL) -->
+  @if (isWindowsDesktop && terminalShells().length) {
+    <div class="shell-field">
+      <label>{{ 'SESSIONS.Shell terminal label' | translate }}</label>
+      <select
+        class="form-select form-select-sm"
+        [ngModel]="shellId()"
+        (ngModelChange)="shellId.set($event)"
+        [disabled]="saving() || cloning()"
+      >
+        @if (isTauriDesktop) {
+          <option value="">{{ 'SESSIONS.Shell default option' | translate }}</option>
+        }
+        @for (s of terminalShells(); track s.id) {
+          <option [value]="s.id">{{ s.label }}</option>
+        }
+      </select>
+      <span class="shell-hint">{{ 'SESSIONS.Shell terminal hint' | translate }}</span>
+    </div>
+  }
+
+  @if (!showCloneForm() && !showNewFolderForm()) {
+    <div class="action-cards">
+      <button class="action-card" (click)="selectFolder()" [disabled]="saving()">
+        <iconify-icon icon="solar:folder-open-bold-duotone" width="28"></iconify-icon>
+        <div class="action-text">
+          <strong>{{ 'SESSIONS.DEVICE_WORKSPACE.Select folder' | translate }}</strong>
+          <span>{{ 'SESSIONS.DEVICE_WORKSPACE.Select folder desc' | translate }}</span>
+        </div>
+      </button>
+
+      <button class="action-card" (click)="openCloneForm()" [disabled]="saving()">
+        <iconify-icon icon="solar:cloud-download-bold-duotone" width="28"></iconify-icon>
+        <div class="action-text">
+          <strong>{{ 'SESSIONS.DEVICE_WORKSPACE.Clone repository' | translate }}</strong>
+          <span>{{ 'SESSIONS.DEVICE_WORKSPACE.Clone repository desc' | translate }}</span>
+        </div>
+      </button>
+
+      <button class="action-card" (click)="openNewFolderForm()" [disabled]="saving()">
+        <iconify-icon icon="solar:add-folder-bold-duotone" width="28"></iconify-icon>
+        <div class="action-text">
+          <strong>{{ 'SESSIONS.DEVICE_WORKSPACE.Create folder' | translate }}</strong>
+          <span>{{ 'SESSIONS.DEVICE_WORKSPACE.Create folder desc' | translate }}</span>
+        </div>
+      </button>
+    </div>
+  } @else if (showNewFolderForm()) {
+    <!-- New folder form: pick the location, type the folder name -->
+    <div class="clone-form">
+      <div class="clone-form-header">
+        <iconify-icon icon="solar:add-folder-bold-duotone" width="22"></iconify-icon>
+        <strong>{{ 'SESSIONS.DEVICE_WORKSPACE.Create folder' | translate }}</strong>
+        <button type="button" class="btn-back" (click)="closeNewFolderForm()" [disabled]="creatingFolder()" [title]="'BUTTONS.Back' | translate" [attr.aria-label]="'BUTTONS.Back' | translate">
+          <iconify-icon icon="solar:arrow-left-line-duotone" width="18"></iconify-icon>
+        </button>
+      </div>
+
+      <div class="clone-field">
+        <label>{{ 'SESSIONS.DEVICE_WORKSPACE.New folder parent label' | translate }}</label>
+        <div class="clone-destination">
+          <span class="dest-path" [class.placeholder]="!newFolderParent()">
+            {{ newFolderParent() || ('SESSIONS.DEVICE_WORKSPACE.Clone destination placeholder' | translate) }}
+          </span>
+          <button class="btn-browse" (click)="selectNewFolderParent()" [disabled]="creatingFolder()">
+            {{ 'SESSIONS.DEVICE_WORKSPACE.Browse' | translate }}
+          </button>
+        </div>
+      </div>
+
+      <div class="clone-field">
+        <label>{{ 'SESSIONS.DEVICE_WORKSPACE.New folder name label' | translate }}</label>
+        <input
+          type="text"
+          [ngModel]="newFolderName()"
+          (ngModelChange)="newFolderName.set($event)"
+          [attr.aria-label]="'SESSIONS.DEVICE_WORKSPACE.New folder name label' | translate"
+          (keyup.enter)="canCreateFolder && !creatingFolder() ? createNewFolder() : null"
+          placeholder="my-project"
+          [disabled]="creatingFolder()"
+          autofocus
+        />
+      </div>
+
+      @if (newFolderPreview) {
+        <div class="clone-progress">
+          <iconify-icon icon="solar:folder-path-connect-bold-duotone" width="16"></iconify-icon>
+          <span class="repo-url">{{ newFolderPreview }}</span>
+        </div>
+      }
+
+      @if (creatingFolder()) {
+        <div class="clone-progress">
+          <span class="spinner-border spinner-border-sm"></span>
+          <span>{{ 'SESSIONS.DEVICE_WORKSPACE.Creating folder' | translate }}</span>
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- Clone form -->
+    <div class="clone-form">
+      <div class="clone-form-header">
+        <iconify-icon icon="solar:cloud-download-bold-duotone" width="22"></iconify-icon>
+        <strong>{{ 'SESSIONS.DEVICE_WORKSPACE.Clone repository' | translate }}</strong>
+        <button type="button" class="btn-back" (click)="closeCloneForm()" [disabled]="cloning()" [title]="'BUTTONS.Back' | translate" [attr.aria-label]="'BUTTONS.Back' | translate">
+          <iconify-icon icon="solar:arrow-left-line-duotone" width="18"></iconify-icon>
+        </button>
+      </div>
+
+      <div class="clone-field">
+        <label>{{ 'SESSIONS.DEVICE_WORKSPACE.Clone url label' | translate }}</label>
+        <input
+          type="text"
+          [ngModel]="cloneUrl()"
+          (ngModelChange)="cloneUrl.set($event)"
+          (keyup.enter)="canClone && !cloning() ? cloneRepository() : null"
+          [attr.aria-label]="'SESSIONS.DEVICE_WORKSPACE.Clone url label' | translate"
+          placeholder="https://github.com/user/repo.git"
+          [disabled]="cloning()"
+          autofocus
+        />
+      </div>
+
+      <div class="clone-field">
+        <label>{{ 'SESSIONS.DEVICE_WORKSPACE.Clone branch label' | translate }}</label>
+        <input
+          type="text"
+          [ngModel]="cloneBranch()"
+          (ngModelChange)="cloneBranch.set($event)"
+          (keyup.enter)="canClone && !cloning() ? cloneRepository() : null"
+          [attr.aria-label]="'SESSIONS.DEVICE_WORKSPACE.Clone branch label' | translate"
+          placeholder="main"
+          [disabled]="cloning()"
+        />
+      </div>
+
+      <div class="clone-field">
+        <label>{{ 'SESSIONS.DEVICE_WORKSPACE.Clone destination label' | translate }}</label>
+        <div class="clone-destination">
+          <span class="dest-path" [class.placeholder]="!cloneDestination()">
+            {{ cloneDestination() || ('SESSIONS.DEVICE_WORKSPACE.Clone destination placeholder' | translate) }}
+          </span>
+          <button class="btn-browse" (click)="selectCloneDestination()" [disabled]="cloning()">
+            {{ 'SESSIONS.DEVICE_WORKSPACE.Browse' | translate }}
+          </button>
+        </div>
+      </div>
+
+      @if (cloning()) {
+        <div class="clone-progress">
+          <span class="spinner-border spinner-border-sm"></span>
+          <span>{{ 'SESSIONS.DEVICE_WORKSPACE.Cloning' | translate }}</span>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<div class="modal-footer">
+  <button class="btn btn-sm btn-outline-secondary" (click)="modal.dismiss()">
+    {{ 'COMMON.Cancel' | translate }}
+  </button>
+
+  @if (showNewFolderForm()) {
+    <button
+      class="btn btn-sm btn-primary"
+      (click)="createNewFolder()"
+      [disabled]="!canCreateFolder || creatingFolder()"
+    >
+      @if (creatingFolder()) {
+        <span class="spinner-border spinner-border-sm me-1"></span>
+      }
+      <iconify-icon icon="solar:add-folder-bold" width="14" class="me-1"></iconify-icon>
+      {{ 'SESSIONS.DEVICE_WORKSPACE.Create folder confirm' | translate }}
+    </button>
+  } @else if (showCloneForm()) {
+    <button class="btn btn-sm btn-primary" (click)="cloneRepository()" [disabled]="!canClone || cloning()">
+      @if (cloning()) {
+        <span class="spinner-border spinner-border-sm me-1"></span>
+      }
+      <iconify-icon icon="solar:cloud-download-bold" width="14" class="me-1"></iconify-icon>
+      {{ 'SESSIONS.DEVICE_WORKSPACE.Clone and configure' | translate }}
+    </button>
+  } @else {
+    <button class="btn btn-sm btn-primary" (click)="confirm()" [disabled]="!selectedPath() || saving()">
+      @if (saving()) {
+        <span class="spinner-border spinner-border-sm me-1"></span>
+      }
+      {{ 'SESSIONS.DEVICE_WORKSPACE.Confirm' | translate }}
+    </button>
+  }
+</div>

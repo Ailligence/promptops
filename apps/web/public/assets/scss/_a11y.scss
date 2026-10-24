@@ -1,0 +1,45 @@
+// =============================================================================
+//  Accessibility — focus-visible + reduced-motion
+// -----------------------------------------------------------------------------
+//  This file must be imported AFTER components/_reboot.scss, so it overrides
+//  the reboot's `outline: none !important` and restores a keyboard-only ring.
+// =============================================================================
+
+// Mouse/touch: no outline
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+// Keyboard-only: steel-blue ring
+:focus-visible {
+  outline: 2px solid var(--po-accent);
+  outline-offset: 2px;
+  border-radius: var(--po-radius-sm);
+}
+
+// Elements with their own radius: inherit the radius for a matching ring
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+.btn:focus-visible {
+  outline: 2px solid var(--po-accent);
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+
+// Reduced motion — single global media query
+// Covers: all animations/transitions of all components.
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

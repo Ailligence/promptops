@@ -1,0 +1,24 @@
+// Plain HTML elements, on top of Bootstrap's reboot.
+
+::selection {
+  background: rgba($indigo, 0.15);
+  color: $indigo;
+}
+
+// Slightly heavier labels and emphasis than the Geist body weight.
+label {
+  font-weight: 500;
+}
+
+b,
+strong,
+th {
+  font-weight: 600;
+}
+
+// Number fields without the stepper arrows.
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

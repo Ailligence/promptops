@@ -1,0 +1,16 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "detached",
+  "description": "Detached windows (Floor plan): they load only the app's own web UI, never external content, so they get the same commands as the main window. `core:window:allow-close` is for the close button of the detached floor plan.",
+  "windows": [
+    "detached-*"
+  ],
+  "webviews": [
+    "detached-*"
+  ],
+  "permissions": [
+    "core:default",
+    "core:window:allow-close",
+    "main-window-commands"
+  ]
+}

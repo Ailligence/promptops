@@ -26,12 +26,12 @@
 </p>
 
 <p align="center">
-  <sub>The source code of the open-source edition, with no account, no sign-in and no PromptOps server, is coming to this repository. PromptOps Desktop is the ready-to-run app, with Teams, sync and the mobile app. <a href="PRIVACY.md">What leaves your machine →</a></sub>
+  <sub>This repository is home to the PromptOps Desktop releases and to the open-source edition: no account, no sign-in, no PromptOps server, and you <a href="#open-source-edition--build-it-yourself">build it yourself</a>. PromptOps Desktop is the ready-to-run app, with Teams, sync and the mobile app. <a href="PRIVACY.md">What leaves your machine →</a></sub>
 </p>
 
 ## Quick Start
 
-1. **[Download PromptOps Desktop](https://github.com/shellonback/promptops/releases/latest)** or run `npx @shellonback/promptops`.
+1. **[Download PromptOps Desktop](https://github.com/shellonback/promptops/releases/latest)** or run `npx @shellonback/promptops`. Or [build the open-source edition](#open-source-edition--build-it-yourself) yourself.
 2. **Add a workspace**: pick the project folder your agents will work on.
 3. **Start a session** with an agent CLI you already use (Claude Code, Codex, Gemini CLI…). PromptOps detects the installed ones.
 4. **Let it open more agents**: ask the lead *"Open 3 PromptOps agents here: one for the tests, one for the README, one for a review"*, and they appear next to it, each on its own part. Claude Code and Codex get the PromptOps MCP server automatically; every other agent can do the same through the `promptops ctl` command in its terminal.
@@ -45,6 +45,8 @@
 ### Agents That Run Agents
 
 Ask your lead agent to split the work: through the built-in MCP server it opens one agent per part, collects their reports and moves work to a new session. Risky actions stay behind your approval.
+
+[MCP server →](apps/desktop/cli/README.md)
 
 </td>
 <td width="50%">
@@ -117,12 +119,12 @@ Teams needs a server, so it lives in [PromptOps Desktop](https://www.promptopera
 
 **Also in the box:**
 
-- **Session Vault** — Sessions, prompts, notes and settings encrypted record by record with AES-256-GCM, key in your OS keychain.
-- **Prompt library** — Versioned prompts with variables, categories and tags, one click away from any agent.
-- **Plugins you build locally** — A sandboxed plugin host and Plugin Studio: scaffold a plugin in a folder, let an agent write it, reload it live. Share it with a pull request to the official catalog.
+- **Session Vault** — Sessions, prompts, notes and settings encrypted record by record with AES-256-GCM, key in your OS keychain. Passphrase-encrypted backups to move to another computer or recover lost data. [Format and threat model →](docs/session-vault.md)
+- **Prompt library** — Versioned prompts with variables, categories, tags and stars, one click away from any agent.
+- **Plugins you build locally** — A sandboxed plugin host and Plugin Studio: scaffold a plugin in a folder, let an agent write it, reload it live. Share it with a pull request to the official catalog. [Plugin guide →](docs/plugins/plugin-guidelines.md)
 - **Built-in dev tools** — Git explorer and AI commit messages, database explorer, code editor, Docker and ports panels, SSH terminals.
 - **Provider limits, handled** — When an agent hits its plan limit, PromptOps shows which other installed CLIs can take over and switches with one click.
-- **Voice prompts on your device** — Local Whisper transcription; your own Groq or OpenAI key only as a fallback, if you add one.
+- **Voice prompts on your device** — Local Whisper transcription; your own Groq key only as a fallback, if you save one in Settings.
 - **Usage and speed** — Token usage per session and a side-by-side speed test of the models you have access to.
 - **Native and light** — Rust and Tauri 2 with a native PTY. No bundled Chromium.
 
@@ -145,7 +147,7 @@ Works with **any CLI agent** — if it runs in a terminal, it runs in PromptOps.
   <a href="https://docs.z.ai"><kbd><img src="docs/assets/providers/zai.svg" alt="" width="16" valign="middle" /> Z.AI</kbd></a> &nbsp;
   <a href="https://www.kimi.com/code"><kbd><img src="docs/assets/providers/kimi.svg" alt="" width="16" valign="middle" /> Kimi</kbd></a> &nbsp;
   <a href="https://opencode.ai/docs/cli/"><kbd><img src="docs/assets/providers/terminal.svg" alt="" width="16" valign="middle" /> OpenCode</kbd></a> &nbsp;
-  <kbd><img src="docs/assets/providers/terminal.svg" alt="" width="16" valign="middle" /> PromptOps CLI</kbd> &nbsp;
+  <a href="apps/desktop/cli/README.md"><kbd><img src="docs/assets/providers/terminal.svg" alt="" width="16" valign="middle" /> PromptOps CLI</kbd></a> &nbsp;
   <kbd>+ any CLI agent</kbd>
 </p>
 
@@ -168,9 +170,79 @@ macOS, Windows and Linux. Includes Teams, sync across devices, the mobile app an
 
 It encrypts your session data with the same algorithm as the open-source edition; the difference is that the key is held by our servers, so your sessions can follow you. See [PRIVACY.md](PRIVACY.md#promptops-desktop-the-hosted-edition).
 
-### Open-source edition
+### Open-source edition — build it yourself
 
-No account and no server: everything stays on your computer. Its source code is coming to this repository, with the commands to build it yourself on macOS, Windows and Linux. [Star](https://github.com/shellonback/promptops) the repo to know when it lands.
+No account and no server: everything stays on your computer. There are no prebuilt binaries of this edition; build it with the commands below.
+
+These are the exact commands our [CI](.github/workflows/build.yml) runs on a clean macOS, Windows and Linux machine for every change.
+
+**1. Install the tools** — [Node.js](https://nodejs.org) 24.15 or newer (22.22.3 or a newer 22.x also works: Angular requires it), [Rust](https://rustup.rs) (stable), Git and CMake.
+
+<details>
+<summary><b>macOS</b></summary>
+
+```bash
+xcode-select --install
+brew install node cmake
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+</details>
+
+<details>
+<summary><b>Windows</b></summary>
+
+Install [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) with the **Desktop development with C++** workload, then in PowerShell:
+
+```powershell
+winget install OpenJS.NodeJS.LTS Rustlang.Rustup Git.Git Kitware.CMake LLVM.LLVM
+```
+
+Open a new terminal afterwards so the new tools are on your `PATH`. WebView2 is already part of Windows 10 and 11.
+
+</details>
+
+<details>
+<summary><b>Linux</b> (Debian, Ubuntu)</summary>
+
+```bash
+sudo apt-get update
+sudo apt-get install -y build-essential curl wget file git cmake clang \
+  libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev \
+  librsvg2-dev libssl-dev libxdo-dev
+curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash - && sudo apt-get install -y nodejs
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+On Fedora, Arch and others, install the same libraries from the [Tauri prerequisites](https://tauri.app/start/prerequisites/#linux) page.
+
+</details>
+
+**2. Get the code and its dependencies** (same on every platform):
+
+```bash
+git clone https://github.com/shellonback/promptops.git
+cd promptops/apps/web
+npm ci
+cd ../desktop
+npm ci
+```
+
+**3. Run it** with hot reload:
+
+```bash
+npm run dev
+```
+
+The first build compiles the Rust side and takes a few minutes; later starts are fast.
+
+**4. Or build the installer** for your platform:
+
+```bash
+npm run build
+```
+
+On macOS the DMG step opens a Finder window for a moment to lay out the disk image (set `CI=true` to skip it). You will find it in `apps/desktop/src-tauri/target/release/bundle/` (`.dmg` on macOS, `.exe` on Windows, `.deb` and `.AppImage` on Linux). These builds are not code-signed. On macOS, the first time you open the app, go to **System Settings → Privacy & Security** and choose **Open Anyway**, or run `xattr -dr com.apple.quarantine /Applications/PromptOps.app`. On Windows, SmartScreen asks you to confirm with **More info → Run anyway**.
 
 ---
 
@@ -187,7 +259,14 @@ No account and no server: everything stays on your computer. Its source code is 
 
 ## Developing
 
-Want to contribute? See [CONTRIBUTING.md](CONTRIBUTING.md). Commits are signed off ([DCO](https://developercertificate.org/)).
+Want to contribute or run locally? See [CONTRIBUTING.md](CONTRIBUTING.md). Commits are signed off ([DCO](https://developercertificate.org/)).
+
+| Path | What it is |
+|---|---|
+| [`apps/desktop`](apps/desktop) | Tauri 2 shell in Rust: terminals, agents, local data store, Session Vault, MCP server and CLI |
+| [`apps/web`](apps/web) | Angular interface |
+| [`apps/npm`](apps/npm) | `npx @shellonback/promptops`: installs PromptOps Desktop, verifying the release signature |
+| [`docs`](docs) | Design notes: the [architecture](docs/architecture.md), the [Session Vault](docs/session-vault.md), the [plugin guide](docs/plugins/plugin-guidelines.md), [dependencies](docs/supply-chain.md) and [how releases are made](docs/releasing.md) |
 
 <a href="https://github.com/shellonback/promptops/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=shellonback/promptops" alt="PromptOps contributors" />
@@ -199,6 +278,6 @@ PromptOps speaks 15 languages: **English**, [Italiano](docs/i18n/README.it.md), 
 
 ## License
 
-PromptOps is free and open source under the [Apache License 2.0](LICENSE).
+PromptOps is free and open source under the [Apache License 2.0](LICENSE). Third-party licenses are listed in [THIRD-PARTY-NOTICES.txt](apps/web/public/THIRD-PARTY-NOTICES.txt).
 
 "PromptOps" and the PromptOps logo are trademarks of Shellonback S.r.l. — see [TRADEMARK.md](TRADEMARK.md).

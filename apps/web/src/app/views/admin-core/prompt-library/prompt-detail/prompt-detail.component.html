@@ -1,0 +1,348 @@
+<!-- Loading -->
+@if (loading()) {
+<div class="detail-container">
+  <div class="detail-loading">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+</div>
+}
+
+<!-- Content -->
+@if (!loading() && prompt()) {
+<div class="detail-container">
+
+  <!-- Top Bar -->
+  <div class="detail-top-bar">
+    <button class="back-link" (click)="goBack()">
+      <i class="ti ti-arrow-left"></i>
+      {{ "PROMPTS.Back to list" | translate }}
+    </button>
+    <div class="detail-actions">
+      <button class="btn-detail btn-detail-secondary" (click)="openShareModal()">
+        <i class="ti ti-share"></i>
+        {{ "SHARING.Share" | translate }}
+        <i class="ti ti-lock" aria-hidden="true"></i>
+      </button>
+      <button class="btn-detail btn-detail-secondary" (click)="goVersions()">
+        <i class="ti ti-history"></i>
+        {{ "PROMPTS.Version History" | translate }}
+      </button>
+      <button class="btn-detail btn-detail-secondary" (click)="goForkMap()">
+        <i class="ti ti-git-branch"></i>
+        {{ "PROMPTS.Fork Map" | translate }}
+        <i class="ti ti-lock" aria-hidden="true"></i>
+      </button>
+      <button class="btn-detail btn-inject" (click)="injectToSession()">
+        <i class="ti ti-player-play"></i>
+        {{ "PROMPTS.Send to Session" | translate }}
+      </button>
+      @if (isOwner()) {
+      <button class="btn-detail btn-detail-primary" (click)="goEdit()">
+        <i class="ti ti-pencil"></i>
+        {{ "PROMPTS.Edit Prompt" | translate }}
+      </button>
+      <button class="btn-detail btn-detail-danger" (click)="deletePrompt()">
+        <i class="ti ti-trash"></i>
+        {{ "PROMPTS.Delete" | translate }}
+      </button>
+      }
+    </div>
+  </div>
+
+  <!-- Header Card -->
+  <div class="detail-card">
+    <h1 class="prompt-title">{{ prompt()!.title }}</h1>
+
+    <!-- Meta Badges -->
+    <div class="prompt-meta-badges">
+      <span class="meta-badge" [ngClass]="getStatusClass(prompt()!.status)">
+        {{ prompt()!.status }}
+      </span>
+      <span class="meta-badge badge-visibility">
+        <i class="ti" [ngClass]="getVisibilityIcon(prompt()!.visibility)"></i>
+        {{ prompt()!.visibility }}
+      </span>
+      @if (prompt()!.current_version) {
+        <span class="meta-badge badge-version">
+          v{{ prompt()!.current_version }}
+        </span>
+      }
+      @if (prompt()!.is_fork && prompt()!.forked_from) {
+        <span class="meta-badge badge-fork">
+          <i class="ti ti-git-fork"></i>
+          {{ "PROMPTS.Forked from" | translate }} {{ prompt()!.forked_from!.title }}
+        </span>
+      }
+      @if (prompt()!.is_workflow) {
+        <span class="meta-badge workflow-badge-detail">
+          <i class="ti ti-robot"></i>
+          {{ 'PROMPTS.Workflow' | translate }}
+        </span>
+      }
+    </div>
+
+    <!-- Author & Dates -->
+    @if (prompt()!.user) {
+      <div class="author-info">
+        <i class="ti ti-user"></i>
+        {{ prompt()!.user!.first_name }} {{ prompt()!.user!.last_name }}
+      </div>
+    }
+    <div class="date-info" style="margin-top: 0.25rem;">
+      @if (prompt()!.created_at) {
+        <span>
+          <i class="ti ti-calendar-plus me-1"></i>
+          {{ "PROMPTS.Created At" | translate }}: {{ formatDateShort(prompt()!.created_at!) }}
+        </span>
+      }
+      @if (prompt()!.updated_at) {
+        <span class="ms-3">
+          <i class="ti ti-calendar-event me-1"></i>
+          {{ "PROMPTS.Last updated" | translate }}: {{ formatDateShort(prompt()!.updated_at!) }}
+        </span>
+      }
+    </div>
+
+    <!-- Category & Tags inline -->
+    @if (prompt()!.category || (prompt()!.tags && prompt()!.tags!.length > 0)) {
+      <div style="margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center;">
+        @if (prompt()!.category) {
+          <span class="category-badge" [style.background]="prompt()!.category!.color">
+            {{ prompt()!.category | categoryName }}
+          </span>
+        }
+        @if (prompt()!.tags && prompt()!.tags!.length > 0) {
+          @for (tag of prompt()!.tags!; track tag.id) {
+            <span class="tag-chip">{{ tag.name }}</span>
+          }
+        }
+      </div>
+    }
+  </div>
+
+  <!-- ═══ GENERATORE PROMPT ═══ -->
+  @if (prompt()!.variables && prompt()!.variables!.length > 0) {
+    <div class="detail-card generator-card">
+      <div class="detail-card-title">
+        <i class="ti ti-wand"></i>
+        {{ "PROMPTS.Generate Prompt" | translate }}
+      </div>
+      <p class="generator-subtitle">{{ "PROMPTS.Fill variables" | translate }}</p>
+
+      <div class="generator-grid-3col">
+        <!-- Column 1: variables (3/12) -->
+        <div class="generator-col-vars">
+          <div class="generator-fields">
+            @for (v of prompt()!.variables!; track v) {
+              <div class="generator-field">
+                <label class="generator-label" [for]="'var_' + v">
+                  <i class="ti ti-variable"></i>
+                  {{ v }}
+                </label>
+                <textarea
+                  [id]="'var_' + v"
+                  class="generator-input"
+                  rows="2"
+                  [placeholder]="'PROMPTS.Variable placeholder' | translate: { name: v }"
+                  [value]="variableValues()[v] || ''"
+                  (input)="onVariableInput(v, $event)"
+                ></textarea>
+              </div>
+            }
+          </div>
+          <div class="generator-actions">
+            <button class="btn-generate" (click)="generate()">
+              <i class="ti ti-wand"></i>
+              {{ "PROMPTS.Generate Prompt" | translate }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Column 2: original prompt (4/12) -->
+        <div class="generator-col-body">
+          <div class="detail-card-title" style="margin-bottom: 0.5rem;">
+            <i class="ti ti-pencil"></i>
+            {{ "PROMPTS.Body" | translate }}
+          </div>
+          <textarea
+            class="prompt-body-editable"
+            [value]="editableBody()"
+            (input)="onBodyEdit($event)"
+          ></textarea>
+        </div>
+
+        <!-- Column 3: generated output (5/12) -->
+        <div class="generator-col-output">
+          <div class="generator-output-header">
+            <div class="detail-card-title" style="margin-bottom: 0;">
+              <i class="ti ti-file-check"></i>
+              {{ "PROMPTS.Generated Result" | translate }}
+            </div>
+            @if (generated()) {
+              <div style="display: flex; gap: 0.35rem;">
+                <button class="btn-copy-sm" (click)="copyGeneratedPrompt()">
+                  <i class="ti" [ngClass]="copied() ? 'ti-check' : 'ti-copy'"></i>
+                  {{ copied() ? ('PROMPTS.Copied' | translate) : ('PROMPTS.Copy' | translate) }}
+                </button>
+                <button class="btn-copy-sm btn-inject-sm" (click)="injectGeneratedToSession()">
+                  <i class="ti ti-player-play"></i>
+                  {{ 'PROMPTS.Send to Session' | translate }}
+                </button>
+              </div>
+            }
+          </div>
+          @if (generated()) {
+            <div class="generated-prompt-block">{{ generatedPrompt() }}</div>
+          } @else {
+            <div class="generated-prompt-placeholder">
+              <i class="ti ti-arrow-left"></i>
+              {{ "PROMPTS.Fill all variables" | translate }}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  } @else {
+    <!-- No variables — direct copy -->
+    <div class="detail-card generator-card">
+      <div class="generator-output-header">
+        <div class="detail-card-title" style="margin-bottom: 0;">
+          <i class="ti ti-pencil"></i>
+          {{ "PROMPTS.Body" | translate }}
+        </div>
+        <div style="display: flex; gap: 0.35rem;">
+          <button class="btn-copy-sm" (click)="copyRawPrompt()">
+            <i class="ti" [ngClass]="copied() ? 'ti-check' : 'ti-copy'"></i>
+            {{ copied() ? ('PROMPTS.Copied' | translate) : ('PROMPTS.Copy prompt' | translate) }}
+          </button>
+          <button class="btn-copy-sm btn-inject-sm" (click)="injectToSession()">
+            <i class="ti ti-player-play"></i>
+            {{ 'PROMPTS.Send to Session' | translate }}
+          </button>
+        </div>
+      </div>
+      <textarea
+        class="prompt-body-editable"
+        [value]="editableBody()"
+        (input)="onBodyEdit($event)"
+        style="margin-top: 0.5rem;"
+      ></textarea>
+    </div>
+  }
+
+  <!-- Notes Card -->
+  @if (prompt()!.notes) {
+    <div class="detail-card">
+      <div class="detail-card-title">
+        <i class="ti ti-notes"></i>
+        {{ "PROMPTS.Notes" | translate }}
+      </div>
+      <div class="notes-block">{{ prompt()!.notes }}</div>
+    </div>
+  }
+
+  <!-- Sub-Agents Workflow Card -->
+  @if (prompt()!.sub_agents && prompt()!.sub_agents!.length > 0) {
+    <div class="detail-card">
+      <div class="detail-card-title">
+        <i class="ti ti-robot"></i>
+        {{ "PROMPTS.Workflow Sub-Agents" | translate }}
+      </div>
+
+      <div class="workflow-tree">
+        <!-- Main orchestrator -->
+        <div class="workflow-main">
+          <span class="workflow-main-icon">
+            <i class="ti ti-brain"></i>
+          </span>
+          {{ prompt()!.title }}
+          <span style="font-size: 0.72rem; font-weight: 400;" class="text-muted">{{ 'PROMPTS.orchestrator' | translate }}</span>
+        </div>
+
+        <!-- Sub-agents -->
+        @for (agent of prompt()!.sub_agents!; track agent.id || $index; let i = $index) {
+          <div class="workflow-agent">
+            <div class="workflow-agent-connector"></div>
+            <div class="workflow-agent-card" [class.disabled]="!agent.enabled">
+              <div class="workflow-agent-header">
+                <span class="workflow-agent-icon">
+                  <i class="ti" [ngClass]="agent.icon || 'ti-robot'"></i>
+                </span>
+                <span class="workflow-agent-name">{{ agent.name }}</span>
+                @if (agent.role) {
+                  <span class="workflow-agent-role">{{ agent.role }}</span>
+                }
+                @if (agent.auto_run) {
+                  <span class="workflow-agent-auto">auto-run</span>
+                }
+                @if (!agent.enabled) {
+                  <span style="font-size: 0.65rem; font-weight: 600; padding: 0.08rem 0.35rem; border-radius: 4px;" class="bg-body-secondary text-body-secondary">{{ 'PROMPTS.disabled' | translate }}</span>
+                }
+              </div>
+              @if (agent.system_prompt) {
+                <div class="workflow-agent-prompt">{{ agent.system_prompt }}</div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Versions Timeline Card -->
+  <div class="detail-card">
+    <div class="detail-card-title">
+      <i class="ti ti-history"></i>
+      {{ "PROMPTS.Recent Versions" | translate }}
+    </div>
+
+    @if (versions().length === 0) {
+      <div class="detail-empty" style="padding: 1.5rem;">
+        <i class="ti ti-history-off" style="font-size: 1.5rem;"></i>
+        <span style="font-size: 0.82rem;">{{ "PROMPTS.No versions yet" | translate }}</span>
+      </div>
+    } @else {
+      <div class="version-timeline">
+        @for (version of versions(); track version.id; let i = $index) {
+          <div class="version-item">
+            <div class="version-dot" [class.latest]="i === 0"></div>
+            <div>
+              <span class="version-number">v{{ version.version_number }}</span>
+              <span class="version-date">{{ formatDate(version.created_at) }}</span>
+              @if (version.change_summary) {
+                <div class="version-summary">{{ version.change_summary }}</div>
+              }
+              @if (version.creator) {
+                <div class="version-author">
+                  {{ version.creator.first_name }} {{ version.creator.last_name }}
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+      <a class="view-all-link" (click)="goVersions()" style="cursor: pointer;">
+        {{ "PROMPTS.View all versions" | translate }}
+        <i class="ti ti-arrow-right"></i>
+      </a>
+    }
+  </div>
+
+</div>
+}
+
+<!-- Not Found -->
+@if (!loading() && !prompt()) {
+<div class="detail-container">
+  <div class="detail-empty" style="padding: 4rem;">
+    <i class="ti ti-file-off" style="font-size: 2.5rem;"></i>
+    <span>{{ "PROMPTS.Prompt not found" | translate }}</span>
+    <button class="btn-detail btn-detail-primary" (click)="goBack()">
+      <i class="ti ti-arrow-left"></i>
+      {{ "PROMPTS.Back to list" | translate }}
+    </button>
+  </div>
+</div>
+}

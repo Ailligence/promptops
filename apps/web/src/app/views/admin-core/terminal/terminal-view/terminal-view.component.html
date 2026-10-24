@@ -1,0 +1,86 @@
+<div class="terminal-page">
+  <!-- ── Header ─────────────────────────────────────────────────────── -->
+  <div class="terminal-header">
+    <h4 class="terminal-title">
+      <iconify-icon icon="solar:monitor-bold-duotone" width="22"></iconify-icon>
+      {{ 'TERMINAL_PAGE.Terminal' | translate }}
+    </h4>
+    <div class="header-actions">
+      <button class="btn btn-sm btn-primary" (click)="newTerminal()">
+        <iconify-icon icon="solar:add-circle-bold" width="16"></iconify-icon>
+        {{ 'TERMINAL_PAGE.New Terminal' | translate }}
+      </button>
+      @if (tabs().length > 0) {
+        <button class="btn btn-sm btn-outline-secondary" (click)="toggleSplit()">
+          <iconify-icon [icon]="splitMode() ? 'solar:layers-bold' : 'solar:widget-2-bold'" width="16"></iconify-icon>
+          {{ splitMode() ? ('TERMINAL_PAGE.Tabs' | translate) : ('TERMINAL_PAGE.Split' | translate) }}
+        </button>
+        <button class="btn btn-sm btn-outline-danger" (click)="killAll()">
+          <iconify-icon icon="solar:power-bold" width="16"></iconify-icon>
+          {{ 'TERMINAL_PAGE.Kill All' | translate }}
+        </button>
+      }
+      @if (isModal) {
+        <button type="button" class="btn btn-sm btn-icon-close" (click)="closeModal()" [attr.aria-label]="'COMMON.Close' | translate" [title]="'COMMON.Close' | translate">
+          <iconify-icon icon="solar:close-circle-bold" width="20"></iconify-icon>
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (!bridge.isDesktop) {
+    <app-desktop-download-cta context="terminal" />
+  } @else if (tabs().length === 0) {
+    <!-- ── Empty state ──────────────────────────────────────────────── -->
+    <div class="empty-state">
+      <iconify-icon icon="solar:monitor-bold-duotone" width="40" class="empty-state-icon"></iconify-icon>
+      <span class="empty-title">{{ 'TERMINAL_PAGE.No terminals open' | translate }}</span>
+      <span class="empty-hint">{{ 'TERMINAL_PAGE.Open a new terminal session to get started' | translate }}</span>
+      <button class="btn btn-sm btn-primary mt-3" (click)="newTerminal()">
+        <iconify-icon icon="solar:add-circle-bold" width="14"></iconify-icon>
+        {{ 'TERMINAL_PAGE.Open a Terminal' | translate }}
+      </button>
+    </div>
+  } @else {
+    <!-- ── Tab bar (non-split mode) ─────────────────────────────────── -->
+    @if (!splitMode()) {
+      <div class="terminal-tabs">
+        @for (tab of tabs(); track tab.id) {
+          <div
+            class="terminal-tab"
+            [class.active]="tab.id === activeId()"
+            (click)="activate(tab.id)"
+          >
+            <iconify-icon icon="solar:monitor-bold" width="14"></iconify-icon>
+            <span>{{ tab.label }}</span>
+            <button class="tab-close" (click)="close(tab.id, $event)">
+              <iconify-icon icon="solar:close-circle-bold" width="14"></iconify-icon>
+            </button>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ── Terminal panels ──────────────────────────────────────────── -->
+    <div class="terminal-panels" [class.split]="splitMode()">
+      @for (tab of tabs(); track tab.id) {
+        <div
+          class="terminal-panel"
+          [class.active]="splitMode() || tab.id === activeId()"
+        >
+          @if (splitMode()) {
+            <div class="split-header">
+              <span class="split-label">{{ tab.label }}</span>
+              <button class="tab-close" (click)="close(tab.id, $event)">
+                <iconify-icon icon="solar:close-circle-bold" width="14"></iconify-icon>
+              </button>
+            </div>
+          }
+          <app-terminal-instance
+            [terminalId]="tab.id"
+          ></app-terminal-instance>
+        </div>
+      }
+    </div>
+  }
+</div>

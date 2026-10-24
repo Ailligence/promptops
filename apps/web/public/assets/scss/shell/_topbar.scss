@@ -1,0 +1,186 @@
+// Top bar: sidebar toggle, refresh and search on the left; voice, mobile,
+// notifications, tutorial and the user menu on the right. The minimal skin
+// hides it and moves its controls to the sidebar and the bottom bar.
+
+// Colors. The bar is dark unless the stored layout asks for a light bar in
+// the light theme.
+.po-topbar {
+  --po-topbar-bg: #1e1f27;
+  --po-topbar-fg: #8391a2;
+  --po-topbar-fg-hover: #bccee4;
+  --po-topbar-user-bg: #2a2b34;
+  --po-topbar-user-border: #2a2b34;
+}
+html[data-topbar-color=light]:not([data-bs-theme=dark]) .po-topbar {
+  --po-topbar-bg: #fff;
+  --po-topbar-fg: #{$gray-900};
+  --po-topbar-fg-hover: #{$indigo};
+  --po-topbar-user-bg: rgb(249.5307692308, 250.1384615385, 252.5692307692);
+  --po-topbar-user-border: #{$gray-200};
+}
+
+.po-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  min-height: var(--po-frame-bar-h);
+  margin-inline-start: var(--po-sidebar-offset);
+  padding: 0 0 0 0.75rem;
+  background: var(--po-topbar-bg);
+  border-bottom: 0 solid var(--#{$prefix}border-color);
+  box-shadow: var(--#{$prefix}box-shadow);
+  transition: var(--po-frame-transition);
+
+  // The condensed rail's flyouts must pass over the bar.
+  html[data-sidenav-size=condensed] & {
+    z-index: 1005;
+  }
+}
+
+// Row inside the bar (also .container-fluid): left and right groups.
+.po-topbar .po-topbar-bar {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  padding-right: 0;
+}
+
+// A cell holding one control, as tall as the bar.
+.po-topbar .po-topbar-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--po-frame-bar-h);
+}
+
+// Icon buttons in the bar: no button chrome, just the glyph. Scoped to the
+// slot so it outranks the per-component button styles.
+.po-topbar .po-topbar-slot .po-topbar-btn {
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--po-radius-md);
+  background-color: transparent;
+  color: var(--po-topbar-fg);
+  cursor: pointer;
+
+  &:hover,
+  &:focus,
+  &:active {
+    color: var(--po-topbar-fg-hover);
+  }
+}
+
+// Hamburger that opens the drawer (mobile) or folds the sidebar (tablet).
+.po-sidebar-toggle {
+  position: relative;
+  display: flex;
+  border: none;
+  background-color: transparent;
+  color: var(--po-topbar-fg);
+  cursor: pointer;
+
+  // With a hover rail the sidebar opens by itself.
+  html[data-sidenav-size=sm-hover] &,
+  html[data-sidenav-size=sm-hover-active] & {
+    display: none;
+  }
+}
+
+// User menu cell: a slightly raised block between two hairlines.
+.po-topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--po-frame-bar-h);
+  border-color: var(--po-topbar-user-border);
+  border-style: solid;
+  border-width: 0 1px;
+  background-color: var(--po-topbar-user-bg);
+  transition: none;
+}
+
+// Bell swing while agents wait for an answer.
+.po-bell-ring {
+  animation: po-bell-swing 1.5s ease infinite;
+}
+
+@keyframes po-bell-swing {
+  0%,
+  100% {
+    transform: scaleZ(1);
+  }
+  10%,
+  20% {
+    transform: scale3d(0.95, 0.95, 0.95) rotate3d(0, 0, 1, -10deg);
+  }
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: scaleZ(1) rotate3d(0, 0, 1, 10deg);
+  }
+  40%,
+  60%,
+  80% {
+    transform: rotate3d(0, 0, 1, -10deg);
+  }
+}
+
+// ── Small screens ───────────────────────────────────────────────────────────
+@include media-breakpoint-down(md) {
+  .po-topbar {
+    padding: 0 0.75rem;
+
+    .tutorial-start-btn,
+    .pro-days-badge,
+    .pro-request-btn {
+      display: none !important;
+    }
+
+    .refresh-system-btn {
+      padding: 0.4rem !important;
+
+      span {
+        display: none;
+      }
+    }
+
+    .po-topbar-bar {
+      gap: 0.25rem;
+    }
+  }
+}
+
+@include media-breakpoint-down(sm) {
+  .po-topbar {
+    padding: 0 0.375rem;
+
+    .po-topbar-bar {
+      position: initial;
+      gap: 0.15rem;
+    }
+
+    // Menus open full width under the bar.
+    .dropdown {
+      position: static;
+
+      .dropdown-menu {
+        width: 100%;
+        left: 10px !important;
+        right: 10px !important;
+      }
+    }
+
+    .po-sidebar-toggle {
+      padding: 0.35rem !important;
+    }
+
+    .po-topbar-user {
+      gap: 4px;
+      padding: 0 0.25rem;
+    }
+  }
+}

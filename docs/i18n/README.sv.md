@@ -26,7 +26,7 @@
 </p>
 
 <p align="center">
-  <sub>Källkoden för open source-utgåvan, utan konto, utan inloggning och utan PromptOps-server, kommer snart till det här repot. PromptOps Desktop är den färdiga appen, med Teams, synkning och mobilappen. <a href="../../PRIVACY.md">Vad som lämnar din dator →</a></sub>
+  <sub>Det här repot innehåller releaserna av PromptOps Desktop och open source-utgåvan: inget konto, ingen inloggning, ingen PromptOps-server, och <a href="../../README.md#open-source-edition--build-it-yourself">du bygger den själv</a>. PromptOps Desktop är den färdiga appen, med Teams, synkning och mobilappen. <a href="../../PRIVACY.md">Vad som lämnar din dator →</a></sub>
 </p>
 
 ## Kom igång
@@ -170,7 +170,7 @@ Den krypterar dina sessionsdata med samma algoritm som open source-utgåvan; ski
 
 ### Open source-utgåvan
 
-Inget konto och ingen server: allt stannar på din dator. Källkoden kommer snart till det här repot, med kommandona för att bygga den själv på macOS, Windows och Linux. Ge repot en [stjärna](https://github.com/shellonback/promptops) för att få veta när den släpps.
+Inget konto och ingen server: allt stannar på din dator. Koden finns i det här repot; det finns inga färdigbyggda binärer av den här utgåvan: kommandona för att bygga den på macOS, Windows och Linux finns i [README på engelska](../../README.md#open-source-edition--build-it-yourself).
 
 ---
 

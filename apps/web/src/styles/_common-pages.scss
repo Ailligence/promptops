@@ -1,0 +1,99 @@
+// Shared finish for admin pages; route gating lives in page-style-scope.ts.
+// Deliberately no root/body/sidebar rules or layout/spacing overrides.
+.po-common-pages {
+  --po-page-surface: oklch(from var(--po-bg-2) l 0 h);
+  --po-page-soft: oklch(from var(--po-bg-3) l 0 h);
+  --po-page-border: oklch(from var(--po-border-subtle) l 0 h);
+  --po-page-ink: oklch(from var(--po-text-primary) l 0 h);
+  --po-page-muted: oklch(from var(--po-text-secondary) l 0 h);
+  --po-accent: var(--po-page-ink);
+  --po-accent-hover: var(--po-page-muted);
+  --po-accent-active: var(--po-page-ink);
+  --po-accent-on: var(--po-page-surface);
+  --po-accent-muted-bg: var(--po-page-soft);
+  --bs-primary: var(--po-accent);
+  --bs-primary-rgb: 230, 230, 230;
+  --po-page-check-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23171717' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+  --po-page-radio-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23171717'/%3e%3c/svg%3e");
+  --bs-primary-text-emphasis: var(--po-page-ink);
+  --bs-primary-bg-subtle: var(--po-page-soft);
+  --bs-primary-border-subtle: var(--po-page-border);
+  --bs-link-color: var(--po-page-ink);
+  --bs-link-hover-color: var(--po-page-muted);
+  --bs-link-color-rgb: var(--bs-primary-rgb);
+  --bs-link-hover-color-rgb: var(--bs-primary-rgb);
+  --bs-border-color: var(--po-page-border);
+
+  // Keep existing grids, card padding, typography preferences and semantic states.
+  .card:not(.border-warning):not(.border-danger):not(.border-success), .settings-card {
+    background: var(--po-page-surface) !important;
+    border-color: var(--po-page-border) !important;
+    border-radius: var(--po-radius-lg);
+    box-shadow: none;
+  }
+  .card-header:not(.bg-warning):not(.bg-danger):not(.bg-success) {
+    background: var(--po-page-surface) !important;
+    border-bottom-color: var(--po-page-border);
+  }
+  .btn-primary {
+    --bs-btn-color: var(--po-accent-on);
+    --bs-btn-bg: var(--po-accent);
+    --bs-btn-border-color: var(--po-accent);
+    --bs-btn-hover-color: var(--po-accent-on);
+    --bs-btn-hover-bg: var(--po-accent-hover);
+    --bs-btn-hover-border-color: var(--po-accent-hover);
+    --bs-btn-active-color: var(--po-accent-on);
+    --bs-btn-active-bg: var(--po-accent-active);
+    --bs-btn-active-border-color: var(--po-accent-active);
+    --bs-btn-disabled-color: var(--po-accent-on);
+    --bs-btn-disabled-bg: var(--po-accent);
+    --bs-btn-disabled-border-color: var(--po-accent);
+    background-image: none !important;
+    box-shadow: none;
+  }
+  .btn-outline-primary {
+    --bs-btn-color: var(--po-accent);
+    --bs-btn-border-color: var(--po-page-border);
+    --bs-btn-hover-color: var(--po-accent-on);
+    --bs-btn-hover-bg: var(--po-accent);
+    --bs-btn-hover-border-color: var(--po-accent);
+    --bs-btn-active-color: var(--po-accent-on);
+    --bs-btn-active-bg: var(--po-accent);
+    --bs-btn-active-border-color: var(--po-accent);
+    --bs-btn-disabled-color: var(--po-page-muted);
+    --bs-btn-disabled-border-color: var(--po-page-border);
+  }
+  .form-control:not(.is-invalid):not(.is-valid), .form-select:not(.is-invalid):not(.is-valid) {
+    border-color: var(--po-page-border);
+    border-radius: var(--po-radius-md);
+    &:focus {
+      border-color: var(--po-page-muted);
+      box-shadow: 0 0 0 2px var(--po-accent-muted-bg);
+    }
+  }
+  .form-check-input:checked {
+    background-color: var(--po-accent);
+    border-color: var(--po-accent);
+  }
+  .form-check:not(.form-switch) .form-check-input[type="checkbox"]:checked {
+    --bs-form-check-bg-image: var(--po-page-check-image);
+    background-image: var(--po-page-check-image);
+  }
+  .form-switch .form-check-input:checked, .form-check-input[type="radio"]:checked {
+    --bs-form-check-bg-image: var(--po-page-radio-image);
+    background-image: var(--po-page-radio-image);
+  }
+  .nav-tabs, .nav-pills {
+    --bs-nav-link-color: var(--po-page-muted);
+    --bs-nav-link-hover-color: var(--po-page-ink);
+    --bs-nav-tabs-link-active-color: var(--po-page-ink);
+    --bs-nav-tabs-link-active-bg: var(--po-page-surface);
+    --bs-nav-pills-link-active-bg: var(--po-accent);
+    --bs-nav-pills-link-active-color: var(--po-accent-on);
+  }
+}
+[data-bs-theme="light"] .po-common-pages {
+  --bs-primary-rgb: 35, 35, 35;
+  --po-page-check-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+  --po-page-radio-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e");
+}

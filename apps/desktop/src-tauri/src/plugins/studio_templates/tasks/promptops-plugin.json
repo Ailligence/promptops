@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "your-handle.github-issues",
+  "name": "GitHub Issues",
+  "version": "0.1.0",
+  "category": "tasks",
+  "description": "Shows the issues of your GitHub repositories as tasks in the Teams board.",
+  "minAppVersion": "2.1.0",
+  "entry": "src/plugin.js",
+  "permissions": ["net:api.github.com", "secrets", "tasks:read", "tasks:write", "prompt:propose"],
+  "config": {
+    "fields": [
+      { "key": "repos", "type": "text", "label": "Repositories (owner/name, comma separated)", "default": "octo-org/storefront", "required": true },
+      { "key": "token", "type": "secret", "label": "GitHub token (optional for public repos, required to change status)" }
+    ]
+  },
+  "contributes": {
+    "actions": [{ "id": "task-to-agent", "title": "Propose to agent", "contexts": ["task"] }]
+  }
+}

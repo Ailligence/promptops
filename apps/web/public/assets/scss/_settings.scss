@@ -1,0 +1,302 @@
+// Bootstrap settings for PromptOps.
+//
+// Bootstrap reads these before it defines its own defaults, so every value
+// here replaces a Bootstrap default. They are plain values on purpose: the
+// look is defined by our design tokens (_tokens.scss) and by the numbers
+// below, not by a chain of Sass expressions. Anything Bootstrap does not
+// need to know about lives in the custom properties of _palette.scss.
+
+// ── Build switches ──────────────────────────────────────────────────────────
+$prefix: promptops-;
+$enable-negative-margins: true;
+$min-contrast-ratio: 1.55;
+$spacer: 1.5rem;
+$grid-breakpoints: (xs: 0, sm: 576px, md: 768px, lg: 992px, xl: 1200px, xxl: 1500px);
+
+// ── Palette ─────────────────────────────────────────────────────────────────
+// Indigo brand (#4F46E5 / #6366F1) with warm semantic colors.
+$blue: #4F46E5;
+$indigo: #4F46E5;
+$purple: #6366F1;
+$pink: #ff679b;
+$red: #ff6d43;
+$yellow: #f9c45c;
+$green: #6ac75a;
+$teal: #02bc9c;
+$cyan: #67baf1;
+
+$gray-100: #f6f7fb;
+$gray-200: #eef2f7;
+$gray-300: #e7e9eb;
+$gray-500: #a1a9b1;
+$gray-600: #8a969c;
+$gray-700: #6c757d;
+$gray-900: #313a46;
+
+$secondary: $purple;
+$light: $gray-200;
+$color-contrast-dark: $gray-900;
+
+$colors: (
+  "blue": $blue,
+  "indigo": $indigo,
+  "pink": $pink,
+  "red": $red,
+  "orange": #fd7e14,
+  "yellow": $yellow,
+  "green": $green,
+  "teal": $teal,
+  "cyan": $cyan,
+  "black": #000,
+  "white": #fff,
+  "gray": $gray-600,
+  "gray-dark": #343a40,
+);
+
+// Text and background shades of each state color, light mode.
+$primary-text-emphasis: rgb(67.15, 59.5, 194.65);
+$secondary-text-emphasis: rgb(84.15, 86.7, 204.85);
+$success-text-emphasis: rgb(90.1, 169.15, 76.5);
+$info-text-emphasis: rgb(87.55, 158.1, 204.85);
+$warning-text-emphasis: rgb(211.65, 166.6, 78.2);
+$danger-text-emphasis: rgb(216.75, 92.65, 56.95);
+$light-text-emphasis: $gray-600;
+$dark-text-emphasis: #343a40;
+
+$primary-bg-subtle: rgb(228.6, 227.25, 251.1);
+$secondary-bg-subtle: rgb(231.6, 232.05, 252.9);
+$success-bg-subtle: rgb(232.65, 246.6, 230.25);
+$info-bg-subtle: rgb(232.2, 244.65, 252.9);
+$warning-bg-subtle: rgb(254.1, 246.15, 230.55);
+$danger-bg-subtle: rgb(255, 233.1, 226.8);
+
+// Same shades in dark mode: the state color at 20% over the surface.
+$primary-bg-subtle-dark: rgba($indigo, 0.2);
+$secondary-bg-subtle-dark: rgba($purple, 0.2);
+$success-bg-subtle-dark: rgba($green, 0.2);
+$info-bg-subtle-dark: rgba($cyan, 0.2);
+$warning-bg-subtle-dark: rgba($yellow, 0.2);
+$danger-bg-subtle-dark: rgba($red, 0.2);
+$light-bg-subtle-dark: #252630;
+
+// ── Page surfaces and text ──────────────────────────────────────────────────
+$body-color: #1e293b;
+$body-bg: #fafdff;
+$body-secondary-color: #475569;
+$body-secondary-bg: #fff;
+$body-tertiary-color: rgba($body-color, 0.65);
+$body-emphasis-color: rgba($body-color, 0.85);
+$border-color-translucent: #ced4da;
+
+$body-color-dark: #aab8c5;
+$body-bg-dark: #17181e;
+$body-secondary-color-dark: #8391a2;
+$body-secondary-bg-dark: #1e1f27;
+$body-tertiary-color-dark: #f1f1f1;
+$body-tertiary-bg-dark: #404954;
+$body-emphasis-color-dark: #dee2e6;
+$border-color-dark: #1e1f27;
+$border-color-translucent-dark: #323d4b;
+$headings-color-dark: $body-color-dark;
+$mark-color-dark: $body-emphasis-color-dark;
+$mark-bg-dark: rgb(102, 77.2, 2.8);
+
+$link-decoration: none;
+$link-shade-percentage: 15%;
+$hr-margin-y: 1.0005rem;
+$hr-border-color: var(--#{$prefix}border-color);
+$hr-opacity: 1;
+$code-color: $cyan;
+$kbd-padding-y: 0.2rem;
+$kbd-padding-x: 0.4rem;
+$blockquote-footer-color: var(--#{$prefix}secondary-color);
+
+// ── Type ────────────────────────────────────────────────────────────────────
+// The body font comes from the --po-font-body token (Geist, bundled).
+$font-family-sans-serif: var(--po-font-body, "Geist"), system-ui, sans-serif;
+$font-size-base: 0.8125rem;
+$font-size-sm: 0.7875rem;
+$small-font-size: 0.75rem;
+$h2-font-size: 1.69rem;
+$h3-font-size: 1.3928565625rem;
+$h4-font-size: 1.015625rem;
+$h5-font-size: 0.845rem;
+$h6-font-size: 0.690625rem;
+$headings-margin-bottom: 0.5rem;
+$headings-line-height: 1.1;
+
+// ── Shape and depth ─────────────────────────────────────────────────────────
+$border-radius: 0.3rem;
+$border-radius-lg: 0.4rem;
+$box-shadow: 0px 0px 35px 0px rgba(104, 134, 177, 0.15);
+$box-shadow-sm: 0 0.125rem 0.25rem rgba(var(--#{$prefix}body-color-rgb), 0.15);
+$box-shadow-lg: 0 0 45px 0 rgba(var(--#{$prefix}body-color-rgb), 0.2);
+$box-shadow-inset: inset 0 1px 2px rgba(var(--#{$prefix}body-color-rgb), 0.075);
+$focus-ring-width: 0;
+$transition-base: all 0.25s ease-in-out;
+$gradient: linear-gradient(180deg, rgba(#fff, 0.3), rgba(#fff, 0));
+$caret-vertical-align: 0.15em;
+
+// ── Controls: buttons and form fields share one padding scale ───────────────
+$input-btn-padding-y: 0.5rem;
+$input-btn-padding-x: 1.1rem;
+$input-btn-padding-y-sm: 0.3rem;
+$input-btn-padding-x-sm: 0.8rem;
+$input-btn-padding-y-lg: 0.65rem;
+$input-btn-padding-x-lg: 1.5rem;
+
+$btn-border-radius: $border-radius;
+$btn-border-radius-sm: 0.25rem;
+$btn-border-radius-lg: $border-radius-lg;
+$btn-box-shadow: 0px 2px 6px 0px;
+$btn-hover-bg-shade-amount: 9.5%;
+$btn-hover-border-shade-amount: 7.5%;
+$btn-hover-border-tint-amount: 7.5%;
+$btn-active-bg-shade-amount: 7.5%;
+$btn-active-bg-tint-amount: 15%;
+$btn-active-border-shade-amount: 7.5%;
+$btn-close-color: var(--#{$prefix}secondary-color);
+$btn-close-focus-shadow: none;
+$btn-close-hover-opacity: 0.8;
+
+$input-padding-x: 0.77rem;
+$input-bg: var(--#{$prefix}secondary-bg);
+$input-disabled-bg: var(--#{$prefix}light);
+$input-border-color: var(--#{$prefix}border-color-translucent);
+$input-focus-border-color: var(--#{$prefix}border-color-translucent);
+$input-box-shadow: none;
+$input-focus-box-shadow: none;
+$input-border-radius: $border-radius;
+$input-border-radius-sm: 0.25rem;
+$input-border-radius-lg: $border-radius-lg;
+$form-check-input-width: 1.25em;
+$form-check-margin-bottom: 0;
+$form-check-input-border: var(--#{$prefix}border-width) solid var(--#{$prefix}border-color-translucent);
+$form-select-bg-size: 14px 10px;
+$form-select-box-shadow: $box-shadow-inset;
+$form-range-track-bg: var(--#{$prefix}tertiary-bg);
+$form-range-track-box-shadow: $box-shadow-inset;
+// tint-color($component-active-bg, 70%) lands on x.5 in the green channel; newer Sass rounds it
+// down (#cac7f7), so the previously compiled value is fixed here.
+$form-range-thumb-active-bg: #cac8f7;
+$form-floating-label-height: 1.875em;
+
+// ── Navigation ──────────────────────────────────────────────────────────────
+$nav-link-color: var(--#{$prefix}body-color);
+$nav-tabs-link-active-color: var(--#{$prefix}link-color);
+$nav-tabs-link-active-bg: var(--#{$prefix}secondary-bg);
+$pagination-color: var(--#{$prefix}body-color);
+$pagination-bg: var(--#{$prefix}secondary-bg);
+$pagination-focus-box-shadow: none;
+// Tabler "chevron-right" glyph between breadcrumb items.
+$breadcrumb-divider: "\ea61";
+$breadcrumb-padding-y: $spacer;
+$breadcrumb-item-padding-x: 0.25rem;
+
+// ── Menus ───────────────────────────────────────────────────────────────────
+$dropdown-min-width: 11rem;
+$dropdown-padding-x: 0.25rem;
+$dropdown-padding-y: 0.25rem;
+$dropdown-bg: var(--#{$prefix}secondary-bg);
+$dropdown-border-color: var(--#{$prefix}border-color);
+$dropdown-border-radius: $border-radius;
+$dropdown-divider-margin-y: 0.375rem;
+$dropdown-link-active-color: var(--#{$prefix}body-color);
+$dropdown-link-active-bg: var(--#{$prefix}tertiary-bg);
+$dropdown-link-disabled-color: var(--#{$prefix}body-color);
+$dropdown-item-padding-y: 0.4rem;
+$dropdown-item-padding-x: 1.125rem;
+$dropdown-header-color: inherit;
+$dropdown-header-padding-x: 0.84375rem;
+$dropdown-header-padding-y: 0.5rem;
+$dropdown-dark-divider-bg: var(--#{$prefix}border-color-translucent);
+$dropdown-dark-link-active-color: #fff;
+$dropdown-dark-link-active-bg: $indigo;
+
+// ── Containers: cards, accordions, lists ────────────────────────────────────
+$card-bg: var(--#{$prefix}secondary-bg);
+$card-border-width: 0;
+$card-border-color: var(--#{$prefix}border-color);
+$card-box-shadow: var(--#{$prefix}box-shadow);
+$card-cap-bg: transparent;
+$card-cap-padding-y: 1.125rem;
+$card-title-spacer-y: 0.5rem;
+
+$accordion-bg: var(--#{$prefix}secondary-bg);
+$accordion-button-active-bg: var(--#{$prefix}tertiary-bg);
+$accordion-button-active-color: var(--#{$prefix}body-color);
+$accordion-button-focus-box-shadow: none;
+$accordion-icon-width: 0.75rem;
+$accordion-icon-active-color: $body-color;
+
+$list-group-bg: var(--#{$prefix}secondary-bg);
+$list-group-item-padding-x: 1.2rem;
+$list-group-item-bg-scale: -70%;
+$list-group-disabled-bg: var(--#{$prefix}tertiary-bg);
+$list-group-action-color: var(--#{$prefix}body-color);
+$list-group-action-hover-color: var(--#{$prefix}body-color);
+
+// ── Tables ──────────────────────────────────────────────────────────────────
+// Striped, hover and active rows all use the light surface at 45%.
+$table-cell-padding-y: 0.75rem;
+$table-cell-padding-x: 0.6rem;
+$table-cell-padding-y-sm: 0.5rem;
+$table-cell-padding-x-sm: 0.5rem;
+$table-cell-vertical-align: middle;
+$table-color: var(--#{$prefix}body-color);
+$table-bg: transparent;
+$table-border-color: var(--#{$prefix}light);
+$table-border-factor: 0.1;
+$table-striped-bg-factor: 0.45;
+$table-active-bg-factor: 0.45;
+$table-hover-bg-factor: 0.45;
+$table-striped-bg: rgba(var(--#{$prefix}light-rgb), 0.45);
+$table-active-bg: rgba(var(--#{$prefix}light-rgb), 0.45);
+$table-hover-bg: rgba(var(--#{$prefix}light-rgb), 0.45);
+
+// ── Floating layers ─────────────────────────────────────────────────────────
+$tooltip-bg: var(--#{$prefix}body-color);
+$tooltip-opacity: 1;
+$popover-bg: var(--#{$prefix}secondary-bg);
+$popover-border-color: var(--#{$prefix}border-color);
+$popover-header-bg: var(--#{$prefix}tertiary-bg);
+$popover-header-padding-y: 0.7rem;
+$popover-header-padding-x: 0.8rem;
+$popover-body-padding-y: 0.5rem;
+$popover-body-padding-x: 0.75rem;
+$toast-border-color: var(--#{$prefix}border-color);
+$modal-content-bg: var(--#{$prefix}secondary-bg);
+$modal-content-border-color: transparent;
+$modal-content-box-shadow-xs: $box-shadow-sm;
+$modal-backdrop-bg: var(--#{$prefix}emphasis-color);
+$offcanvas-bg-color: var(--#{$prefix}secondary-bg);
+
+// ── Status: badges, alerts, progress, spinners ──────────────────────────────
+$badge-padding-y: 0.25em;
+$badge-padding-x: 0.4em;
+$badge-border-radius: $border-radius;
+$alert-padding-y: 0.8rem;
+$alert-padding-x: 1rem;
+$alert-border-radius: $border-radius;
+$alert-border-width: 0;
+$progress-bg: var(--#{$prefix}tertiary-bg);
+$spinner-vertical-align: -0.25em;
+
+// ── Extra utilities ─────────────────────────────────────────────────────────
+// Pixel font sizes (.fs-10 … .fs-120), responsive widths and positions, and
+// a finer background-opacity scale.
+$po-font-sizes: ();
+@each $px in (10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 28, 32, 36, 42, 48, 60, 72, 80, 120) {
+  $po-font-sizes: map-merge($po-font-sizes, ($px: $px * 1px));
+}
+$po-opacities: ();
+@each $step in (10, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90) {
+  $po-opacities: map-merge($po-opacities, ($step: $step * 0.01));
+}
+
+$utilities: (
+  "font-size-custom": (property: font-size, class: fs, values: $po-font-sizes),
+  "width": (property: width, responsive: true, class: w, values: (0: 0, 25: 25%, 50: 50%, 75: 75%, 100: 100%)),
+  "position": (property: position, responsive: true, values: static relative absolute fixed sticky),
+  "bg-opacity": (css-var: true, class: bg-opacity, values: $po-opacities),
+);

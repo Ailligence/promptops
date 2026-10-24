@@ -1,0 +1,125 @@
+[package]
+name = "promptops-oss"
+version = "0.1.0"
+description = "PromptOps: run and coordinate AI coding agents on your machine"
+authors = ["PromptOps"]
+license = "Apache-2.0"
+edition = "2021"
+rust-version = "1.89"
+
+[lib]
+name = "promptops_oss_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+# No "devtools" feature: release builds keep the inspector off (no "Inspect
+# Element" on right-click); debug builds turn it on by themselves.
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-shell = "2"
+tauri-plugin-store = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-autostart = "2"
+tauri-plugin-notification = "2"
+tauri-plugin-global-shortcut = "2"
+serde = { version = "1", features = ["derive"] }
+base64 = "0.22"
+serde_json = { version = "1", features = ["preserve_order"] }
+tokio = { version = "1", features = ["full"] }
+tokio-tungstenite = { version = "0.21", features = ["native-tls"] }
+futures-util = "0.3"
+parking_lot = "0.12"
+uuid = { version = "1", features = ["v4"] }
+anyhow = "1"
+regex = "1"
+# Renders the PTY buffer for `promptops ctl agent read` (agent_ctl.rs).
+vt100 = "0.16"
+# Native terminal (same author as WezTerm)
+portable-pty = "0.8"
+# fs domain
+notify = "6"
+trash = "5"
+# shell/clipboard domain
+arboard = "3"
+image = "0.25"
+# ssh domain
+# ring instead of the default aws-lc-rs: no CMake/NASM needed to build on Windows.
+russh = { version = "0.60", default-features = false, features = ["flate2", "ring", "rsa"] }
+async-trait = "0.1"
+# db explorer domain
+sqlx = { version = "0.8", default-features = false, features = [
+  "runtime-tokio",
+  "mysql",
+  "postgres",
+  "sqlite",
+  "chrono",
+  "bigdecimal",
+  "json",
+  "uuid",
+] }
+chrono = { version = "0.4", default-features = false, features = ["std", "clock"] }
+bigdecimal = "0.4"
+# system_info domain (hardware scan / memory diagnostics)
+sysinfo = "0.30"
+# HTTP client for the services you choose (AI providers with your keys,
+# Whisper model download, plugin catalog); there is no PromptOps backend.
+reqwest = { version = "0.12", features = ["json", "blocking"] }
+# Plugin runtime: SHA-256 check of the bundle (already in the lock as a transitive dependency)
+sha2 = "0.10"
+# Plugin runtime: encrypted secrets on disk (AES-256-GCM), key in the system keychain.
+# aes-gcm and getrandom are already in the lock as transitive dependencies.
+aes-gcm = "0.10"
+getrandom = "0.2"
+# Encrypted backups (local_backup.rs): Argon2id derives the key from the
+# passphrase. Already in the lock as a transitive dependency; MIT OR Apache-2.0.
+argon2 = "0.5"
+
+# PTY raw-mode gate before paste (tcgetattr on the master, see subagent.rs)
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+# System keychain, a single entry: the plugin secrets key (plugins/secrets.rs).
+# On Linux it goes through Secret Service via zbus, all Rust: no libdbus to install at build time.
+[target.'cfg(target_os = "linux")'.dependencies]
+# Same version as wry (which already enables v2_40): WebKitGTK settings (linux_env::tune_webview).
+webkit2gtk = "2.0"
+keyring = { version = "3.6", default-features = false, features = ["async-secret-service", "tokio", "crypto-rust"] }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+keyring = { version = "3.6", default-features = false, features = ["windows-native"] }
+
+# Native drag pasteboard (path surrogate for HTML5 drop, see shell.rs)
+[target."cfg(target_os = \"macos\")".dependencies]
+keyring = { version = "3.6", default-features = false, features = ["apple-native"] }
+objc2 = "0.6"
+objc2-foundation = { version = "0.3", features = ["NSArray", "NSString", "NSBundle", "NSDictionary", "NSError", "NSObject"] }
+# Native notifications via UserNotifications.framework (see commands/notify_macos.rs):
+# the plugin goes through NSUserNotificationCenter, which macOS 26 no longer delivers.
+block2 = "0.6"
+objc2-user-notifications = { version = "0.3", features = ["bitflags", "block2", "UNUserNotificationCenter", "UNNotification", "UNNotificationContent", "UNNotificationRequest", "UNNotificationResponse", "UNNotificationSound", "UNNotificationTrigger", "UNNotificationSettings"] }
+objc2-app-kit = { version = "0.3", features = ["NSPasteboard", "NSResponder", "NSView", "NSWindow", "NSCursor", "NSApplication", "NSDockTile", "NSButton", "NSControl"] }
+# Browser page, "My Chrome" mode: window list (CGWindowList) +
+# Screen Recording permission to capture the Chrome window.
+core-graphics = "0.25"
+core-foundation = "0.10"
+# Local in-process voice transcription (whisper.cpp) — Metal on macOS.
+# Requires cmake at build time (brew install cmake / preinstalled on CI runners).
+whisper-rs = { version = "0.16", features = ["metal"] }
+
+[target."cfg(not(target_os = \"macos\"))".dependencies]
+whisper-rs = "0.16"
+
+# TODO: dependencies to add when these features are implemented:
+#   tauri-plugin-updater = "2"           # auto-update Win/macOS (requires signing)
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]
+
+# Argon2 is ~10x slower unoptimized: keep backups usable in debug builds and tests.
+[profile.dev.package.argon2]
+opt-level = 3
+
+[profile.dev.package.blake2]
+opt-level = 3

@@ -1,0 +1,1007 @@
+// Model Speed Test — full-screen page, brand indigo/purple palette.
+.speed-test-page {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.st-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.st-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.25rem;
+  font-weight: 700;
+
+  i { color: #6366f1; }
+}
+
+.st-subtitle {
+  margin: 0;
+  color: var(--bs-secondary-color, #6b7280);
+  max-width: 560px;
+}
+
+.st-run-btn {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border: none;
+
+  &:disabled { opacity: 0.5; }
+}
+
+.st-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.st-section-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--bs-secondary-color, #6b7280);
+  margin: 1.5rem 0 0.6rem;
+}
+
+.st-count {
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: 0.5rem;
+  color: #8b5cf6;
+}
+
+// ── Model picker — 3 comparison slots (hdblog-compara style) ──────────
+.st-slots {
+  display: flex;
+  align-items: stretch;
+  gap: 0.85rem;
+}
+
+.st-vs {
+  align-self: center;
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+}
+
+.st-slot {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 1.4rem 1rem 1rem;
+  border: 2px dashed var(--bs-border-color, #d1d5db);
+  border-radius: 1rem;
+  background: var(--bs-body-bg, #fff);
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+
+  &.st-filled {
+    border-style: solid;
+    border-color: rgba(99, 102, 241, 0.55);
+    background: rgba(99, 102, 241, 0.04);
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.1);
+  }
+
+  &.testing {
+    border-color: #f59e0b;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.18);
+  }
+}
+
+.st-slot-icon {
+  width: 58px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 1.7rem;
+  color: #fff;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  margin-bottom: 0.35rem;
+
+  &.codex { background: linear-gradient(135deg, #0f766e, #10b981); }
+
+  &.empty {
+    background: rgba(99, 102, 241, 0.1);
+    color: #8b5cf6;
+  }
+}
+
+.st-slot-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-align: center;
+
+  &.st-name-empty { color: var(--bs-secondary-color, #9ca3af); }
+}
+
+.st-slot-provider {
+  font-size: 0.72rem;
+  color: var(--bs-secondary-color, #6b7280);
+}
+
+.st-slot-select {
+  margin-top: auto;
+  font-size: 0.8rem;
+  width: 100%;
+}
+
+.st-slot-clear {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  border: none;
+  background: transparent;
+  color: var(--bs-secondary-color, #9ca3af);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.15rem;
+  line-height: 1;
+
+  &:hover:not(:disabled) { color: #ef4444; }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
+.st-badge-testing {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #f59e0b;
+}
+
+@media (max-width: 640px) {
+  .st-slots { flex-direction: column; }
+  .st-slot { min-height: 0; }
+}
+
+// ── Task presets ──────────────────────────────────────────────────────
+.st-task-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.st-task-card {
+  text-align: left;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--bs-border-color, #e5e7eb);
+  border-radius: 0.75rem;
+  background: var(--bs-body-bg, #fff);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+
+  &:hover:not(:disabled) { border-color: #8b5cf6; }
+  &:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  &.active {
+    border-color: #6366f1;
+    background: rgba(99, 102, 241, 0.06);
+    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.12);
+  }
+}
+
+.st-task-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.3rem;
+
+  i { color: #6366f1; font-size: 1.1rem; }
+}
+
+.st-task-name { font-weight: 700; }
+
+.st-task-badge {
+  margin-left: auto;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+}
+
+.st-task-hint {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--bs-secondary-color, #6b7280);
+}
+
+// ── Codebase target ───────────────────────────────────────────────────
+.st-target-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.st-target-select {
+  max-width: 340px;
+  flex: 0 0 auto;
+}
+
+.st-readonly-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  flex: 1 1 320px;
+  padding: 0.6rem 0.85rem;
+  border-radius: 0.6rem;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--bs-body-color);
+
+  i {
+    color: #10b981;
+    font-size: 1rem;
+    margin-top: 0.1rem;
+  }
+}
+
+// ── Running panel: compact strip + spinner + stop ─────────────────────
+.st-run-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.75rem 1rem 2rem;
+  border: 1px solid var(--bs-border-color, #e5e7eb);
+  border-radius: 1rem;
+  background: var(--bs-body-bg, #fff);
+}
+
+// The race: one live card per contender, side by side.
+.st-race {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2.25rem;
+}
+
+.st-race-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 170px;
+
+  &.done .st-spinner-ring { background: #10b981; }
+  &.failed .st-spinner-ring { background: #ef4444; }
+}
+
+.st-spinner-ring {
+  --pct: 0;
+  width: 116px;
+  height: 116px;
+  border-radius: 50%;
+  padding: 7px;
+  background:
+    conic-gradient(#6366f1 calc(var(--pct) * 1%), rgba(99, 102, 241, 0.15) 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.35rem;
+
+  // Latency round has no known duration → spin the whole ring instead.
+  &.indeterminate {
+    background: conic-gradient(from 0deg, rgba(99, 102, 241, 0.1), #6366f1);
+    animation: st-spin 1s linear infinite;
+  }
+}
+
+.st-spinner-core {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: #6366f1;
+
+  .st-spinner-ring.indeterminate & { animation: st-spin-rev 1s linear infinite; }
+}
+
+.st-spinner-model { font-weight: 700; font-size: 1.05rem; }
+.st-spinner-round {
+  font-size: 0.8rem;
+  color: var(--bs-secondary-color, #6b7280);
+}
+.st-spinner-timer {
+  font-size: 1.6rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #6366f1;
+  margin-top: 0.15rem;
+
+  &.done { color: #10b981; }
+  &.failed { color: #ef4444; }
+}
+
+// Big centered Run button below the model slots.
+.st-run-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.35rem;
+}
+
+.st-run-btn-big {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.85rem 2.6rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+
+  i { margin-right: 0.35rem; }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(99, 102, 241, 0.45);
+    color: #fff;
+  }
+  &:disabled { opacity: 0.45; color: #fff; }
+}
+
+.st-run-sub {
+  font-size: 0.68rem;
+  font-weight: 600;
+  opacity: 0.85;
+  letter-spacing: 0.02em;
+}
+
+.st-stop-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 2rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.45);
+  }
+}
+
+@keyframes st-spin { to { transform: rotate(360deg); } }
+@keyframes st-spin-rev { to { transform: rotate(-360deg); } }
+
+// ── Terminal ──────────────────────────────────────────────────────────
+.st-log-toggle-row { margin-top: 1.5rem; }
+.st-log-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: none;
+  background: transparent;
+  color: var(--bs-secondary-color, #6b7280);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+
+  &:hover { color: #6366f1; }
+  .st-count { color: #8b5cf6; }
+}
+.st-muted { color: rgba(148, 163, 184, 0.7); }
+
+.st-terminal {
+  background: #0f1117;
+  color: #c9d1d9;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  height: 180px;
+  overflow: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.74rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+
+  .st-line { min-height: 1.15em; }
+}
+
+// ── Winner banner ─────────────────────────────────────────────────────
+// ── Per-axis leaders (no single winner) ───────────────────────────────
+.st-leaders {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+.st-leader-axis {
+  flex: 1 1 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+  border: 1px solid rgba(99, 102, 241, 0.28);
+}
+.st-leader-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--bs-secondary-color, #6b7280);
+}
+.st-leader-name { font-weight: 700; font-size: 0.95rem; }
+.st-leader-detail { font-size: 0.78rem; color: var(--bs-secondary-color, #6b7280); }
+.st-leader-tie {
+  font-weight: 600;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--bs-secondary-color, #9ca3af);
+}
+
+.st-axes-note {
+  margin: 0.6rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--bs-secondary-color, #6b7280);
+}
+
+// ── Accuracy audit (auditability: why a point was lost) ────────────────
+.st-audit {
+  margin-top: 1rem;
+  border: 1px solid var(--bs-border-color, #e5e7eb);
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+
+  summary {
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+}
+.st-audit-wrap { overflow-x: auto; margin-top: 0.6rem; }
+.st-audit-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+
+  th, td {
+    padding: 0.4rem 0.6rem;
+    border-bottom: 1px solid var(--bs-border-color, #e5e7eb);
+    text-align: left;
+    vertical-align: top;
+  }
+  th { font-weight: 700; background: rgba(99, 102, 241, 0.06); }
+  td.ok { color: #16a34a; }
+  td.no { color: #dc2626; }
+}
+.st-audit-q { max-width: 320px; }
+.st-audit-exp { font-family: var(--bs-font-monospace, monospace); }
+
+// ── Comparison table (hdblog-compara style) ───────────────────────────
+.st-compare-wrap { overflow-x: auto; }
+
+.st-compare {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--bs-border-color, #e5e7eb);
+  border-radius: 0.75rem;
+  overflow: hidden;
+
+  th, td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--bs-border-color, #e5e7eb);
+    vertical-align: middle;
+    min-width: 160px;
+  }
+
+  thead th {
+    background: rgba(99, 102, 241, 0.08);
+    font-weight: 700;
+    text-align: center;
+
+    &.st-best-col { background: rgba(99, 102, 241, 0.2); }
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+}
+
+.st-th-model {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+.st-th-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex: 0 0 auto;
+}
+.st-th-name { font-weight: 700; }
+.st-th-trophy { color: #f59e0b; }
+
+.st-metric-col { min-width: 190px; }
+.st-metric-name { font-weight: 700; }
+.st-metric-hint {
+  font-size: 0.72rem;
+  color: var(--bs-secondary-color, #6b7280);
+}
+
+.st-value {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+
+  small {
+    font-weight: 500;
+    color: var(--bs-secondary-color, #6b7280);
+  }
+}
+
+.st-fail { color: #ef4444; font-weight: 600; font-size: 0.8rem; }
+
+.st-bar {
+  margin-top: 0.35rem;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bs-tertiary-bg, #f3f4f6);
+  overflow: hidden;
+}
+
+.st-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: #a5b4fc;
+  transition: width 0.4s ease;
+
+  &.st-bar-best { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+}
+
+.st-rounds {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+// ── Share (same UX as the profile contribution heatmap) ──────────────
+.st-results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+
+  .st-section-label { margin-bottom: 0.6rem; }
+}
+
+.st-share-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.st-share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.4rem 0.7rem;
+  border-radius: 9px;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  background: rgba(255, 255, 255, 0.6);
+  color: #4f46e5;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+
+  i { font-size: 1rem; }
+
+  &:hover:not(:disabled) {
+    border-color: rgba(99, 102, 241, 0.45);
+    background: rgba(99, 102, 241, 0.08);
+  }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  &.brand {
+    color: #fff;
+    border: none;
+    padding: 0.45rem 0.85rem;
+
+    &:hover:not(:disabled) { transform: translateY(-2px); }
+
+    &.fb {
+      background: #1877f2;
+      box-shadow: 0 2px 6px rgba(24, 119, 242, 0.35);
+
+      &:hover:not(:disabled) {
+        background: #0c63d4;
+        box-shadow: 0 6px 16px rgba(24, 119, 242, 0.45);
+      }
+    }
+    &.li {
+      background: #0a66c2;
+      box-shadow: 0 2px 6px rgba(10, 102, 194, 0.35);
+
+      &:hover:not(:disabled) {
+        background: #08529b;
+        box-shadow: 0 6px 16px rgba(10, 102, 194, 0.45);
+      }
+    }
+  }
+}
+
+.st-share-sep {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color, #6b7280);
+  margin-left: 0.35rem;
+  padding-left: 0.6rem;
+  border-left: 1px solid rgba(100, 116, 139, 0.2);
+}
+
+// The capturable surface — solid bg so the exported PNG is clean.
+.st-share-surface {
+  background: var(--st-surface-bg, #ffffff);
+  border-radius: 12px;
+  padding: 0.25rem;
+}
+:host-context([data-bs-theme="dark"]) .st-share-surface {
+  --st-surface-bg: #0f172a;
+}
+
+// Title/footer only appear in the exported PNG so it's self-contained.
+.st-export-title {
+  display: none;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0.5rem 0 0.85rem;
+
+  i { color: #6366f1; }
+}
+.st-share-surface.exporting .st-export-title { display: flex; }
+
+.st-brand {
+  display: none;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  font-size: 0.72rem;
+  color: var(--bs-secondary-color, #6b7280);
+}
+.st-share-surface.exporting .st-brand { display: flex; }
+.st-brand-sep { opacity: 0.6; }
+.st-brand-logo {
+  height: 18px;
+  width: auto;
+  display: block;
+}
+
+@media (max-width: 560px) {
+  .st-results-header { flex-direction: column; align-items: stretch; }
+  .st-share-actions { justify-content: flex-end; }
+  .st-share-sep { display: none; }
+  .st-share-btn .st-share-btn-label { display: none; }
+  .st-share-btn.brand .st-share-btn-label { display: inline; }
+}
+
+// ── Baselines, queue states & test modes (sequential-run upgrade) ──────
+
+// Mode cards reuse the task-card look; iconify icons need explicit sizing.
+.st-task-head iconify-icon {
+  font-size: 1.1rem;
+  flex: 0 0 auto;
+}
+
+// Queued / skipped cards sit dimmed until their turn in the sequential queue.
+.st-race-card.st-queued {
+  opacity: 0.55;
+
+  .st-spinner-ring { background: var(--bs-border-color, #e5e7eb); }
+}
+
+// Slot annotations: CLI missing warning + expected-baseline line.
+.st-slot-warning {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #f59e0b;
+}
+
+.st-slot-baseline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+  color: var(--bs-secondary-color, #6b7280);
+  text-align: center;
+}
+
+// Model-class chip (fast / balanced / reasoning).
+.st-tier-chip {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+
+  &[data-tier='fast'] { color: #10b981; background: rgba(16, 185, 129, 0.12); }
+  &[data-tier='balanced'] { color: #6366f1; background: rgba(99, 102, 241, 0.12); }
+  &[data-tier='reasoning'] { color: #8b5cf6; background: rgba(139, 92, 246, 0.12); }
+}
+
+// Measured-vs-expected verdict chip in the results table.
+.st-baseline-cell {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.st-baseline-chip {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.12rem 0.5rem;
+  border-radius: 999px;
+
+  &[data-class='within'] { color: #10b981; background: rgba(16, 185, 129, 0.12); }
+  &[data-class='below'] { color: #f59e0b; background: rgba(245, 158, 11, 0.14); }
+  &[data-class='above'] { color: #3b82f6; background: rgba(59, 130, 246, 0.12); }
+  &[data-class='unknown'] { color: var(--bs-secondary-color, #9ca3af); background: rgba(148, 163, 184, 0.14); }
+}
+
+.st-baseline-hist {
+  margin-top: 0.3rem;
+  font-size: 0.7rem;
+  color: var(--bs-secondary-color, #6b7280);
+}
+
+// Dedicated graded exercise shown on each mode card.
+.st-task-exercise {
+  margin-top: 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #6366f1;
+
+  i { font-size: 0.8rem; margin-right: 0.2rem; }
+}
+
+// Failed-model cells: errors are summarized at the source (runner), but clamp
+// anyway so a verbose CLI can never flood the comparison table.
+.st-compare .st-value.st-fail {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+  max-width: 28rem;
+  font-size: 0.75rem;
+}
+
+// ── Run entertainment: ONE global clock, breathing ring, quips, confetti ──
+
+.st-global-clock {
+  text-align: center;
+  margin-bottom: 1.6rem;
+}
+
+.st-clock-value {
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.st-clock-sub {
+  font-size: 0.78rem;
+  color: var(--bs-secondary-color, #6b7280);
+  margin-top: 0.15rem;
+}
+
+.st-queue-bar {
+  height: 6px;
+  max-width: 380px;
+  margin: 0.65rem auto 0;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.12);
+  overflow: hidden;
+}
+
+.st-queue-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  transition: width 0.6s ease;
+}
+
+// The card holding the track "breathes" so the wait feels alive.
+.st-race-card { position: relative; }
+
+.st-race-card.st-running .st-spinner-ring {
+  animation: st-breathe 2.4s ease-in-out infinite;
+}
+
+@keyframes st-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.35); }
+  50% { box-shadow: 0 0 0 16px rgba(99, 102, 241, 0); }
+}
+
+// Rotating one-liners about what the model is doing right now.
+.st-wait-quip {
+  max-width: 190px;
+  min-height: 2em;
+  font-size: 0.7rem;
+  font-style: italic;
+  text-align: center;
+  color: var(--bs-secondary-color, #6b7280);
+  animation: st-quip-fade 6s ease-in-out infinite;
+}
+
+@keyframes st-quip-fade {
+  0%, 8% { opacity: 0; }
+  16%, 84% { opacity: 1; }
+  95%, 100% { opacity: 0; }
+}
+
+// Green pulse while CLI chunks are actively streaming in.
+.st-stream-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-left: 0.3rem;
+  border-radius: 50%;
+  background: #10b981;
+  vertical-align: middle;
+  animation: st-stream-blink 1s ease-in-out infinite;
+}
+
+@keyframes st-stream-blink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.75); }
+}
+
+// Finish-line celebration: ring pop + confetti burst on the card that
+// crosses first (or any model completing while others still run).
+.st-race-card.st-celebrate .st-spinner-ring {
+  animation: st-finish-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes st-finish-pop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.16); }
+  100% { transform: scale(1); }
+}
+
+.st-confetti {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 3;
+
+  span {
+    position: absolute;
+    top: 34%;
+    left: 50%;
+    width: 7px;
+    height: 11px;
+    border-radius: 2px;
+    opacity: 0;
+    animation: st-confetti-burst 2.4s ease-out forwards;
+  }
+}
+
+$st-confetti-colors: #6366f1, #8b5cf6, #10b981, #f59e0b, #ef4444,
+  #3b82f6, #ec4899, #14b8a6, #eab308, #a855f7;
+$st-confetti-x: -86px, -60px, -32px, -12px, 10px, 30px, 56px, 84px, -98px, 98px;
+$st-confetti-y: -70px, -96px, -58px, -102px, -64px, -94px, -72px, -88px, -38px, -44px;
+
+@for $i from 1 through 10 {
+  .st-confetti span:nth-child(#{$i}) {
+    background: nth($st-confetti-colors, $i);
+    --tx: #{nth($st-confetti-x, $i)};
+    --ty: #{nth($st-confetti-y, $i)};
+    animation-delay: #{($i - 1) * 0.045}s;
+  }
+}
+
+@keyframes st-confetti-burst {
+  0% { transform: translate(-50%, 0) rotate(0deg) scale(0.6); opacity: 0; }
+  12% { opacity: 1; }
+  55% { transform: translate(calc(-50% + var(--tx)), var(--ty)) rotate(340deg) scale(1); opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--tx) * 1.25), 130px) rotate(720deg) scale(0.9); opacity: 0; }
+}
+
+// The results reveal slides in — the payoff after the wait.
+.st-share-surface {
+  animation: st-results-in 0.45s ease-out;
+}
+
+@keyframes st-results-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+// ── Mode selector: 6 modes on ONE row, taller cards with the exercise story ──
+
+.st-task-grid.st-mode-row {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.6rem;
+
+  @media (max-width: 1100px) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  @media (max-width: 560px) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.st-mode-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 148px;
+  padding: 0.8rem 0.85rem;
+
+  .st-task-hint { margin-bottom: 0.4rem; }
+  .st-task-exercise { margin-top: auto; }
+}
+
+// What the mode's graded exercise actually asks — the reason to pick it.
+.st-task-brief {
+  margin-top: 0.25rem;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--bs-body-color, #374151);
+}

@@ -26,7 +26,7 @@
 </p>
 
 <p align="center">
-  <sub>De broncode van de open-source-editie, zonder account, zonder inloggen en zonder PromptOps-server, komt naar deze repository. PromptOps Desktop is de kant-en-klare app, met Teams, synchronisatie en de mobiele app. <a href="../../PRIVACY.md">Wat je machine verlaat →</a></sub>
+  <sub>Deze repository bevat de releases van PromptOps Desktop en de open-source-editie: geen account, geen login, geen PromptOps-server, en <a href="../../README.md#open-source-edition--build-it-yourself">je bouwt hem zelf</a>. PromptOps Desktop is de kant-en-klare app, met Teams, synchronisatie en de mobiele app. <a href="../../PRIVACY.md">Wat je machine verlaat →</a></sub>
 </p>
 
 ## Snel aan de slag
@@ -170,7 +170,7 @@ Je sessiegegevens worden versleuteld met hetzelfde algoritme als in de open-sour
 
 ### Open-source-editie
 
-Geen account en geen server: alles blijft op je computer. De broncode komt naar deze repository, samen met de commando's om hem zelf te bouwen op macOS, Windows en Linux. Geef de repo een [ster](https://github.com/shellonback/promptops) om te weten wanneer hij er is.
+Geen account en geen server: alles blijft op je computer. De code staat in deze repository; er zijn geen kant-en-klare binaries van deze editie: de commando's om hem op macOS, Windows en Linux te bouwen staan in de [Engelse README](../../README.md#open-source-edition--build-it-yourself).
 
 ---
 

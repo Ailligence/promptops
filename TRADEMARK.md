@@ -2,11 +2,11 @@
 
 The source code in this repository is licensed under the [Apache License 2.0](LICENSE). The license covers the code, not the brand.
 
-"PromptOps", "PromptOps Manager" and the PromptOps logos are trademarks of Shellonback S.r.l. Section 6 of the Apache License does not grant permission to use them.
+"PromptOps", "PromptOps Desktop", the PromptOps logos and the Shellonback logo are trademarks of Shellonback S.r.l. Section 6 of the Apache License does not grant permission to use them.
 
 ## You can
 
-- Say that your project is "based on PromptOps Manager" or "a fork of PromptOps Manager".
+- Say that your project is "based on PromptOps" or "a fork of PromptOps".
 - Use the name to refer to the official project in articles, talks, tutorials and comparisons.
 
 ## You cannot, without written permission

@@ -1,0 +1,35 @@
+<div class="bm-modal">
+  <!-- ── Header ──────────────────────────────────────────────────── -->
+  <div class="bm-header">
+    <div class="bm-title">
+      <iconify-icon icon="logos:chrome" width="20"></iconify-icon>
+      <span>{{ 'BROWSER_PAGE.Browser mode' | translate }}</span>
+      <span class="bm-agent">{{ title }}</span>
+      <span class="bm-provider">{{ providerLabel }}</span>
+    </div>
+    <span class="bm-hint-top" [innerHTML]="'BROWSER_PAGE.Mode hint' | translate"></span>
+    <button type="button" class="bm-close" (click)="close()" [attr.aria-label]="'COMMON.Close' | translate" [title]="'BROWSER_PAGE.Close esc' | translate">
+      <iconify-icon icon="solar:close-circle-bold" width="22"></iconify-icon>
+    </button>
+  </div>
+
+  <!-- ── Split: agent terminal | Chrome mirror ──────────────────── -->
+  <div class="bm-split">
+    <section class="bm-pane bm-terminal">
+      <div class="bm-pane-head">
+        <span><i class="ti ti-terminal-2"></i> {{ title }}</span>
+        <span class="bm-hint">{{ connecting() ? ('BROWSER_PAGE.Connecting chrome cap' | translate) : kickoffSent() ? ('BROWSER_PAGE.Asked answer here' | translate: { question: handshake }) : ('BROWSER_PAGE.Connecting' | translate) }}</span>
+      </div>
+      <div class="bm-pane-body">
+        @if (sessionId) {
+          <app-session-terminal [sessionId]="sessionId" [workspacePath]="workspacePath"></app-session-terminal>
+        } @else if (subAgentId) {
+          <app-sub-agent-terminal [subAgentId]="subAgentId" [expanded]="true"></app-sub-agent-terminal>
+        }
+      </div>
+    </section>
+    <section class="bm-pane bm-mirror">
+      <app-chrome-mirror [providerLabel]="providerLabel" [providerId]="providerId"></app-chrome-mirror>
+    </section>
+  </div>
+</div>

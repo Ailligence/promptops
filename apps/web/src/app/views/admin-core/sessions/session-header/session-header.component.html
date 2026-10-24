@@ -1,0 +1,414 @@
+@if (session()) {
+  <div class="session-header-bar">
+    @let s = session()!;
+    <!-- Device workspace banner -->
+    @if (s.deviceWorkspace?.status === 'not_configured') {
+      <div class="device-banner device-banner-warning">
+        <iconify-icon icon="solar:monitor-smartphone-bold-duotone" width="16"></iconify-icon>
+        <span>{{ 'SESSIONS.DEVICE_WORKSPACE.Not configured banner' | translate }}</span>
+        <button class="btn btn-sm btn-outline-warning" (click)="onSetupWorkspace.emit(s.id)">
+          {{ 'SESSIONS.DEVICE_WORKSPACE.Setup' | translate }}
+        </button>
+      </div>
+    }
+    @if (s.deviceWorkspace?.status === 'invalid_path') {
+      <div class="device-banner device-banner-error">
+        <iconify-icon icon="solar:danger-triangle-bold" width="16"></iconify-icon>
+        <span>{{ 'SESSIONS.DEVICE_WORKSPACE.Invalid path banner' | translate }}</span>
+        <button class="btn btn-sm btn-outline-danger" (click)="onSetupWorkspace.emit(s.id)">
+          {{ 'SESSIONS.DEVICE_WORKSPACE.Relink' | translate }}
+        </button>
+      </div>
+    }
+    <!-- Row 1: workspace path + status + actions -->
+    <div class="header-top">
+      <div class="header-title-group">
+        <div class="workspace-info-col">
+          @if (s.workspace) {
+            <nav class="workspace-path" [appTooltip]="crumbNav() ? null : s.workspace.path" [attr.aria-label]="'SESSIONS.CRUMB_NAV.Workspace path' | translate">
+              <iconify-icon icon="solar:folder-bold" width="14" class="crumb-icon"></iconify-icon>
+              @for (crumb of pathCrumbItems(s.workspace.path); track $index; let last = $last) {
+                @if (crumb.depth > 0) {
+                  <button
+                    type="button"
+                    class="crumb crumb-btn"
+                    [class.crumb-current]="last"
+                    [class.open]="crumbNav()?.depth === crumb.depth"
+                    (click)="openCrumbNav($event, s.workspace.path, crumb.depth)"
+                  >{{ crumb.label }}</button>
+                } @else {
+                  <span class="crumb" [class.crumb-current]="last">{{ crumb.label }}</span>
+                }
+                @if (!last) {
+                  <iconify-icon icon="solar:alt-arrow-right-linear" width="11" class="crumb-sep"></iconify-icon>
+                }
+              }
+            </nav>
+            <!-- Breadcrumb navigator: sibling folders of the clicked segment → their sessions → Go -->
+            @if (crumbNav(); as nav) {
+              <div class="crumb-nav-backdrop" (click)="closeCrumbNav()"></div>
+              <div
+                class="crumb-nav"
+                role="dialog"
+                [style.top.px]="nav.top"
+                [style.left.px]="nav.left"
+                [attr.aria-label]="'SESSIONS.CRUMB_NAV.Workspace path' | translate"
+                (keydown.escape)="closeCrumbNav()"
+                (keydown.enter)="onCrumbNavEnter($event)"
+                tabindex="-1"
+                #crumbNavEl
+                >
+                <div class="crumb-nav-cols">
+                  <div class="crumb-nav-col crumb-nav-folders">
+                    <div class="crumb-nav-label">{{ 'SESSIONS.CRUMB_NAV.Folders' | translate }}</div>
+                    @for (f of crumbFolders(); track f.name) {
+                      <button
+                        type="button"
+                        class="crumb-nav-item"
+                        [class.selected]="f.name === crumbFolder()"
+                        (click)="pickCrumbFolder(f.name)"
+                        >
+                        <iconify-icon icon="solar:folder-bold-duotone" width="15"></iconify-icon>
+                        <span class="crumb-nav-name">{{ f.name }}</span>
+                        @if (f.current) {
+                          <span class="crumb-nav-here">{{ 'SESSIONS.CRUMB_NAV.Here' | translate }}</span>
+                        }
+                        <span class="crumb-nav-count">{{ f.sessions.length }}</span>
+                      </button>
+                    }
+                  </div>
+                  <div class="crumb-nav-col crumb-nav-sessions">
+                    <div class="crumb-nav-label">{{ 'SESSIONS.CRUMB_NAV.Sessions' | translate }}</div>
+                    @for (row of crumbFolderSessions(); track row.session.id) {
+                      <button
+                        type="button"
+                        class="crumb-nav-item"
+                        [class.selected]="row.session.id === crumbSessionId()"
+                        [class.current]="row.session.id === s.id"
+                        (click)="crumbSessionId.set(row.session.id)"
+                        (dblclick)="goCrumbSession()"
+                        >
+                        <span class="crumb-nav-status" [class]="'dot-' + row.session.status"></span>
+                        <span class="crumb-nav-name">{{ row.session.name }}</span>
+                        @if (row.sub) {
+                          <span class="crumb-nav-sub">{{ row.sub }}</span>
+                        }
+                      </button>
+                      } @empty {
+                      <div class="crumb-nav-empty">{{ 'SESSIONS.CRUMB_NAV.Empty' | translate }}</div>
+                    }
+                  </div>
+                </div>
+                <div class="crumb-nav-footer">
+                  <span class="crumb-nav-path"><bdi>{{ crumbTargetPath() }}</bdi></span>
+                  <button
+                    type="button"
+                    class="crumb-nav-go"
+                    [disabled]="!crumbSessionId() || crumbSessionId() === s.id"
+                    (click)="goCrumbSession()"
+                    >
+                    {{ 'SESSIONS.CRUMB_NAV.Go' | translate }}
+                    <iconify-icon icon="solar:arrow-right-linear" width="14"></iconify-icon>
+                  </button>
+                </div>
+              </div>
+            }
+          } @else {
+            <h6 class="session-name">{{ s.name }}</h6>
+          }
+          <!-- Parked = standby, whatever the last status was: the header
+          must not contradict the "Session on standby" cover. -->
+          @let st = s.standbyAt ? 'standby' : s.status;
+          <span class="status-inline">
+            <span class="status-dot" [class]="'dot-' + st" [appTooltip]="'SESSIONS.Status ' + st | translate"></span>
+            <span class="status-label" [class]="'label-' + st">{{ 'SESSIONS.Status ' + st | translate }}</span>
+          </span>
+        </div>
+        @if (s.teamName) {
+          <span class="meta-tag meta-tag-team">
+            <iconify-icon icon="solar:users-group-rounded-bold" width="12"></iconify-icon>
+            {{ s.teamName }}
+          </span>
+        }
+        @if (snapshotStatus() && snapshotStatus() !== 'idle') {
+          <span class="context-snapshot-badge" [class]="'csb-' + snapshotStatus()"
+              [appTooltip]="snapshotStatus() === 'advanced_ready' || snapshotStatus() === 'basic_ready'
+                ? ('CONTEXT_SNAPSHOT.Status Ready' | translate)
+                : snapshotStatus() === 'scanning'
+                  ? ('CONTEXT_SNAPSHOT.Status Updating' | translate)
+                  : ('CONTEXT_SNAPSHOT.Status Failed' | translate)">
+          <iconify-icon
+            [icon]="snapshotStatus() === 'advanced_ready' || snapshotStatus() === 'basic_ready'
+              ? 'solar:map-arrow-square-bold'
+              : snapshotStatus() === 'scanning'
+                ? 'solar:refresh-bold'
+                : 'solar:danger-triangle-bold'"
+            width="12"></iconify-icon>
+          </span>
+        }
+      </div>
+      <div class="header-actions" [class.tools-compact]="compactTools()">
+        <!-- Toolbar settings arrow (independent) -->
+        <div class="toolbar-settings">
+          <button type="button" class="toolbar-settings-btn" (click)="toggleToolsMenu($event)" [appTooltip]="'SESSIONS.TOOLTIPS.Toolbar settings' | translate"
+            [attr.aria-label]="'SESSIONS.TOOLTIPS.Toolbar settings' | translate" aria-haspopup="menu" [attr.aria-expanded]="toolsMenuOpen()">
+            <iconify-icon icon="solar:alt-arrow-down-bold" width="11"></iconify-icon>
+          </button>
+          @if (toolsMenuOpen()) {
+            <div class="tools-menu-backdrop" (click)="closeToolsMenu()"></div>
+            <div class="tools-menu" appEscClose (escClose)="closeToolsMenu()">
+              <div class="tools-menu-title">{{ 'SESSIONS.Toolbar view' | translate }}</div>
+              <button class="tools-menu-item" (click)="toggleCompactTools()">
+                <iconify-icon [icon]="compactTools() ? 'solar:check-square-bold' : 'solar:stop-linear'" width="14"></iconify-icon>
+                <span>{{ 'SESSIONS.Compact mode icons only' | translate }}</span>
+              </button>
+            </div>
+          }
+        </div>
+        <!-- Git button -->
+        @if (ff.canAccess('git_panel')) {
+          <button class="history-badge git-badge" style="border-color: rgba(63,185,80,0.25); color: #3fb950;" (click)="onOpenGitExplorer.emit()" [appTooltip]="'SESSIONS.TOOLTIPS.Git history' | translate">
+            <iconify-icon icon="mdi:git" width="17"></iconify-icon>
+            {{ 'SESSIONS.Git label' | translate }}
+            @if (gitCounts().total > 0) {
+              <span class="git-counts-inline">
+                @if (gitCounts().modified > 0) {
+                  <span class="gc gc-modified">
+                    <iconify-icon icon="solar:pen-bold" width="10"></iconify-icon>
+                    {{ gitCounts().modified }}
+                  </span>
+                }
+                @if (gitCounts().added > 0) {
+                  <span class="gc gc-added">
+                    <iconify-icon icon="solar:add-circle-bold" width="10"></iconify-icon>
+                    {{ gitCounts().added }}
+                  </span>
+                }
+                @if (gitCounts().deleted > 0) {
+                  <span class="gc gc-deleted">
+                    <iconify-icon icon="solar:minus-circle-bold" width="10"></iconify-icon>
+                    {{ gitCounts().deleted }}
+                  </span>
+                }
+              </span>
+            }
+          </button>
+        }
+        <!-- Team board: part of PromptOps Desktop, shown locked. -->
+        <button class="history-badge team-badge" (click)="onOpenTeamBoard.emit()"
+          [appTooltip]="'CLOUD.Locked tooltip' | translate">
+          <iconify-icon icon="tabler:users-group" width="17"></iconify-icon>
+          {{ 'SESSIONS.Team label' | translate }}
+          @if (session()?.projectId) { <span class="team-badge-dot"></span> }
+        </button>
+        <!-- SSH button (built-in plugin, can be turned off from Plugins) -->
+        @if (builtins.isOn('ssh')) {
+          <button class="history-badge" style="border-color: rgba(99,102,241,0.3); color: #818cf8;" (click)="onOpenSsh.emit()" [appTooltip]="'BUILTIN_PLUGINS.ssh.Name' | translate">
+            <iconify-icon icon="solar:server-square-bold-duotone" width="17"></iconify-icon>
+            SSH
+          </button>
+        }
+        @if (ff.canAccess('database_explorer') && builtins.isOn('database')) {
+          <button class="db-badge" (click)="onOpenDatabase.emit()" [appTooltip]="'SESSIONS.TOOLTIPS.Database explorer' | translate">
+            <iconify-icon icon="mdi:database" width="16"></iconify-icon>
+            {{ 'SESSIONS.Database label' | translate }}
+          </button>
+        }
+        @if (ff.canAccess('docker_integration') && builtins.isOn('docker')) {
+          <button class="docker-badge" (click)="onOpenDocker.emit()" [appTooltip]="'SESSIONS.TOOLTIPS.Docker containers' | translate">
+            <iconify-icon icon="mdi:docker" width="17"></iconify-icon>
+            {{ 'SESSIONS.Docker label' | translate }}
+          </button>
+        }
+        @if (pluginRuntime.available) {
+          <!-- Plugin buttons in the session bar (place: header). -->
+          <app-plugin-session-buttons variant="header" place="header" paneAgentId="main"
+            [sessionId]="session()?.id ?? null" [sessionName]="session()?.name ?? ''" [provider]="session()?.provider ?? ''"
+            [sessionStatus]="session()?.status ?? ''" [workspaceName]="pluginWorkspaceName()" />
+        }
+        @if (availableEditors().length === 1) {
+          <button class="editor-badge" (click)="openInEditor(availableEditors()[0].command)" [appTooltip]="('SESSIONS.TOOLTIPS.Open in editor' | translate: { name: availableEditors()[0].name })">
+            <iconify-icon [icon]="availableEditors()[0].icon" width="16"></iconify-icon>
+            {{ availableEditors()[0].name }}
+          </button>
+        } @else if (availableEditors().length > 1) {
+          <div class="editor-picker">
+            <button class="editor-badge"
+              type="button"
+              aria-haspopup="menu"
+              [attr.aria-expanded]="editorMenuOpen()"
+              (click)="toggleEditorMenu($event)"
+              [appTooltip]="'SESSIONS.TOOLTIPS.Open in code editor' | translate">
+              <iconify-icon icon="solar:code-square-bold" width="16"></iconify-icon>
+              {{ 'SESSIONS.Code Editor' | translate }}
+              <iconify-icon icon="solar:alt-arrow-down-linear" width="9" class="editor-caret"></iconify-icon>
+            </button>
+            @if (editorMenuOpen()) {
+              <div class="editor-menu-backdrop" (click)="closeEditorMenu()"></div>
+              <div class="editor-menu" role="menu" appEscClose (escClose)="closeEditorMenu()">
+                @for (editor of availableEditors(); track editor.id) {
+                  <button type="button" role="menuitem" class="editor-menu-item" (click)="selectEditor(editor.command)">
+                    <iconify-icon [icon]="editor.icon" width="16"></iconify-icon>
+                    <span>{{ editor.name }}</span>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+        <button type="button" class="icon-btn" (click)="onAddNote.emit()" [appTooltip]="'DOCS.Quick note' | translate"
+          [attr.aria-label]="'DOCS.Quick note' | translate">
+          <iconify-icon icon="solar:document-add-bold" width="17"></iconify-icon>
+        </button>
+        @if (uiStyle() === 'minimal') {
+          <button type="button" class="icon-btn" (click)="onProjectBrief.emit()" [appTooltip]="'BRIEF.Project brief' | translate"
+            [attr.aria-label]="'BRIEF.Project brief' | translate">
+            <iconify-icon icon="solar:presentation-graph-bold" width="17"></iconify-icon>
+          </button>
+        }
+        @if (providerAsAccountId(); as pa) {
+          <po-provider-account-switcher
+            [provider]="pa"
+            mode="picker"
+            [value]="sessionProviderAccountId()"
+            [showInherit]="true"
+            [allowOptOut]="true"
+            [compact]="true"
+            placement="bottom-end"
+            (valueChange)="onSessionAccountChange($event)"
+            />
+        }
+      </div>
+    </div>
+    <!-- Row 2: Session tabs (count: {{ tabSessions().length }}) -->
+    <div class="header-tabs-row">
+      @if (multiSession()) {
+        <div class="header-tabs-scroll" #tabsScroll (wheel)="onTabsWheel($event)">
+          @for (tab of tabSessions(); track tab.id; let i = $index) {
+            <div
+              class="session-tab"
+              [class.active]="tab.id === activeSessionId()"
+              [class.dragging]="dragTabId() === tab.id"
+              [class.drag-over-left]="dragOverTabId() === tab.id && dragTabId() !== tab.id"
+              draggable="true"
+              (dragstart)="onTabDragStart($event, tab)"
+              (dragover)="onTabDragOver($event, tab)"
+              (dragleave)="onTabDragLeave($event)"
+              (drop)="onTabDrop($event, tab)"
+              (dragend)="onTabDragEnd()"
+              (click)="onSelectTab.emit(tab.id)"
+              (contextmenu)="onTabContextMenu($event, tab)"
+              >
+              <span class="tab-label">{{ tab.name }}</span>
+              @if (tab.status === 'waiting_input') {
+                <span class="tab-attention-dot"></span>
+              } @else if (tab.status === 'running' || tab.status === 'in_progress') {
+                <span class="tab-status-dot dot-running"></span>
+              }
+              @if (tabSessions().length > 1) {
+                <button
+                  class="tab-close"
+                  (click)="onCloseTabEvt($event, tab.id)"
+                  type="button"
+                  [appTooltip]="'SESSIONS.TOOLTIPS.Close tab' | translate"
+                  [attr.aria-label]="'SESSIONS.TOOLTIPS.Close tab' | translate"
+                  >
+                  <iconify-icon icon="solar:close-circle-bold" width="12"></iconify-icon>
+                </button>
+              }
+            </div>
+          }
+        </div>
+        <!-- Outside the scroll container so it stays visible when tabs overflow -->
+        <button type="button" class="tab-add-btn" (click)="onAddTab.emit()" [appTooltip]="'SESSIONS.TOOLTIPS.New tab' | translate"
+          [attr.aria-label]="'SESSIONS.TOOLTIPS.New tab' | translate">
+          <iconify-icon icon="solar:add-circle-bold" width="16"></iconify-icon>
+        </button>
+      } @else {
+        <!-- Multisession plugin off: the sub-agent bar takes the place of the tabs, if the view passes it -->
+        <ng-content select="[poHeaderBar]"></ng-content>
+      }
+      <!-- Spacer pushes toggle to the right -->
+      <div class="tabs-spacer"></div>
+      <!-- Terminals button -->
+      <button class="terminals-toggle-btn" (click)="onOpenTerminals.emit()" [appTooltip]="'SESSIONS.Open Terminal' | translate">
+        <iconify-icon icon="tabler:terminal-2" width="18"></iconify-icon>
+        <span class="terminals-label">{{ 'TERMINAL_PAGE.Terminal' | translate }}</span>
+      </button>
+      <!-- Desktop: the session in its own dedicated window (in the dedicated window: go back to the main one) -->
+      @if (dedicatedWindow()) {
+        <button class="dedicated-window-btn" (click)="onDedicatedWindow.emit()" [appTooltip]="'SESSIONS.DETACHED.Back to main' | translate"
+          [attr.aria-label]="'SESSIONS.DETACHED.Back to main' | translate">
+          <iconify-icon icon="tabler:arrow-back-up" width="17"></iconify-icon>
+        </button>
+      } @else if (canDetach) {
+        <button class="dedicated-window-btn" (click)="onDedicatedWindow.emit()" [appTooltip]="'SESSIONS.DETACHED.Menu' | translate"
+          [attr.aria-label]="'SESSIONS.DETACHED.Menu' | translate">
+          <iconify-icon icon="tabler:app-window" width="17"></iconify-icon>
+        </button>
+      }
+      <!-- Focus mode button: fallback only when the sub-agent bar (which now hosts the toggle) is missing -->
+      @if (showFocusToggle()) {
+        <button class="focus-toggle-btn" [class.active]="focusMode()"
+          (click)="onToggleFocusMode.emit()"
+          [appTooltip]="focusMode() ? ('SESSIONS.TOOLTIPS.Exit focus' | translate) : ('SESSIONS.TOOLTIPS.Focus mode' | translate)">
+          <iconify-icon [icon]="focusMode() ? 'tabler:arrows-minimize' : 'tabler:arrows-maximize'" width="16"></iconify-icon>
+          <span class="focus-label">{{ focusMode() ? ('SESSIONS.Focus exit' | translate) : ('SESSIONS.Focus' | translate) }}</span>
+          <kbd class="focus-kbd">{{ modKey }}+F</kbd>
+        </button>
+      }
+      <!-- Dev links launcher — opens project dev URLs in the browser -->
+      @if (sessionService.isDesktop) {
+        <button class="dev-links-toggle-btn" (click)="onDevLinks.emit()" [appTooltip]="'DEVLINKS.Tooltip' | translate">
+          <iconify-icon [icon]="browserIcon()" width="16"></iconify-icon>
+          <span class="dev-links-label">{{ 'DEVLINKS.Links' | translate }}</span>
+          @if (devLinksCount() > 0) {
+            <span class="dev-links-count">{{ devLinksCount() }}</span>
+          }
+        </button>
+      }
+      <!-- ═══ LAYOUT MODE TOGGLE ═══ -->
+      <div class="layout-mode-toggle" role="group" [attr.aria-label]="'SESSIONS.Layout mode' | translate">
+        <span class="lmt-label" role="button" tabindex="0" [attr.aria-pressed]="layoutMode() === 'standard'" [class.active]="layoutMode() === 'standard'"
+          (click)="layoutMode() !== 'standard' && onToggleLayoutMode.emit()"
+          (keydown.enter)="layoutMode() !== 'standard' && onToggleLayoutMode.emit()"
+          (keydown.space)="$event.preventDefault(); layoutMode() !== 'standard' && onToggleLayoutMode.emit()">
+          <iconify-icon icon="tabler:prompt" width="14"></iconify-icon>
+          {{ 'SESSIONS.Standard' | translate }}
+        </span>
+        <span class="lmt-label" role="button" tabindex="0" [attr.aria-pressed]="layoutMode() === 'code'" [class.active]="layoutMode() === 'code'"
+          (click)="layoutMode() !== 'code' && onToggleLayoutMode.emit()"
+          (keydown.enter)="layoutMode() !== 'code' && onToggleLayoutMode.emit()"
+          (keydown.space)="$event.preventDefault(); layoutMode() !== 'code' && onToggleLayoutMode.emit()">
+          <iconify-icon icon="tabler:code" width="14"></iconify-icon>
+          {{ 'SESSIONS.Code Editor' | translate }}
+        </span>
+      </div>
+    </div>
+    <!-- Context menu (positioned absolutely) -->
+    @if (contextMenuTab()) {
+      <div
+        class="tab-context-backdrop"
+        (click)="closeContextMenu()"
+        (contextmenu)="closeContextMenu(); $event.preventDefault()"
+      ></div>
+      <div
+        class="tab-context-menu"
+        appEscClose (escClose)="closeContextMenu()"
+        [style.left.px]="contextMenuPos().x"
+        [style.top.px]="contextMenuPos().y"
+        >
+        <button class="ctx-item" (click)="contextMenuRename()">
+          <iconify-icon icon="solar:pen-bold" width="14"></iconify-icon>
+          {{ 'SESSIONS.Rename' | translate }}
+        </button>
+        @if (tabSessions().length > 1) {
+          <button class="ctx-item ctx-item-danger" (click)="contextMenuClose()">
+            <iconify-icon icon="solar:trash-bin-trash-bold" width="14"></iconify-icon>
+            {{ 'SESSIONS.TOOLTIPS.Close tab ctx' | translate }}
+          </button>
+        }
+      </div>
+    }
+  </div>
+}

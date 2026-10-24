@@ -1,0 +1,1779 @@
+<div class="sessions-page" [class.focus-mode]="focusMode()" [class.has-focus-strip]="focusMode() && !saFocusToggleVisible()">
+
+  <!-- ═══ Reusable Auto-Approve picker card ═══
+       Rendered inside every terminal pane when aaSelectMode() is on.
+       Kept compact so it stays usable in narrow panes (3+ sub-agents
+       in split/grid mode). Descriptions live in tooltips; the header
+       "Pick mode" chip flips to "Picked" once the user chooses a mode.
+  -->
+  <ng-template #aaPickerCard let-sessionId="sessionId" let-target="target" let-eyebrow="eyebrow" let-compact="compact">
+    <div class="aa-picker-card" [class.compact]="compact" (click)="$event.stopPropagation()">
+      <div class="aa-picker-header">
+        <iconify-icon [icon]="getAaMode(sessionId) ? 'solar:check-circle-bold' : 'solar:shield-warning-bold'"></iconify-icon>
+        <span class="aa-picker-eyebrow">{{ eyebrow | translate }}</span>
+        <span class="aa-picker-sep">·</span>
+        <span class="aa-picker-target" [appTooltip]="target">{{ target }}</span>
+        <span class="aa-picker-step" [class.picked]="getAaMode(sessionId) !== null">
+          {{ (getAaMode(sessionId) !== null ? 'SESSIONS.AUTO_APPROVE.Picked' : 'SESSIONS.AUTO_APPROVE.Pick mode') | translate }}
+        </span>
+      </div>
+      <div class="aa-picker-options">
+        <button class="aa-opt off"
+                [class.active]="getAaMode(sessionId) === null"
+                (click)="clearAaMode(sessionId); $event.stopPropagation()"
+                [appTooltip]="'SESSIONS.VIEW.Mode off hint' | translate">
+          <iconify-icon icon="solar:shield-cross-bold-duotone"></iconify-icon>
+          <span class="aa-opt-label">{{ 'SESSIONS.AUTO_APPROVE.Mode off' | translate }}</span>
+        </button>
+        <button class="aa-opt quick"
+                [class.active]="getAaMode(sessionId) === 'quick'"
+                (click)="setAaMode(sessionId, 'quick'); $event.stopPropagation()"
+                [appTooltip]="'SESSIONS.VIEW.Mode quick hint' | translate">
+          <iconify-icon icon="solar:bolt-bold-duotone"></iconify-icon>
+          <span class="aa-opt-label">{{ 'SESSIONS.AUTO_APPROVE.Mode quick' | translate }}</span>
+        </button>
+        <button class="aa-opt ai"
+                [class.active]="getAaMode(sessionId) === 'ai'"
+                (click)="setAaMode(sessionId, 'ai'); $event.stopPropagation()"
+                [appTooltip]="'SESSIONS.VIEW.Mode ai hint' | translate">
+          <iconify-icon icon="solar:cpu-bolt-bold-duotone"></iconify-icon>
+          <span class="aa-opt-label">{{ 'SESSIONS.AUTO_APPROVE.Mode ai' | translate }}</span>
+        </button>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- ═══ Sub-agent pane header actions (tab/grid/split) ═══
+       With 6+ panes on narrow viewports (14") the icons don't fit in the header:
+       saActionsCollapsed() collapses them into a single trigger that opens them
+       vertically on hover. `guardExpanded` replicates the split mode guard
+       that hides lead/close on the expanded pane. -->
+  <ng-template #saPaneActionButtons let-sa="sa" let-guardExpanded="guardExpanded" let-noClose="noClose">
+    <button class="btn-expand-subagent" [class.sa-btn-locked]="lockedSubAgents().has(sa.id)"
+            (click)="toggleLockSubAgent(sa.id, $event)"
+            [appTooltip]="lockedSubAgents().has(sa.id) ? ('SESSIONS.TOOLTIPS.Unlock' | translate) : ('SESSIONS.TOOLTIPS.Lock' | translate)">
+      <iconify-icon [icon]="lockedSubAgents().has(sa.id) ? 'solar:lock-bold' : 'solar:lock-unlocked-bold'" width="13"></iconify-icon>
+    </button>
+    <button class="btn-expand-subagent" (click)="toggleExpandSubAgent(sa.id)"
+            [appTooltip]="expandedSubAgentId() === sa.id ? ('SESSIONS.TOOLTIPS.Collapse sub-agent' | translate) : ('SESSIONS.TOOLTIPS.Expand sub-agent' | translate)">
+      <iconify-icon [icon]="expandedSubAgentId() === sa.id ? 'solar:minimize-bold' : 'solar:maximize-bold'" width="13"></iconify-icon>
+    </button>
+    @if (sa.userPrompt || sa.autoPrompt) {
+      <button class="btn-expand-subagent" (click)="copySubAgentPrompt(sa, $event)"
+              [appTooltip]="'SESSIONS.TOOLTIPS.Copy prompt' | translate">
+        <iconify-icon icon="solar:copy-bold" width="13"></iconify-icon>
+      </button>
+    }
+    <button class="btn-expand-subagent" [disabled]="subAgentService.benchFull()"
+            (click)="subAgentService.bench(sa.id); $event.stopPropagation()"
+            [appTooltip]="(subAgentService.benchFull() ? 'SESSIONS.TOOLTIPS.Bench full' : 'SESSIONS.TOOLTIPS.Bench sub-agent') | translate">
+      <iconify-icon icon="solar:bed-bold-duotone" width="13"></iconify-icon>
+    </button>
+    @if (!guardExpanded || expandedSubAgentId() !== sa.id) {
+      @if (agentsEnabled) {
+        @if (isLeadPane(sa.id)) {
+          <span class="sa-lead-badge" [appTooltip]="'SUBAGENTS.Lead' | translate"><iconify-icon icon="solar:star-bold" width="12"></iconify-icon></span>
+        } @else {
+          <button class="btn-expand-subagent" (click)="promoteToLead(sa.id, $event)" [appTooltip]="'SUBAGENTS.Promote to lead' | translate">
+            <iconify-icon icon="solar:star-line-duotone" width="13"></iconify-icon>
+          </button>
+        }
+      }
+      @if (!noClose) {
+        <button class="btn-close-subagent" (click)="destroySubAgent(sa.id, $event)"
+                [appTooltip]="'SESSIONS.TOOLTIPS.Close sub-agent' | translate"
+                [class.disabled]="lockedSubAgents().has(sa.id)">
+          <iconify-icon icon="solar:close-circle-bold" width="13"></iconify-icon>
+        </button>
+      }
+    }
+  </ng-template>
+
+  <ng-template #saPaneActionsSlot let-sa="sa" let-guardExpanded="guardExpanded">
+    @if (saPaneActionsCollapsed(sa.id)) {
+      <!-- Lock enabled from the menu: the padlock stays visible next to the status
+           (the button in the menu is hidden until the flyout opens). -->
+      @if (lockedSubAgents().has(sa.id)) {
+        <button class="btn-expand-subagent sa-btn-locked sa-lock-indicator"
+                (click)="toggleLockSubAgent(sa.id, $event)"
+                [appTooltip]="'SESSIONS.TOOLTIPS.Unlock' | translate">
+          <iconify-icon icon="solar:lock-bold" width="13"></iconify-icon>
+        </button>
+      }
+      <div class="sa-actions-flyout">
+        <button class="btn-expand-subagent sa-actions-trigger" [appTooltip]="'SESSIONS.TOOLTIPS.More actions' | translate">
+          <iconify-icon icon="solar:menu-dots-bold" width="13"></iconify-icon>
+        </button>
+        <div class="sa-actions-menu">
+          <ng-container *ngTemplateOutlet="saPaneActionButtons; context: { sa: sa, guardExpanded: guardExpanded, noClose: true }"></ng-container>
+        </div>
+      </div>
+      <!-- Close always stays visible, to the right of the trigger. -->
+      @if (!guardExpanded || expandedSubAgentId() !== sa.id) {
+        <button class="btn-close-subagent" (click)="destroySubAgent(sa.id, $event)"
+                [appTooltip]="'SESSIONS.TOOLTIPS.Close sub-agent' | translate"
+                [class.disabled]="lockedSubAgents().has(sa.id)">
+          <iconify-icon icon="solar:close-circle-bold" width="13"></iconify-icon>
+        </button>
+      }
+    } @else {
+      <ng-container *ngTemplateOutlet="saPaneActionButtons; context: { sa: sa, guardExpanded: guardExpanded }"></ng-container>
+    }
+  </ng-template>
+
+  <!-- ═══ Reusable terminal toolbar ═══
+       One pill per terminal pane instead of loose overlay buttons stacked
+       with hand-tuned offsets (the Auto-Approve quick-switch used to sit on
+       top of the eco/review buttons once it expanded). Order is stable:
+       model badge · review · eco · cover · auto-approve.
+       `sa` is null on a main terminal — that pane has no review action and
+       gets the cover toggle instead.
+  -->
+  <ng-template #termToolbar let-sessionId="sessionId" let-sa="sa" let-provider="provider" let-cover="cover">
+    @if (showTermToolbar(sessionId, provider, sa)) {
+      @for (notice of actionNotices.notices(); track notice.id) {
+        @if ((sa && notice.agentId === sa.id) || ((!sa || isMainPane(sa.id)) && notice.agentId === mainReviewTaskId(sessionId))) {
+          <button class="agent-action-notice" role="status"
+                  (click)="$event.stopPropagation(); actionNotices.activate(notice)">{{ notice.label | translate }}</button>
+        }
+      }
+      <div class="term-toolbar" (click)="$event.stopPropagation()">
+        @if (terminalModelLabel(sessionId, provider, sa); as modelLabel) {
+          <!-- The picker itself is NOT here: it renders once at page root as a
+               fixed overlay (see #modelPickerOverlay), so a narrow pane's
+               overflow:hidden can't clip it down to a few unreadable pixels. -->
+          <button class="tb-model"
+                  [class.tb-model-live]="!!sessionModels.runtimeModel(sessionId)"
+                  [class.tb-model-switching]="!!sessionModels.switchingTo(sessionId)"
+                  [class.tb-model-actionable]="modelBadgeActionable(provider)"
+                  [class.tb-model-open]="modelMenu()?.sessionId === sessionId && modelMenu()?.kind === 'model'"
+                  [disabled]="!modelBadgeActionable(provider) || !!sessionEfforts.pending()[sessionId]"
+                  (click)="toggleModelMenu(sessionId, provider, sa, $event)"
+                  [appTooltip]="terminalModelTooltip(sessionId, provider, sa)">
+            <img [src]="getProviderLogo(provider)" width="12" height="12" alt="" class="tb-model-logo" />
+            <span class="tb-model-text">{{ modelLabel }}</span>
+          </button>
+        }
+        @if (terminalEffortOptions(sessionId, provider, sa).length > 0) {
+          <button class="tb-model tb-effort tb-model-actionable"
+                  [class.tb-model-open]="modelMenu()?.sessionId === sessionId && modelMenu()?.kind === 'effort'"
+                  [class.tb-model-switching]="!!sessionEfforts.pending()[sessionId]"
+                  [disabled]="!!sessionEfforts.pending()[sessionId]"
+                  aria-haspopup="menu"
+                  [attr.aria-expanded]="modelMenu()?.sessionId === sessionId && modelMenu()?.kind === 'effort'"
+                  [attr.aria-label]="('SESSIONS.MODEL.Effort tooltip' | translate) + ': ' + terminalEffortLabel(sessionId, provider, sa)"
+                  [appTooltip]="('SESSIONS.MODEL.Effort tooltip' | translate) + ': ' + terminalEffortLabel(sessionId, provider, sa)"
+                  (click)="toggleModelMenu(sessionId, provider, sa, $event, 'effort')">
+            <span class="tb-model-text">{{ sessionEfforts.pending()[sessionId] ? sessionEfforts.pending()[sessionId] + '…' : terminalEffortLabel(sessionId, provider, sa) }}</span>
+            <span class="tb-effort-short" aria-hidden="true">{{ terminalEffortShortLabel(sessionId, provider, sa) }}</span>
+          </button>
+        }
+        @if (!sa || isMainPane(sa.id)) {
+          <!-- Main (classic or roster tile): the reviewer receives
+               `main:<sessionId>` and reads the session's provider + transcript. -->
+          <button class="btn-review-overlay"
+                  (click)="openMainCheckModal(sessionId, $event)"
+                  [appTooltip]="'SUBAGENTS.REVIEW.Check with another provider' | translate">
+            <iconify-icon icon="solar:eye-scan-bold-duotone" width="14"></iconify-icon>
+          </button>
+        } @else if (sa.executionMode !== 'worker') {
+          <button class="btn-review-overlay"
+                  (click)="openCheckModal(sa, $event)"
+                  [appTooltip]="'SUBAGENTS.REVIEW.Check with another provider' | translate">
+            <iconify-icon icon="solar:eye-scan-bold-duotone" width="14"></iconify-icon>
+          </button>
+        }
+        <!-- Eco — always available: one click flips eco for this terminal
+             (injects the prompt straight away) and opens the eco panel. -->
+        <button class="btn-eco-overlay"
+                [class.eco-on]="ecoService.isActiveForSession(sessionId)"
+                (click)="toggleTerminalEco(sessionId, $event)"
+                [appTooltip]="ecoService.isActiveForSession(sessionId) ? ('SESSIONS.ACTION_CENTER.Eco on' | translate) : ('SESSIONS.ACTION_CENTER.Eco off' | translate)">
+          <iconify-icon [icon]="ecoService.isActiveForSession(sessionId) ? 'solar:leaf-bold' : 'solar:leaf-bold-duotone'" width="14"></iconify-icon>
+        </button>
+        @if (!sa || sa.executionMode !== 'worker') {
+          <!-- Browser mode: full-screen terminal + real Chrome mirror; the
+               agent is asked "Cosa navighiamo?" and proposes what to open. -->
+          @if (builtins.isOn('browser')) {
+          <button class="btn-chrome-overlay"
+                  (click)="openBrowserMode(sessionId, sa); $event.stopPropagation()"
+                  [appTooltip]="'SESSIONS.VIEW.Browser mode' | translate"
+                  [attr.aria-label]="'SESSIONS.VIEW.Browser mode' | translate">
+            <iconify-icon icon="logos:chrome" width="14"></iconify-icon>
+          </button>
+          }
+          @if (pluginRuntime.available) {
+            <!-- Plugin buttons for THIS agent: the plugin proposes, the app runs it with the confirmation chosen by the user. -->
+            <app-plugin-session-buttons
+              [sessionId]="activeSessionId()"
+              [paneAgentId]="!sa || isMainPane(sa.id) ? 'main' : sa.id"
+              [sessionName]="activeSession()?.name ?? ''"
+              [provider]="activeSession()?.provider ?? ''"
+              [sessionStatus]="activeSession()?.status ?? ''"
+              [workspaceName]="pluginWorkspaceName()"
+            />
+          }
+          @if (builtins.isOn('auto-approve')) {
+          @if (!interactionService.isAutoApproved(sessionId)) {
+            <button class="btn-aa-overlay"
+                    (click)="toggleAutoApprove(sessionId); $event.stopPropagation()"
+                    [appTooltip]="'SESSIONS.AUTO_APPROVE.Agent off' | translate"
+                    [attr.aria-label]="'SESSIONS.AUTO_APPROVE.Agent off' | translate">
+              <iconify-icon icon="solar:shield-check-bold-duotone" width="14"></iconify-icon>
+            </button>
+          } @else {
+            <div class="aa-quick-switch">
+              <button class="aa-qs-btn quick"
+                      [class.active]="getSessionAaMode(sessionId) === 'quick'"
+                      (click)="setSessionAaMode(sessionId, 'quick'); $event.stopPropagation()"
+                      [appTooltip]="'SESSIONS.VIEW.Switch quick' | translate">
+                <iconify-icon icon="solar:bolt-bold-duotone"></iconify-icon>
+                {{ 'SESSIONS.AUTO_APPROVE.Mode quick' | translate }}
+              </button>
+              <button class="aa-qs-btn ai"
+                      [class.active]="getSessionAaMode(sessionId) === 'ai'"
+                      (click)="setSessionAaMode(sessionId, 'ai'); $event.stopPropagation()"
+                      [appTooltip]="'SESSIONS.VIEW.Switch ai' | translate">
+                <iconify-icon icon="solar:cpu-bolt-bold-duotone"></iconify-icon>
+                {{ 'SESSIONS.AUTO_APPROVE.Mode ai' | translate }}
+              </button>
+              <button class="aa-qs-btn off"
+                      (click)="toggleAutoApprove(sessionId); $event.stopPropagation()"
+                      [appTooltip]="'SESSIONS.VIEW.Turn off' | translate"
+                      [attr.aria-label]="'SESSIONS.VIEW.Turn off' | translate">
+                <iconify-icon icon="solar:close-circle-bold"></iconify-icon>
+              </button>
+            </div>
+          }
+          }
+        }
+      </div>
+    }
+  </ng-template>
+
+  <!-- Focus mode (fb 30/09): you exit with the toggle in the sub-agent bar. If that bar is not on screen
+       (bar in the hidden header, tab in the single pane, no agents) there is this very light strip at the top,
+       in the flow (it pushes the panes down, doesn't cover them), with only the exit icon. -->
+  @if (focusMode() && !saFocusToggleVisible()) {
+    <div class="focus-strip">
+      <button class="btn-sa-mode sa-focus-btn active" (click)="toggleFocusMode()" [appTooltip]="'SESSIONS.TOOLTIPS.Exit focus' | translate">
+        <iconify-icon icon="tabler:arrows-minimize" width="15"></iconify-icon>
+      </button>
+    </div>
+  }
+
+  @if (!sessionService.isDesktop) {
+    <app-desktop-download-cta context="sessions" />
+  } @else {
+    <div class="sessions-layout">
+      <!-- Sidebar (absent in a session's dedicated window) -->
+      @if (!dedicatedSessionId) {
+      <app-session-sidebar
+        [sessions]="sessions()"
+        [workspaces]="workspaces()"
+        [activeSessionId]="activeSessionId()"
+        [collapsed]="sidebarCollapsed()"
+        [class.no-transition]="sidebarResizing()"
+        [style.width]="sidebarCollapsed() ? '48px' : sidebarWidth() + 'px'"
+        (selectSession)="selectSession($event)"
+        (selectSubAgent)="onSidebarSelectSubAgent($event)"
+        (onCreateSession)="openCreateModal()"
+        (onPromoteSession)="openPromoteSessionModal($event)"
+        (toggleCollapse)="toggleSessionsSidebar()"
+        (onEditSession)="sidebarEditSession($event)"
+        (onDestroySession)="sidebarDestroySession($event)"
+        (onEditWorkspace)="sidebarEditWorkspace($event)"
+        (onDestroyWorkspace)="sidebarDestroyWorkspace($event)"
+        (onStandbySession)="sidebarStandbySession($event)"
+        (onWakeSession)="sidebarWakeSession($event)"
+        (onReopenLead)="sidebarReopenLead($event)"
+        (onStandbyWorkspace)="sidebarStandbyWorkspace($event)"
+        (onWakeWorkspace)="sidebarWakeWorkspace($event)"
+        (onConfigureSession)="retrySessionConfiguration($event)"
+        (onOpenTerminal)="openTerminalsPanel($event)"
+        (onDropFolder)="onSidebarDropFolder($event)"
+      ></app-session-sidebar>
+
+      <!-- Sidebar drag-resize splitter -->
+      @if (!sidebarCollapsed()) {
+        <div class="sessions-sidebar-resize"
+             [class.active]="sidebarResizing()"
+             (mousedown)="startSidebarResize($event)"
+             (dblclick)="resetSidebarWidth()"></div>
+      }
+      }
+
+      <!-- Main area -->
+      <div class="sessions-main">
+        @if (builtins.isOn('floor-plan') && floorPlan.mode() === 'full') {
+          <!-- Built-in Floor Plan plugin: takes the place of the agents until a session is opened -->
+          <app-floor-plan-view class="fp-main" [activeSession]="activeSessionId()" (openSession)="openFromFloorPlan($event)" />
+        } @else if (sessionWindows.isDetached(activeSessionId())) {
+          <!-- Session open in its own window: the terminals are there, never in two places (single PTY size) -->
+          <div class="detached-cover">
+            <iconify-icon icon="solar:window-frame-bold-duotone" width="40"></iconify-icon>
+            <h5>{{ 'SESSIONS.DETACHED.Title' | translate }}</h5>
+            @if (activeSession(); as s) { <strong class="detached-cover-name">{{ s.name }}</strong> }
+            <p>{{ 'SESSIONS.DETACHED.Text' | translate }}</p>
+            @if (activeSession(); as s) {
+              <div class="detached-cover-actions">
+                <button type="button" class="btn btn-primary btn-sm" (click)="sessionWindows.show(s)">
+                  <iconify-icon icon="solar:square-top-up-linear" width="15"></iconify-icon> {{ 'SESSIONS.DETACHED.Show' | translate }}
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" (click)="sessionWindows.bringBack(s.id)">
+                  <iconify-icon icon="solar:arrow-to-down-left-linear" width="15"></iconify-icon> {{ 'SESSIONS.DETACHED.Back' | translate }}
+                </button>
+              </div>
+            }
+          </div>
+        } @else {
+        @if (!simulateEmpty() && activeSession(); as session) {
+          <!-- Sub-agent bar heading: in the accordion, or in the header tab row
+               when the "Multi-session workspace" plugin is off and the sub-agents cover the main. -->
+          <!-- Agents | Ports tabs: shared between the sub-agent bar and the "main only" bar. -->
+          <ng-template #saPanelTabsTpl let-solo="solo">
+            <div class="sa-panel-tabs" role="tablist">
+                <button class="sa-panel-tab" role="tab" [class.active]="saPanelTab() === 'agents'"
+                        [attr.aria-selected]="saPanelTab() === 'agents'"
+                        (click)="selectSaPanelTab('agents', $event, solo)">
+                  <iconify-icon icon="solar:cpu-bolt-linear" width="14"></iconify-icon>
+                  @let agentCount = solo ? 1 : paneRoster().length;
+                  <span>{{ (agentCount > 1 ? 'SESSIONS.VIEW.Agents' : 'SESSIONS.VIEW.Agent') | translate }}</span>
+                  <span class="sa-panel-count">{{ agentCount }}</span>
+                </button>
+                @if (forwardPorts.isAvailable) {
+                  <button class="sa-panel-tab" role="tab" [class.active]="saPanelTab() === 'ports'"
+                          [attr.aria-selected]="saPanelTab() === 'ports'"
+                          (click)="selectSaPanelTab('ports', $event, solo)">
+                    <iconify-icon icon="codicon:plug" width="14"></iconify-icon>
+                    <span>{{ 'SESSIONS.VIEW.Ports' | translate }}</span>
+                    @if (forwardPorts.count() > 0) {
+                      <span class="sa-panel-count">{{ forwardPorts.count() }}</span>
+                    }
+                  </button>
+                }
+              </div>
+          </ng-template>
+
+          <ng-template #saAccordionHeader>
+            <div class="subagents-accordion-header">
+              <ng-container *ngTemplateOutlet="saPanelTabsTpl; context: { solo: false }"></ng-container>
+              <div class="subagents-header-actions">
+                @if (subAgentsExpanded() && saPanelTab() === 'ports') {
+                  <button class="btn-sa-mode" (click)="$event.stopPropagation(); forwardPorts.detectWithAi()"
+                          [disabled]="forwardPorts.aiDetecting() || !forwardPorts.canUseAi"
+                          [appTooltip]="(forwardPorts.aiDetecting() ? 'FORWARD_PORTS.Detecting' : 'FORWARD_PORTS.Detect with AI') | translate"
+                          [attr.aria-label]="(forwardPorts.aiDetecting() ? 'FORWARD_PORTS.Detecting' : 'FORWARD_PORTS.Detect with AI') | translate">
+                    <iconify-icon [icon]="forwardPorts.aiDetecting() ? 'codicon:loading' : 'codicon:sparkle'" [class.sa-spin]="forwardPorts.aiDetecting()" width="14"></iconify-icon>
+                  </button>
+                  <button class="btn-sa-mode" (click)="$event.stopPropagation(); forwardPorts.requestAdd()"
+                          [appTooltip]="'FORWARD_PORTS.Forward a port' | translate" [attr.aria-label]="'FORWARD_PORTS.Forward a port' | translate">
+                    <iconify-icon icon="codicon:add" width="14"></iconify-icon>
+                  </button>
+                  <button class="btn-sa-mode" (click)="$event.stopPropagation(); forwardPorts.refresh()"
+                          [appTooltip]="'FORWARD_PORTS.Reload' | translate" [attr.aria-label]="'FORWARD_PORTS.Reload' | translate">
+                    <iconify-icon icon="codicon:refresh" width="14"></iconify-icon>
+                  </button>
+                } @else if (subAgentsExpanded() && subAgentService.activeRoster().length >= 1) {
+                  <div class="sa-mode-group" (click)="$event.stopPropagation()">
+                    <button class="btn-sa-mode sa-mode-auto" [class.active]="getSubAgentLayoutMode() === 'grid'"
+                            [class.auto-suspended]="getSubAgentLayoutMode() === 'grid' && saGridManual()"
+                            (click)="onAutoGridClick()"
+                            [appTooltip]="(getSubAgentLayoutMode() === 'grid' && saGridManual() ? 'SESSIONS.TOOLTIPS.Layout Auto suspended' : 'SESSIONS.TOOLTIPS.Layout Grid') | translate">
+                      <iconify-icon icon="tabler:layout-grid" width="15"></iconify-icon>
+                      <span class="sa-auto-label">{{ 'SESSIONS.ACTION_CENTER.Auto' | translate }}</span>
+                    </button>
+                    <button class="btn-sa-mode" [class.active]="getSubAgentLayoutMode() === 'columns'"
+                            (click)="setSubAgentLayout('columns')" [appTooltip]="'SESSIONS.TOOLTIPS.Layout Split' | translate">
+                      <iconify-icon icon="tabler:layout-columns" width="15"></iconify-icon>
+                    </button>
+                    <button class="btn-sa-mode" [class.active]="getSubAgentLayoutMode() === 'rows'"
+                            (click)="setSubAgentLayout('rows')" [appTooltip]="'SESSIONS.TOOLTIPS.Layout Rows' | translate">
+                      <iconify-icon icon="tabler:layout-rows" width="15"></iconify-icon>
+                    </button>
+                    <button class="btn-sa-mode" [class.active]="getSubAgentLayoutMode() === 'tabs'"
+                            (click)="setSubAgentLayout('tabs')" [appTooltip]="'SESSIONS.TOOLTIPS.Layout Tabs' | translate">
+                      <iconify-icon icon="tabler:app-window" width="15"></iconify-icon>
+                    </button>
+                  </div>
+                }
+                <!-- Full focus: hides sidebar/header/panels (was in the session header) -->
+                <button class="btn-sa-mode sa-focus-btn" [class.active]="focusMode()"
+                        (click)="$event.stopPropagation(); toggleFocusMode()"
+                        [appTooltip]="(focusMode() ? 'SESSIONS.TOOLTIPS.Exit focus' : 'SESSIONS.TOOLTIPS.Focus mode') | translate">
+                  <iconify-icon [icon]="focusMode() ? 'tabler:arrows-minimize' : 'tabler:arrows-maximize'" width="15"></iconify-icon>
+                </button>
+              </div>
+            </div>
+          </ng-template>
+
+          <!-- Session Header (includes tab bar) -->
+          <app-session-header
+            [session]="session"
+            [tabSessions]="tabSessionsForHeader()"
+            [activeSessionId]="activeSessionId()"
+            [layoutMode]="currentLayoutMode()"
+            [navSessions]="sessions()"
+            (onNavigateSession)="selectSession($event)"
+            (onAddTab)="addTabSession()"
+            (onSelectTab)="switchTab($event)"
+            (onCloseTab)="closeTabSession($event)"
+            (onRenameTab)="renameTabSession($event)"
+            (onReorderTabs)="reorderTabs($event)"
+            (onOpenDatabase)="openDatabaseExplorer()"
+            (onOpenDocker)="openDockerPanel()"
+            (onOpenGitExplorer)="openGitExplorer()"
+            (onOpenTeamBoard)="openTeamBoard()"
+            (onOpenSsh)="openSshPanel()"
+            (onOpenTerminals)="openTerminalsPanel()"
+            [dedicatedWindow]="!!dedicatedSessionId"
+            (onDedicatedWindow)="toggleDedicatedWindow()"
+            (onToggleLayoutMode)="toggleLayoutMode()"
+            (onToggleFocusMode)="toggleFocusMode()"
+            (onOpenIntent)="openIntentModal()"
+            [focusMode]="focusMode()"
+            [showFocusToggle]="!(subAgentService.hasActiveSubAgents() || portsSoloBar())"
+            (onSetupWorkspace)="openWorkspaceSetupModal($event)"
+            (onAddNote)="openAddNoteModal(session.id)"
+            (onProjectBrief)="openProjectBriefModal(session.id)"
+            (onDevLinks)="openDevLinksModal(session.id)"
+          >
+            <ng-container ngProjectAs="[poHeaderBar]">
+              @if (saBarInHeader()) {
+                <div class="sa-bar-in-header" [style.flex-basis]="saBarInHeaderBasis()">
+                  <ng-container *ngTemplateOutlet="saAccordionHeader"></ng-container>
+                </div>
+              }
+            </ng-container>
+          </app-session-header>
+
+          <!-- Quick Note Modal -->
+          <app-add-note-modal
+            #addNoteModal
+            [sessionId]="session.id"
+          ></app-add-note-modal>
+
+          <!-- Project Brief Modal (coding-agent memories, local-only) -->
+          <app-project-brief-modal #projectBriefModal></app-project-brief-modal>
+
+          <!-- Dev Links Modal (open project dev URLs in the browser, local-only) -->
+          <app-dev-links-modal #devLinksModal></app-dev-links-modal>
+
+          <!-- TODO List Modal (local-only checklist; items inject/spawn) -->
+          <app-todo-modal #todoModal [session]="session"></app-todo-modal>
+
+          <!-- ═══ PROVIDER INSTALL GUIDE (full-space) ═══ -->
+          @if (providerMissing()) {
+            <div class="provider-install-guide" @layoutFade>
+              <div class="install-guide-card">
+                <div class="install-guide-header">
+                  <div class="install-guide-icon">
+                    <iconify-icon icon="solar:download-minimalistic-bold-duotone" width="32"></iconify-icon>
+                  </div>
+                  <div class="install-guide-heading">
+                    <h3>{{ 'SESSIONS.INSTALL_GUIDE.Title' | translate:{ provider: providerCommand() } }}</h3>
+                    <p>{{ 'SESSIONS.INSTALL_GUIDE.Subtitle' | translate }}</p>
+                  </div>
+                  <span class="install-platform-badge">
+                    <iconify-icon [icon]="providerPlatform() === 'darwin' ? 'simple-icons:apple' : providerPlatform() === 'win32' ? 'simple-icons:windows' : 'simple-icons:linux'" width="14"></iconify-icon>
+                    {{ providerPlatform() === 'darwin' ? 'macOS' : providerPlatform() === 'win32' ? 'Windows' : 'Linux' }}
+                  </span>
+                </div>
+
+                <!-- Tabs: Auto / Manual -->
+                <div class="install-tabs" role="tablist">
+                  <!-- No auto-installer for this provider/platform: only the manual steps. -->
+                  @if (canAutoInstall()) {
+                    <button type="button" role="tab" class="install-tab" [class.active]="installGuideTab() === 'auto'" (click)="installGuideTab.set('auto')">
+                      <iconify-icon icon="solar:bolt-bold-duotone" width="16"></iconify-icon>
+                      <span>{{ 'SESSIONS.INSTALL_GUIDE.Tab auto' | translate }}</span>
+                      <span class="install-tab-chip">{{ 'SESSIONS.INSTALL_GUIDE.Tab recommended' | translate }}</span>
+                    </button>
+                  }
+                  <button type="button" role="tab" class="install-tab" [class.active]="installGuideTab() === 'manual' || !canAutoInstall()" (click)="installGuideTab.set('manual')">
+                    <iconify-icon icon="solar:book-bookmark-bold-duotone" width="16"></iconify-icon>
+                    <span>{{ 'SESSIONS.INSTALL_GUIDE.Tab manual' | translate }}</span>
+                  </button>
+                </div>
+
+                <!-- ─── AUTO TAB ─── -->
+                @if (installGuideTab() === 'auto' && canAutoInstall()) {
+                  <div class="install-tab-panel" role="tabpanel">
+                    <div class="install-auto-action">
+                      <div class="install-auto-text">
+                        <strong>{{ 'SESSIONS.INSTALL_GUIDE.Auto install' | translate }}</strong>
+                        <span class="install-auto-desc">{{ 'SESSIONS.INSTALL_GUIDE.Auto install desc' | translate }}</span>
+                      </div>
+                      <button class="btn btn-success install-auto-btn" (click)="autoInstallProvider()" [disabled]="installerRunning()">
+                        @if (installerRunning()) {
+                          <span class="spinner-border spinner-border-sm"></span>
+                        } @else {
+                          <iconify-icon icon="solar:play-bold" width="16"></iconify-icon>
+                        }
+                        {{ 'SESSIONS.INSTALL_GUIDE.Start auto' | translate }}
+                      </button>
+                    </div>
+
+                    @if (installerTerminalId()) {
+                      <div class="install-terminal-wrapper">
+                        <div class="install-terminal-header">
+                          <span>
+                            <iconify-icon icon="solar:monitor-bold-duotone" width="14"></iconify-icon>
+                            {{ 'SESSIONS.INSTALL_GUIDE.Install terminal' | translate }}
+                          </span>
+                          <button class="install-terminal-close" (click)="closeInstallTerminal()" [appTooltip]="'SESSIONS.INSTALL_GUIDE.Close terminal' | translate">
+                            <iconify-icon icon="solar:close-circle-bold" width="14"></iconify-icon>
+                          </button>
+                        </div>
+                        <div #installTerminalContainer class="install-terminal-container"></div>
+                      </div>
+                    }
+                  </div>
+                }
+
+                <!-- ─── MANUAL TAB ─── -->
+                @if (installGuideTab() === 'manual' || !canAutoInstall()) {
+                  <div class="install-tab-panel" role="tabpanel">
+                    <!-- Platform picker -->
+                    <div class="manual-platform-picker">
+                      <span class="manual-platform-label">{{ 'SESSIONS.INSTALL_GUIDE.Platform label' | translate }}</span>
+                      <div class="manual-platform-pills">
+                        <button type="button" class="manual-platform-pill" [class.active]="manualPlatform() === 'darwin'" (click)="manualPlatform.set('darwin')">
+                          <iconify-icon icon="simple-icons:apple" width="14"></iconify-icon>
+                          macOS
+                        </button>
+                        <button type="button" class="manual-platform-pill" [class.active]="manualPlatform() === 'win32'" (click)="manualPlatform.set('win32')">
+                          <iconify-icon icon="simple-icons:windows" width="14"></iconify-icon>
+                          Windows
+                        </button>
+                        <button type="button" class="manual-platform-pill" [class.active]="manualPlatform() === 'linux'" (click)="manualPlatform.set('linux')">
+                          <iconify-icon icon="simple-icons:linux" width="14"></iconify-icon>
+                          Linux
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Claude / Codex / Gemini — npm-based providers -->
+                    @if (session.provider === 'claude-code-cli' || session.provider === 'codex' || session.provider === 'gemini-cli') {
+                      @let pkg = session.provider === 'claude-code-cli' ? '@anthropic-ai/claude-code' : (session.provider === 'codex' ? '@openai/codex' : '@google/gemini-cli');
+                      @let bin = session.provider === 'claude-code-cli' ? 'claude' : (session.provider === 'codex' ? 'codex' : 'gemini');
+                      @let envVar = session.provider === 'codex' ? 'OPENAI_API_KEY' : (session.provider === 'gemini-cli' ? 'GEMINI_API_KEY' : '');
+
+                      @if (manualPlatform() === 'win32' && session.provider === 'claude-code-cli') {
+                        <div class="install-info-box">
+                          <iconify-icon icon="simple-icons:powershell" width="18"></iconify-icon>
+                          <div>
+                            <strong>{{ 'SESSIONS.INSTALL_GUIDE.Win shell title' | translate }}</strong>
+                            <p>{{ 'SESSIONS.INSTALL_GUIDE.Win shell desc' | translate }}</p>
+                          </div>
+                        </div>
+                      }
+
+                      <ol class="install-steps">
+                        <!-- Step 1: Install Node.js -->
+                        <li>
+                          <strong>{{ 'SESSIONS.INSTALL_GUIDE.Step install node' | translate }}</strong>
+                          @if (manualPlatform() === 'darwin') {
+                            <p>{{ 'SESSIONS.INSTALL_GUIDE.Node mac desc' | translate }}</p>
+                            <div class="install-code-row">
+                              <code>brew install node</code>
+                              <button class="install-run-btn" (click)="runInstallCommand('brew install node')" [appTooltip]="'SESSIONS.INSTALL_GUIDE.Run in terminal' | translate">
+                                <iconify-icon icon="solar:play-bold" width="12"></iconify-icon>
+                              </button>
+                            </div>
+                          } @else if (manualPlatform() === 'win32') {
+                            <p>{{ 'SESSIONS.INSTALL_GUIDE.Node win desc' | translate }}</p>
+                            <div class="install-code-row">
+                              <code>winget install OpenJS.NodeJS.LTS</code>
+                              <button class="install-run-btn" (click)="runInstallCommand('winget install OpenJS.NodeJS.LTS --accept-package-agreements --accept-source-agreements')" [appTooltip]="'SESSIONS.INSTALL_GUIDE.Run in terminal' | translate">
+                                <iconify-icon icon="solar:play-bold" width="12"></iconify-icon>
+                              </button>
+                            </div>
+                            <p class="install-step-hint">{{ 'SESSIONS.INSTALL_GUIDE.Node win fallback' | translate }} <a href="https://nodejs.org/en/download" target="_blank" rel="noopener">nodejs.org</a></p>
+                          } @else {
+                            <p>{{ 'SESSIONS.INSTALL_GUIDE.Node linux desc' | translate }}</p>
+                            <div class="install-code-row">
+                              <code>curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -</code>
+                              <button class="install-run-btn" (click)="runInstallCommand('curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -')" [appTooltip]="'SESSIONS.INSTALL_GUIDE.Run in terminal' | translate">
+                                <iconify-icon icon="solar:play-bold" width="12"></iconify-icon>
+                              </button>
+                            </div>
+                            <div class="install-code-row">
+                              <code>sudo apt-get install -y nodejs</code>
+                              <button class="install-run-btn" (click)="runInstallCommand('sudo apt-get install -y nodejs')" [appTooltip]="'SESSIONS.INSTALL_GUIDE.Run in terminal' | translate">
+                                <iconify-icon icon="solar:play-bold" width="12"></iconify-icon>
+                              </button>
+                            </div>
+                          }
+                        </li>
+
+                        <!-- Step 2: Reopen shell (Windows note) -->
+                        @if (manualPlatform() === 'win32') {
+                          <li>
+                            <strong>{{ 'SESSIONS.INSTALL_GUIDE.Step restart shell' | translate }}</strong>
+                            <p>{{ 'SESSIONS.INSTALL_GUIDE.Restart shell desc' | translate }}</p>
+                            <div class="install-code-row">
+                              <code>node --version</code>
+                              <button class="install-run-btn" (click)="runInstallCommand('node --version')" [appTooltip]="'SESSIONS.INSTALL_GUIDE.Run in terminal' | translate">
+                                <iconify-icon icon="solar:play-bold" width="12"></iconify-icon>
+                              </button>
+                            </div>
+                          </li>
+                        }
+
+                        <!-- Step 3: Install CLI -->
+                        <li>
+                          <strong>{{ 'SESSIONS.INSTALL_GUIDE.Install command' | translate }}</strong>
+                          <div class="install-code-row">
+                            <code>{{ npmInstallCmd(pkg) }}</code>
+                            <button class="install-run-btn" (click)="runInstallCommand(npmInstallCmd(pkg))" [appTooltip]="'SESSIONS.INSTALL_GUIDE.Run in terminal' | translate">
+                              <iconify-icon icon="solar:play-bold" width="12"></iconify-icon>
+                            </button>
+                          </div>
+                        </li>
+
+                        <!-- Step 4: Env var (Codex/Gemini) -->
+                        @if (envVar) {
+                          <li>
+                            <strong>{{ 'SESSIONS.INSTALL_GUIDE.Env var' | translate }}</strong>
+                            @if (manualPlatform() === 'win32') {
+                              <p>{{ 'SESSIONS.INSTALL_GUIDE.Env var win desc' | translate }}</p>
+                              <div class="install-code-row">
+                                <code>setx {{ envVar }} "YOUR_API_KEY"</code>
+                                <button class="install-run-btn" (click)="runInstallCommand('setx ' + envVar + ' \'YOUR_API_KEY\'')" [appTooltip]="'SESSIONS.INSTALL_GUIDE.Run in terminal' | translate">
+                                  <iconify-icon icon="solar:play-bold" width="12"></iconify-icon>
+                                </button>
+                              </div>
+                            } @else {
+                              <p>{{ 'SESSIONS.INSTALL_GUIDE.Env var unix desc' | translate }}</p>
+                              <div class="install-code-row">
+                                <code>export {{ envVar }}="YOUR_API_KEY"</code>
+                                <button class="install-run-btn" (click)="runInstallCommand('export ' + envVar + '=\'YOUR_API_KEY\'')" [appTooltip]="'SESSIONS.INSTALL_GUIDE.Run in terminal' | translate">
+                                  <iconify-icon icon="solar:play-bold" width="12"></iconify-icon>
+                                </button>
+                              </div>
+                              <p class="install-step-hint">{{ 'SESSIONS.INSTALL_GUIDE.Env var unix persist' | translate:{ file: manualPlatform() === 'darwin' ? '~/.zshrc' : '~/.bashrc' } }}</p>
+                            }
+                          </li>
+                        }
+
+                        <!-- Step 5: Verify -->
+                        <li>
+                          <strong>{{ 'SESSIONS.INSTALL_GUIDE.Verify' | translate }}</strong>
+                          <div class="install-code-row">
+                            <code>{{ bin }} --version</code>
+                            <button class="install-run-btn" (click)="runInstallCommand(bin + ' --version')" [appTooltip]="'SESSIONS.INSTALL_GUIDE.Run in terminal' | translate">
+                              <iconify-icon icon="solar:play-bold" width="12"></iconify-icon>
+                            </button>
+                          </div>
+                          @if (manualPlatform() === 'win32') {
+                            <div class="install-troubleshoot">
+                              <div class="install-troubleshoot-head">
+                                <iconify-icon icon="solar:info-circle-bold-duotone" width="14"></iconify-icon>
+                                <strong>{{ 'SESSIONS.INSTALL_GUIDE.Win path title' | translate }}</strong>
+                              </div>
+                              <p>{{ 'SESSIONS.INSTALL_GUIDE.Win path desc' | translate }}</p>
+                              <div class="install-code-row">
+                                <code>[Environment]::SetEnvironmentVariable("Path", $env:Path + ";$env:APPDATA\npm", "User")</code>
+                                <button class="install-run-btn" (click)="runInstallCommand('[Environment]::SetEnvironmentVariable(\'Path\', $env:Path + \';$env:APPDATA\\npm\', \'User\')')" [appTooltip]="'SESSIONS.INSTALL_GUIDE.Run in terminal' | translate">
+                                  <iconify-icon icon="solar:play-bold" width="12"></iconify-icon>
+                                </button>
+                              </div>
+                            </div>
+                            <div class="install-troubleshoot">
+                              <div class="install-troubleshoot-head">
+                                <iconify-icon icon="solar:shield-warning-bold-duotone" width="14"></iconify-icon>
+                                <strong>{{ 'SESSIONS.INSTALL_GUIDE.Win policy title' | translate }}</strong>
+                              </div>
+                              <p>{{ 'SESSIONS.INSTALL_GUIDE.Win policy desc' | translate }}</p>
+                              <div class="install-code-row">
+                                <code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code>
+                                <button class="install-run-btn" (click)="runInstallCommand('Set-ExecutionPolicy -Scope CurrentUser RemoteSigned')" [appTooltip]="'SESSIONS.INSTALL_GUIDE.Run in terminal' | translate">
+                                  <iconify-icon icon="solar:play-bold" width="12"></iconify-icon>
+                                </button>
+                              </div>
+                              <p>{{ 'SESSIONS.INSTALL_GUIDE.Win policy admin desc' | translate }}</p>
+                              <div class="install-code-row">
+                                <code>Set-ExecutionPolicy RemoteSigned</code>
+                                <button class="install-run-btn" (click)="copyInstallCommand('Set-ExecutionPolicy RemoteSigned')" [appTooltip]="(policyAdminCmdCopied ? 'SESSIONS.INSTALL_GUIDE.Copied' : 'SESSIONS.INSTALL_GUIDE.Copy') | translate">
+                                  <iconify-icon [icon]="policyAdminCmdCopied ? 'solar:check-circle-bold' : 'solar:copy-bold'" width="12"></iconify-icon>
+                                </button>
+                              </div>
+                            </div>
+                            @if (session.provider === 'claude-code-cli') {
+                              <div class="install-troubleshoot">
+                                <div class="install-troubleshoot-head">
+                                  <iconify-icon icon="solar:shield-warning-bold-duotone" width="14"></iconify-icon>
+                                  <strong>{{ 'SESSIONS.INSTALL_GUIDE.Win gitbash title' | translate }}</strong>
+                                </div>
+                                <p>{{ 'SESSIONS.INSTALL_GUIDE.Win gitbash desc' | translate }}</p>
+                                <div class="install-code-row">
+                                  <code>npm.cmd update -g &#64;anthropic-ai/claude-code</code>
+                                  <button class="install-run-btn" (click)="runInstallCommand('npm.cmd update -g @anthropic-ai/claude-code')" [appTooltip]="'SESSIONS.INSTALL_GUIDE.Run in terminal' | translate">
+                                    <iconify-icon icon="solar:play-bold" width="12"></iconify-icon>
+                                  </button>
+                                </div>
+                              </div>
+                            }
+                          }
+                        </li>
+                      </ol>
+                    }
+
+                    <!-- Cursor -->
+                    @if (session.provider === 'cursor') {
+                      <ol class="install-steps">
+                        <li>
+                          <strong>{{ 'SESSIONS.INSTALL_GUIDE.Install Cursor' | translate }}</strong>
+                          @if (manualPlatform() === 'darwin') {
+                            <p>{{ 'SESSIONS.INSTALL_GUIDE.Cursor download mac' | translate }}</p>
+                          } @else if (manualPlatform() === 'win32') {
+                            <p>{{ 'SESSIONS.INSTALL_GUIDE.Cursor download win' | translate }}</p>
+                          } @else {
+                            <p>{{ 'SESSIONS.INSTALL_GUIDE.Cursor download linux' | translate }}</p>
+                          }
+                          <a href="https://cursor.com/download" target="_blank" rel="noopener" class="install-external-link">
+                            <iconify-icon icon="mdi:open-in-new" width="13"></iconify-icon>
+                            cursor.com/download
+                          </a>
+                        </li>
+                        <li>
+                          <!-- The app runs the Cursor CLI (cursor-agent), not the editor. -->
+                          <strong>{{ 'SESSIONS.INSTALL_GUIDE.Install CLI' | translate }}</strong>
+                          @if (manualPlatform() === 'win32') {
+                            <p>{{ 'SESSIONS.INSTALL_GUIDE.Cursor CLI win' | translate }}</p>
+                          } @else {
+                            <div class="install-code-row">
+                              <code>curl https://cursor.com/install -fsS | bash</code>
+                              <button class="install-run-btn" (click)="runInstallCommand('curl https://cursor.com/install -fsS | bash')" [appTooltip]="'SESSIONS.INSTALL_GUIDE.Run in terminal' | translate">
+                                <iconify-icon icon="solar:play-bold" width="12"></iconify-icon>
+                              </button>
+                            </div>
+                          }
+                        </li>
+                        <li>
+                          <strong>{{ 'SESSIONS.INSTALL_GUIDE.Verify' | translate }}</strong>
+                          <div class="install-code-row">
+                            <code>cursor-agent --version</code>
+                            <button class="install-run-btn" (click)="runInstallCommand('cursor-agent --version')" [appTooltip]="'SESSIONS.INSTALL_GUIDE.Run in terminal' | translate">
+                              <iconify-icon icon="solar:play-bold" width="12"></iconify-icon>
+                            </button>
+                          </div>
+                        </li>
+                      </ol>
+                    }
+
+                    <!-- Copilot: the standalone Copilot CLI (npm @github/copilot), not the retired gh extension -->
+                    @if (session.provider === 'copilot') {
+                      <ol class="install-steps">
+                        <li>
+                          <strong>{{ 'SESSIONS.INSTALL_GUIDE.Install copilot' | translate }}</strong>
+                          <p>{{ 'SESSIONS.INSTALL_GUIDE.Copilot npm desc' | translate }}</p>
+                          <div class="install-code-row">
+                            <code>npm install -g &#64;github/copilot</code>
+                            <button class="install-run-btn" (click)="runInstallCommand('npm install -g @github/copilot')" [appTooltip]="'SESSIONS.INSTALL_GUIDE.Run in terminal' | translate" [attr.aria-label]="'SESSIONS.INSTALL_GUIDE.Run in terminal' | translate">
+                              <iconify-icon icon="solar:play-bold" width="12"></iconify-icon>
+                            </button>
+                          </div>
+                        </li>
+                        <li>
+                          <strong>{{ 'SESSIONS.INSTALL_GUIDE.Auth gh' | translate }}</strong>
+                          <div class="install-code-row">
+                            <code>copilot login</code>
+                            <button class="install-run-btn" (click)="runInstallCommand('copilot login')" [appTooltip]="'SESSIONS.INSTALL_GUIDE.Run in terminal' | translate" [attr.aria-label]="'SESSIONS.INSTALL_GUIDE.Run in terminal' | translate">
+                              <iconify-icon icon="solar:play-bold" width="12"></iconify-icon>
+                            </button>
+                          </div>
+                        </li>
+                        <li>
+                          <strong>{{ 'SESSIONS.INSTALL_GUIDE.Verify' | translate }}</strong>
+                          <div class="install-code-row">
+                            <code>copilot --version</code>
+                            <button class="install-run-btn" (click)="runInstallCommand('copilot --version')" [appTooltip]="'SESSIONS.INSTALL_GUIDE.Run in terminal' | translate" [attr.aria-label]="'SESSIONS.INSTALL_GUIDE.Run in terminal' | translate">
+                              <iconify-icon icon="solar:play-bold" width="12"></iconify-icon>
+                            </button>
+                          </div>
+                        </li>
+                      </ol>
+                    }
+
+                    @if (installerTerminalId()) {
+                      <div class="install-terminal-wrapper">
+                        <div class="install-terminal-header">
+                          <span>
+                            <iconify-icon icon="solar:monitor-bold-duotone" width="14"></iconify-icon>
+                            {{ 'SESSIONS.INSTALL_GUIDE.Install terminal' | translate }}
+                          </span>
+                          <button class="install-terminal-close" (click)="closeInstallTerminal()" [appTooltip]="'SESSIONS.INSTALL_GUIDE.Close terminal' | translate">
+                            <iconify-icon icon="solar:close-circle-bold" width="14"></iconify-icon>
+                          </button>
+                        </div>
+                        <div #installTerminalContainer class="install-terminal-container"></div>
+                      </div>
+                    }
+                  </div>
+                }
+
+                <!-- Escape hatch: switch the session to an installed provider.
+                     This guide unmounts the composer (and its provider chip),
+                     so without this section a wrong/unsynced provider would
+                     leave the session unreachable. -->
+                <div class="install-switch">
+                  <div class="install-switch-head">
+                    <strong>{{ 'SESSIONS.INSTALL_GUIDE.Switch title' | translate }}</strong>
+                    <p>{{ 'SESSIONS.INSTALL_GUIDE.Switch subtitle' | translate }}</p>
+                  </div>
+                  <div class="install-switch-grid">
+                    @for (p of switchProviders; track p.value) {
+                      @if (p.value !== session.provider) {
+                        <button
+                          type="button"
+                          class="install-switch-item"
+                          [disabled]="switchAvailability()[p.value] === false || switchingProvider() !== null"
+                          (click)="switchProviderFromGuide(p.value)"
+                        >
+                          <img [src]="getProviderLogo(p.value)" class="install-switch-logo" alt="" />
+                          <span class="install-switch-label">{{ p.labelKey | translate }}</span>
+                          @if (switchingProvider() === p.value) {
+                            <span class="spinner-border spinner-border-sm"></span>
+                          } @else if (switchAvailability()[p.value] === false) {
+                            <span class="install-switch-badge">{{ 'SESSIONS.INSTALL_GUIDE.Switch not installed' | translate }}</span>
+                          }
+                        </button>
+                      }
+                    }
+                  </div>
+                  @if (switchError()) {
+                    <p class="install-switch-error">{{ 'SESSIONS.INSTALL_GUIDE.Switch failed' | translate }}</p>
+                  }
+                </div>
+
+                <div class="install-guide-footer">
+                  <button class="btn btn-primary" (click)="retryProviderCheck()" [disabled]="providerChecking()">
+                    @if (providerChecking()) {
+                      <span class="spinner-border spinner-border-sm"></span>
+                    } @else {
+                      <iconify-icon icon="solar:refresh-bold" width="14"></iconify-icon>
+                    }
+                    {{ 'SESSIONS.INSTALL_GUIDE.Retry' | translate }}
+                  </button>
+                  <p class="install-hint">{{ 'SESSIONS.INSTALL_GUIDE.Hint' | translate }}</p>
+                </div>
+              </div>
+            </div>
+          }          <!-- ═══ STANDARD LAYOUT ═══ -->
+          @if (currentLayoutMode() === 'standard' && !providerMissing()) {
+            <div class="sessions-content" @layoutFade>
+              <div class="terminal-area has-subagents" #terminalAreaEl
+                   [class.cover-main]="(subAgentsCoverMain() || mainIsFlattened()) && subAgentService.hasActiveSubAgents()"
+                   [class.sa-drag-over]="saDropZoneActive()"
+                   appFileDropZone
+                   (fileDropOver)="saDropZoneActive.set($event)"
+                   (fileDropped)="onSaDropZoneDrop($event)">
+                @if (saDropZoneActive()) {
+                  <div class="sa-drop-overlay">
+                    <iconify-icon icon="solar:upload-minimalistic-bold" width="18"></iconify-icon>
+                    <span>{{ 'SUBAGENTS.Drop or paste files' | translate }}</span>
+                  </div>
+                }
+
+                <!-- Main terminal — exists only while the session has no
+                     sub-agents. From the first spawn the main moves into the roster and
+                     is drawn there, like all the other tiles. -->
+                <!-- Main only (no sub-agents): same tab bar, without layout icons. -->
+                @if (portsSoloBar()) {
+                  <div class="subagents-accordion-header solo-bar">
+                    <ng-container *ngTemplateOutlet="saPanelTabsTpl; context: { solo: true }"></ng-container>
+                    @if (saPanelTab() === 'ports') {
+                      <div class="subagents-header-actions">
+                        <button class="btn-sa-mode" (click)="forwardPorts.detectWithAi()"
+                                [disabled]="forwardPorts.aiDetecting() || !forwardPorts.canUseAi"
+                                [appTooltip]="(forwardPorts.aiDetecting() ? 'FORWARD_PORTS.Detecting' : 'FORWARD_PORTS.Detect with AI') | translate"
+                          [attr.aria-label]="(forwardPorts.aiDetecting() ? 'FORWARD_PORTS.Detecting' : 'FORWARD_PORTS.Detect with AI') | translate">
+                          <iconify-icon [icon]="forwardPorts.aiDetecting() ? 'codicon:loading' : 'codicon:sparkle'" [class.sa-spin]="forwardPorts.aiDetecting()" width="14"></iconify-icon>
+                        </button>
+                        <button class="btn-sa-mode" (click)="forwardPorts.requestAdd()" [appTooltip]="'FORWARD_PORTS.Forward a port' | translate" [attr.aria-label]="'FORWARD_PORTS.Forward a port' | translate">
+                          <iconify-icon icon="codicon:add" width="14"></iconify-icon>
+                        </button>
+                        <button class="btn-sa-mode" (click)="forwardPorts.refresh()" [appTooltip]="'FORWARD_PORTS.Reload' | translate" [attr.aria-label]="'FORWARD_PORTS.Reload' | translate">
+                          <iconify-icon icon="codicon:refresh" width="14"></iconify-icon>
+                        </button>
+                      </div>
+                    }
+                    <div class="subagents-header-actions">
+                      <button class="btn-sa-mode sa-focus-btn" [class.active]="focusMode()"
+                        (click)="toggleFocusMode()"
+                        [appTooltip]="(focusMode() ? 'SESSIONS.TOOLTIPS.Exit focus' : 'SESSIONS.TOOLTIPS.Focus mode') | translate">
+                  <iconify-icon [icon]="focusMode() ? 'tabler:arrows-minimize' : 'tabler:arrows-maximize'" width="15"></iconify-icon>
+                </button>
+                    </div>
+                  </div>
+                  @if (saPanelTab() === 'ports') {
+                    <div class="sa-ports-view solo">
+                      <app-forward-ports-panel></app-forward-ports-panel>
+                    </div>
+                  }
+                }
+
+                @if (!mainIsFlattened()) {
+                <div class="main-pane" [class.hidden-by-ports]="portsSoloBar() && saPanelTab() === 'ports'" [class.pane-focused]="focusedPaneId() === 'main'"
+                     [class.pane-aa-on]="interactionService.isAutoApproved(session.id)"
+                     [class.aa-picked-quick]="aaSelectMode() && getAaMode(session.id) === 'quick'"
+                     [class.aa-picked-ai]="aaSelectMode() && getAaMode(session.id) === 'ai'"
+                     (focusin)="focusedPaneId.set('main')">
+                  <div class="focus-pane-label fpl-main">
+                    <iconify-icon icon="solar:monitor-bold" width="12"></iconify-icon>
+                    {{ 'SESSIONS.VIEW.Main pane' | translate }}
+                  </div>
+                  @if (interactionService.isAutoApproved(session.id)) {
+                    <div class="aa-terminal-banner" [class.ai-mode]="interactionService.getFlags(session.id).ai">
+                      <div class="aa-bouncer">
+                        <pre class="aa-ascii">{{ interactionService.getFlags(session.id).ai ? asciiAI : asciiQuick }}</pre>
+                      </div>
+                    </div>
+                  }
+                  @if (isTauriHost && session.standbyAt) {
+                    <div class="standby-cover" role="status">
+                      <iconify-icon icon="solar:moon-sleep-bold-duotone" width="30" aria-hidden="true"></iconify-icon>
+                      <div class="standby-cover-title">{{ 'SESSIONS.Standby_Cover_Title' | translate }}</div>
+                      <div class="standby-cover-subtitle">{{ 'SESSIONS.Standby_Cover_Subtitle' | translate }}</div>
+                      <button class="btn btn-sm btn-primary" (click)="wakeParkedSession(session.id)">
+                        <iconify-icon icon="solar:play-circle-bold" width="14"></iconify-icon>
+                        {{ 'SESSIONS.Standby_Cover_Resume' | translate }}
+                      </button>
+                    </div>
+                  }
+                  <app-session-terminal
+                    [sessionId]="session.id"
+                    [workspacePath]="$safeNavigationMigration(session.workspace?.path)"
+                    (openFileRequest)="onTerminalFileLink($event)"
+                    #terminalRef
+                  ></app-session-terminal>
+                  <ng-container *ngTemplateOutlet="termToolbar; context: {
+                    sessionId: session.id,
+                    sa: null,
+                    provider: session.provider,
+                    cover: ff.canAccess('sub_agents') && subAgentService.hasActiveSubAgents()
+                  }"></ng-container>
+                  @if (aaSelectMode()) {
+                    <div class="aa-select-overlay at-bottom">
+                      <ng-container *ngTemplateOutlet="aaPickerCard; context: { sessionId: session.id, target: session.name, eyebrow: 'SESSIONS.VIEW.Main', compact: false }"></ng-container>
+                    </div>
+                  }
+                </div>
+                }
+
+                <!-- Main closed and no sub-agents: it doesn't come back on its own,
+                     it is restored only on explicit request. -->
+                @if (mainDismissedEmpty()) {
+                <!-- Lead closed + parked session (restart/update):
+                     the standby cover lives in the main-pane, which isn't here.
+                     Without this "Resume" the only CTA was "Reopen lead" and the
+                     closed main came back. The wake with the lead closed restores
+                     only the sub-agents (Rust doesn't respawn the session PTY). -->
+                @if (isTauriHost && session.standbyAt) {
+                <div class="main-dismissed-empty">
+                  <iconify-icon icon="solar:moon-sleep-bold-duotone" width="28"></iconify-icon>
+                  <div class="mde-title">{{ 'SESSIONS.Standby_Cover_Title' | translate }}</div>
+                  <div class="mde-hint">{{ 'SESSIONS.Standby_Cover_Subtitle' | translate }}</div>
+                  <button type="button" class="btn btn-sm btn-primary" (click)="wakeParkedSession(session.id)">
+                    <iconify-icon icon="solar:play-circle-bold" width="14"></iconify-icon>
+                    {{ 'SESSIONS.Standby_Cover_Resume' | translate }}
+                  </button>
+                </div>
+                } @else {
+                <div class="main-dismissed-empty">
+                  <iconify-icon icon="solar:monitor-bold" width="28"></iconify-icon>
+                  <div class="mde-title">{{ (agentsEnabled ? 'SUBAGENTS.Lead closed' : 'SUBAGENTS.Main dismissed') | translate }}</div>
+                  <div class="mde-hint">{{ (agentsEnabled ? 'SUBAGENTS.Lead closed hint' : 'SUBAGENTS.Main dismissed hint') | translate }}</div>
+                  <button type="button" class="btn btn-sm btn-outline-primary" (click)="restoreMain($event)">
+                    <iconify-icon icon="solar:restart-bold" width="14"></iconify-icon>
+                    {{ (agentsEnabled ? 'SUBAGENTS.Reopen lead' : 'SUBAGENTS.Restore main') | translate }}
+                  </button>
+                </div>
+                }
+                }
+
+                <!-- Sub-agent expand backdrop -->
+                @if (expandedSubAgentId()) {
+                  <div class="sa-expand-backdrop" (click)="expandedSubAgentId.set(null)"></div>
+                }
+
+                <!-- Sub-agents accordion with terminals -->
+                @if (ff.canAccess('sub_agents') && subAgentService.hasActiveSubAgents()) {
+                  <div class="subagents-accordion" [class.expanded]="subAgentsExpanded()"
+                       [class.ports-active]="saPanelTab() === 'ports' && forwardPorts.isAvailable"
+                       [style.height.px]="subAgentsExpanded() && !subAgentsCoverMain() && !mainIsFlattened() ? subAgentsHeight() : null">
+                    <div class="subagents-resize-handle"
+                         (mousedown)="startSubAgentsResize($event, 'standard')"></div>
+                    @if (!saBarInHeader() && !saTabsInPane()) {
+                      <ng-container *ngTemplateOutlet="saAccordionHeader"></ng-container>
+                    }
+                    @if (subAgentsExpanded() && saPanelTab() === 'ports' && forwardPorts.isAvailable) {
+                      <!-- ── PORTS (VS Code style): the terminals stay mounted underneath, just hidden ── -->
+                      <div class="sa-ports-view">
+                        <app-forward-ports-panel></app-forward-ports-panel>
+                      </div>
+                    }
+                    @if (subAgentsExpanded()) {
+                      <!-- ── TAB MODE ── -->
+                      @if (subAgentTabMode()) {
+                        <!-- Tab bar (a single agent: the Agent | Ports tabs are already in the pane header) -->
+                        <div class="sa-tab-bar" [class.d-none]="saTabsInPane()">
+                          @for (sa of paneRoster(); track sa.id; let i = $index) {
+                            <div class="sa-tab"
+                                 [class.sa-tab-active]="activeSubAgentTab() === sa.id"
+                                 [class.sa-tab-locked]="lockedSubAgents().has(sa.id)"
+                                 [class.sa-tab-needs-input]="sa.status === 'waiting_input'"
+                                 (click)="switchSubAgentTab(sa.id)">
+                              <span class="sa-tab-dot" [class]="'dot-' + sa.status"></span>
+                              <img [src]="getProviderLogo(sa.provider)" width="11" height="11" alt="" class="provider-logo" [appTooltip]="getProviderLabel(sa.provider)" />
+                              <span [appTooltip]="sa.userPrompt || sa.autoPrompt">{{ sa.title }}</span>
+                              <span class="sa-tab-shortcut">{{ i + 1 }}</span>
+                              <button class="sa-tab-close" (click)="toggleLockSubAgent(sa.id, $event)"
+                                      [appTooltip]="lockedSubAgents().has(sa.id) ? ('SESSIONS.TOOLTIPS.Unlock' | translate) : ('SESSIONS.TOOLTIPS.Lock' | translate)">
+                                <iconify-icon [icon]="lockedSubAgents().has(sa.id) ? 'solar:lock-bold' : 'solar:lock-unlocked-bold'" width="11"></iconify-icon>
+                              </button>
+                              <button class="sa-tab-close sa-tab-destroy" (click)="destroySubAgent(sa.id, $event)"
+                                      [appTooltip]="'SESSIONS.TOOLTIPS.Close sub-agent' | translate"
+                                      [class.disabled]="lockedSubAgents().has(sa.id)">
+                                <iconify-icon icon="solar:close-circle-bold" width="11"></iconify-icon>
+                              </button>
+                            </div>
+                          }
+                        </div>
+
+                        <!-- Single active terminal -->
+                        <div class="subagents-terminals tab-mode">
+                          @for (sa of paneRoster(); track sa.id) {
+                            <div class="subagent-pane"
+                                 [class.pane-focused]="focusedPaneId() === 'sa:' + sa.id"
+                                 [class.pane-input-needed]="sa.status === 'waiting_input'"
+                                 [class.pane-done]="sa.status === 'completed'"
+                                 [class.pane-aa-on]="interactionService.isAutoApproved(sa.sessionId)"
+                                 [class.aa-picked-quick]="aaSelectMode() && getAaMode(sa.sessionId) === 'quick'"
+                                 [class.aa-picked-ai]="aaSelectMode() && getAaMode(sa.sessionId) === 'ai'"
+                                 [class.sa-expanded]="expandedSubAgentId() === sa.id"
+                                 [class.sa-tab-hidden]="activeSubAgentTab() !== sa.id"
+                                 (focusin)="focusedPaneId.set('sa:' + sa.id)">
+                              <div class="subagent-pane-header">
+                                @if (saTabsInPane()) {
+                                  <ng-container *ngTemplateOutlet="saPanelTabsTpl; context: { solo: false }"></ng-container>
+                                }
+                                <span class="subagent-pane-title">
+                                  <img [src]="getProviderLogo(sa.provider)" width="13" height="13" alt="" class="provider-logo" [appTooltip]="getProviderLabel(sa.provider)" />
+                                  @if (sa.userPrompt || sa.autoPrompt) {
+                                    <span class="subagent-prompt-hint" [appTooltip]="sa.userPrompt || sa.autoPrompt">{{ (sa.userPrompt || sa.autoPrompt) | slice:0:60 }}{{ (sa.userPrompt || sa.autoPrompt).length > 60 ? '...' : '' }}</span>
+                                  } @else {
+                                    <!-- Pane without a prompt (the demoted main): the title IS the label. -->
+                                    <span class="subagent-prompt-hint">{{ sa.title }}</span>
+                                  }
+                                </span>
+                                <div class="subagent-pane-actions">
+                                  @if (saPaneStatusCompact(sa.id)) {
+                                    <span class="sa-status-dot-compact" [class]="'sadc-' + sa.status" [appTooltip]="'SESSIONS.Status ' + sa.status | translate"></span>
+                                  } @else if (sa.status === 'waiting_input') {
+                                    <span class="sa-attention-badge">
+                                      <span class="sa-attention-dot"></span>
+                                      {{ 'SESSIONS.Input required' | translate }}
+                                    </span>
+                                  } @else {
+                                    <span class="subagent-status" [class]="'sa-status-' + sa.status">{{ 'SESSIONS.Status ' + sa.status | translate }}</span>
+                                  }
+                                  <ng-container *ngTemplateOutlet="saPaneActionsSlot; context: { sa: sa }"></ng-container>
+                                </div>
+                              </div>
+                              <div class="subagent-pane-terminal">
+                                @if (isMainPane(sa.id)) {
+                                  <!-- The demoted main: same place, same tile, no privileges. -->
+                                  <app-session-terminal [sessionId]="sa.sessionId" [workspacePath]="$safeNavigationMigration(activeSession()?.workspace?.path)" (openFileRequest)="onTerminalFileLink($event)"></app-session-terminal>
+                                } @else if (sa.executionMode === 'worker') {
+                                  <app-worker-chat [subAgentId]="sa.id" [status]="sa.status"></app-worker-chat>
+                                } @else {
+                                  <app-sub-agent-terminal [subAgentId]="sa.id" [expanded]="expandedSubAgentId() === sa.id" (escapePressed)="expandedSubAgentId.set(null)" (openFileRequest)="onTerminalFileLink($event)"></app-sub-agent-terminal>
+                                }
+                                <ng-container *ngTemplateOutlet="termToolbar; context: {
+                                  sessionId: sa.sessionId,
+                                  sa: sa,
+                                  provider: sa.provider,
+                                  cover: false
+                                }"></ng-container>
+                                @if (aaSelectMode() && sa.executionMode !== 'worker') {
+                                  <div class="aa-select-overlay at-top">
+                                    <ng-container *ngTemplateOutlet="aaPickerCard; context: { sessionId: sa.sessionId, target: sa.title, eyebrow: 'SESSIONS.VIEW.Agent', compact: subAgentService.activeRoster().length > 2 }"></ng-container>
+                                  </div>
+                                }
+                              </div>
+                            </div>
+                          }
+                        </div>
+
+                        <!-- Shortcut hints -->
+                        <div class="sa-shortcut-bar">
+                          <span class="sa-shortcut-hint"><kbd>{{ modKey }}</kbd>+<kbd>{{ shortcutKey('focusMain') }}</kbd> {{ 'SESSIONS.VIEW.Hint main' | translate }}</span>
+                          <span class="sa-shortcut-hint"><kbd>{{ modKey }}</kbd>+<kbd>1-9</kbd> {{ 'SESSIONS.VIEW.Hint agent' | translate }}</span>
+                          <span class="sa-shortcut-hint"><kbd>{{ modKey }}</kbd>+<kbd>{{ shortcutKey('prevAgent') }}</kbd><kbd>{{ shortcutKey('nextAgent') }}</kbd> {{ 'SESSIONS.VIEW.Hint cycle' | translate }}</span>
+                          <span class="sa-shortcut-hint"><kbd>{{ modKey }}</kbd>+<kbd>{{ shortcutKey('lockAgent') }}</kbd> {{ 'SESSIONS.VIEW.Hint lock' | translate }}</span>
+                          <span class="sa-shortcut-hint"><kbd>{{ modKey }}</kbd>+<kbd>{{ shortcutKey('focusMode') }}</kbd> {{ 'SESSIONS.VIEW.Hint focus' | translate }}</span>
+                        </div>
+
+                      } @else if (subAgentColumnsMode() || subAgentRowsMode()) {
+                        <!-- ── COLUMNS MODE (formerly split) / ROWS MODE (vertical): panes side by side or stacked with manual resize ── -->
+                        <div class="subagents-terminals" [class.columns-mode]="!subAgentRowsMode()" [class.rows-mode]="subAgentRowsMode()">
+                          @for (sa of paneRoster(); track sa.id; let i = $index) {
+                            @if (i > 0) {
+                              <div class="sa-h-resize-handle" (mousedown)="startSubAgentHResize($event, i - 1)"></div>
+                            }
+                            <div class="subagent-pane"
+                                 [class.pane-focused]="focusedPaneId() === 'sa:' + sa.id"
+                                 [class.pane-input-needed]="sa.status === 'waiting_input'"
+                                 [class.pane-done]="sa.status === 'completed'"
+                                 [class.pane-aa-on]="interactionService.isAutoApproved(sa.sessionId)"
+                                 [class.aa-picked-quick]="aaSelectMode() && getAaMode(sa.sessionId) === 'quick'"
+                                 [class.aa-picked-ai]="aaSelectMode() && getAaMode(sa.sessionId) === 'ai'"
+                                 [class.sa-expanded]="expandedSubAgentId() === sa.id"
+                                 [class.sa-pane-locked]="lockedSubAgents().has(sa.id)"
+                                 [attr.data-sa-id]="sa.id"
+                                 [style.flex]="expandedSubAgentId() ? null : saColumnFlex(sa.id)"
+                                 (focusin)="focusedPaneId.set('sa:' + sa.id)">
+                              <div class="subagent-pane-header">
+                                @if (saTabsInPane()) {
+                                  <ng-container *ngTemplateOutlet="saPanelTabsTpl; context: { solo: false }"></ng-container>
+                                }
+                                <span class="subagent-pane-title">
+                                  <img [src]="getProviderLogo(sa.provider)" width="13" height="13" alt="" class="provider-logo" [appTooltip]="getProviderLabel(sa.provider)" />
+                                  @if (sa.userPrompt || sa.autoPrompt) {
+                                    <span class="subagent-prompt-hint" [appTooltip]="sa.userPrompt || sa.autoPrompt">{{ (sa.userPrompt || sa.autoPrompt) | slice:0:60 }}{{ (sa.userPrompt || sa.autoPrompt).length > 60 ? '...' : '' }}</span>
+                                  } @else {
+                                    <!-- Pane without a prompt (the demoted main): the title IS the label. -->
+                                    <span class="subagent-prompt-hint">{{ sa.title }}</span>
+                                  }
+                                </span>
+                                <div class="subagent-pane-actions">
+                                  @if (saPaneStatusCompact(sa.id)) {
+                                    <span class="sa-status-dot-compact" [class]="'sadc-' + sa.status" [appTooltip]="'SESSIONS.Status ' + sa.status | translate"></span>
+                                  } @else if (sa.status === 'waiting_input') {
+                                    <span class="sa-attention-badge">
+                                      <span class="sa-attention-dot"></span>
+                                      {{ 'SESSIONS.Input required' | translate }}
+                                    </span>
+                                  } @else {
+                                    <span class="subagent-status" [class]="'sa-status-' + sa.status">{{ 'SESSIONS.Status ' + sa.status | translate }}</span>
+                                  }
+                                  <ng-container *ngTemplateOutlet="saPaneActionsSlot; context: { sa: sa, guardExpanded: true }"></ng-container>
+                                </div>
+                              </div>
+                              <div class="subagent-pane-terminal">
+                                @if (isMainPane(sa.id)) {
+                                  <!-- The demoted main: same place, same tile, no privileges. -->
+                                  <app-session-terminal [sessionId]="sa.sessionId" [workspacePath]="$safeNavigationMigration(activeSession()?.workspace?.path)" (openFileRequest)="onTerminalFileLink($event)"></app-session-terminal>
+                                } @else if (sa.executionMode === 'worker') {
+                                  <app-worker-chat [subAgentId]="sa.id" [status]="sa.status"></app-worker-chat>
+                                } @else {
+                                  <app-sub-agent-terminal [subAgentId]="sa.id" [expanded]="expandedSubAgentId() === sa.id" (escapePressed)="expandedSubAgentId.set(null)" (openFileRequest)="onTerminalFileLink($event)"></app-sub-agent-terminal>
+                                }
+                                <ng-container *ngTemplateOutlet="termToolbar; context: {
+                                  sessionId: sa.sessionId,
+                                  sa: sa,
+                                  provider: sa.provider,
+                                  cover: false
+                                }"></ng-container>
+                                @if (aaSelectMode() && sa.executionMode !== 'worker') {
+                                  <div class="aa-select-overlay at-top">
+                                    <ng-container *ngTemplateOutlet="aaPickerCard; context: { sessionId: sa.sessionId, target: sa.title, eyebrow: 'SESSIONS.VIEW.Sub-agent', compact: subAgentService.activeRoster().length > 2 }"></ng-container>
+                                  </div>
+                                }
+                              </div>
+                            </div>
+                          }
+                        </div>
+
+                        <!-- Shortcut hints (columns) -->
+                        @if (subAgentService.activeRoster().length > 1) {
+                          <div class="sa-shortcut-bar">
+                            <span class="sa-shortcut-hint"><kbd>{{ modKey }}</kbd>+<kbd>{{ shortcutKey('focusMain') }}</kbd> {{ 'SESSIONS.VIEW.Hint main' | translate }}</span>
+                            <span class="sa-shortcut-hint"><kbd>{{ modKey }}</kbd>+<kbd>1-9</kbd> {{ 'SESSIONS.VIEW.Hint agent' | translate }}</span>
+                            <span class="sa-shortcut-hint"><kbd>{{ modKey }}</kbd>+<kbd>{{ shortcutKey('lockAgent') }}</kbd> {{ 'SESSIONS.VIEW.Hint lock' | translate }}</span>
+                            <span class="sa-shortcut-hint"><kbd>{{ modKey }}</kbd>+<kbd>{{ shortcutKey('focusMode') }}</kbd> {{ 'SESSIONS.VIEW.Hint focus' | translate }}</span>
+                          </div>
+                        }
+                      } @else {
+                        <!-- ── GRID MODE AUTO (default): columns/rows computed from the space ── -->
+                        <div class="subagents-terminals grid-mode" #saGrid
+                             [class.sa-reordering]="saDragId() !== null || saGridResizing()"
+                             [style.grid-template-columns]="saGridTemplateCols()"
+                             [style.grid-template-rows]="saGridTemplateRows()">
+                          @if (!expandedSubAgentId()) {
+                            @for (hd of saGridColHandles(); track $index) {
+                              <div class="sa-grid-handle sa-grid-handle-col" [style.left]="hd.pos" [style.bottom]="hd.bottom"
+                                   (mousedown)="startSaGridResize($event, 'col', $index)" (dblclick)="resetSaGridAuto()"></div>
+                            }
+                            @for (hd of saGridCornerHandles(); track $index) {
+                              <div class="sa-grid-handle sa-grid-handle-corner" [style.left]="hd.left" [style.top]="hd.top"
+                                   (mousedown)="startSaGridResize($event, 'both', hd.c, hd.r)" (dblclick)="resetSaGridAuto()"></div>
+                            }
+                            @for (hd of saGridRowHandles(); track $index) {
+                              <div class="sa-grid-handle sa-grid-handle-row" [style.top]="hd"
+                                   (mousedown)="startSaGridResize($event, 'row', $index)" (dblclick)="resetSaGridAuto()"></div>
+                            }
+                          }
+                          @for (sa of paneRoster(); track sa.id; let i = $index) {
+                            <div class="subagent-pane"
+                                 [attr.data-sa-id]="sa.id"
+                                 [style.grid-column]="'span ' + saGridSpan(i)"
+                                 [class.sa-dragging]="saDragId() === sa.id"
+                                 [class.sa-drop-target]="saDropTargetId() === sa.id"
+                                 [class.pane-focused]="focusedPaneId() === 'sa:' + sa.id"
+                                 [class.pane-input-needed]="sa.status === 'waiting_input'"
+                                 [class.pane-done]="sa.status === 'completed'"
+                                 [class.pane-aa-on]="interactionService.isAutoApproved(sa.sessionId)"
+                                 [class.aa-picked-quick]="aaSelectMode() && getAaMode(sa.sessionId) === 'quick'"
+                                 [class.aa-picked-ai]="aaSelectMode() && getAaMode(sa.sessionId) === 'ai'"
+                                 [class.sa-expanded]="expandedSubAgentId() === sa.id"
+                                 [class.sa-pane-locked]="lockedSubAgents().has(sa.id)"
+                                 (focusin)="focusedPaneId.set('sa:' + sa.id)">
+                              <div class="subagent-pane-header">
+                                @if (saTabsInPane()) {
+                                  <ng-container *ngTemplateOutlet="saPanelTabsTpl; context: { solo: false }"></ng-container>
+                                }
+                                <span class="subagent-pane-title sa-drag-handle"
+                                      (pointerdown)="onSaDragPointerDown($event, sa.id)">
+                                  <img [src]="getProviderLogo(sa.provider)" width="13" height="13" alt="" class="provider-logo" [appTooltip]="getProviderLabel(sa.provider)" />
+                                  @if (sa.userPrompt || sa.autoPrompt) {
+                                    <span class="subagent-prompt-hint" [appTooltip]="sa.userPrompt || sa.autoPrompt">{{ (sa.userPrompt || sa.autoPrompt) | slice:0:40 }}{{ (sa.userPrompt || sa.autoPrompt).length > 40 ? '...' : '' }}</span>
+                                  } @else {
+                                    <!-- Pane without a prompt (the demoted main): the title IS the label. -->
+                                    <span class="subagent-prompt-hint">{{ sa.title }}</span>
+                                  }
+                                </span>
+                                <div class="subagent-pane-actions">
+                                  @if (saPaneStatusCompact(sa.id)) {
+                                    <span class="sa-status-dot-compact" [class]="'sadc-' + sa.status" [appTooltip]="'SESSIONS.Status ' + sa.status | translate"></span>
+                                  } @else if (sa.status === 'waiting_input') {
+                                    <span class="sa-attention-badge">
+                                      <span class="sa-attention-dot"></span>
+                                      {{ 'SESSIONS.Input required' | translate }}
+                                    </span>
+                                  } @else {
+                                    <span class="subagent-status" [class]="'sa-status-' + sa.status">{{ 'SESSIONS.Status ' + sa.status | translate }}</span>
+                                  }
+                                  <ng-container *ngTemplateOutlet="saPaneActionsSlot; context: { sa: sa }"></ng-container>
+                                </div>
+                              </div>
+                              <div class="subagent-pane-terminal">
+                                @if (isMainPane(sa.id)) {
+                                  <!-- The demoted main: same place, same tile, no privileges. -->
+                                  <app-session-terminal [sessionId]="sa.sessionId" [workspacePath]="$safeNavigationMigration(activeSession()?.workspace?.path)" (openFileRequest)="onTerminalFileLink($event)"></app-session-terminal>
+                                } @else if (sa.executionMode === 'worker') {
+                                  <app-worker-chat [subAgentId]="sa.id" [status]="sa.status"></app-worker-chat>
+                                } @else {
+                                  <app-sub-agent-terminal [subAgentId]="sa.id" [expanded]="expandedSubAgentId() === sa.id" (escapePressed)="expandedSubAgentId.set(null)" (openFileRequest)="onTerminalFileLink($event)"></app-sub-agent-terminal>
+                                }
+                                <ng-container *ngTemplateOutlet="termToolbar; context: {
+                                  sessionId: sa.sessionId,
+                                  sa: sa,
+                                  provider: sa.provider,
+                                  cover: false
+                                }"></ng-container>
+                                @if (aaSelectMode() && sa.executionMode !== 'worker') {
+                                  <div class="aa-select-overlay at-top">
+                                    <ng-container *ngTemplateOutlet="aaPickerCard; context: { sessionId: sa.sessionId, target: sa.title, eyebrow: 'SESSIONS.VIEW.Agent', compact: subAgentService.activeRoster().length > 2 }"></ng-container>
+                                  </div>
+                                }
+                              </div>
+                            </div>
+                          }
+                        </div>
+
+                        <!-- Shortcut hints (grid) -->
+                        <div class="sa-shortcut-bar">
+                          <span class="sa-shortcut-hint"><kbd>{{ modKey }}</kbd>+<kbd>{{ shortcutKey('focusMain') }}</kbd> {{ 'SESSIONS.VIEW.Hint main' | translate }}</span>
+                          <span class="sa-shortcut-hint"><kbd>{{ modKey }}</kbd>+<kbd>1-9</kbd> {{ 'SESSIONS.VIEW.Hint agent' | translate }}</span>
+                          <span class="sa-shortcut-hint"><kbd>{{ modKey }}</kbd>+<kbd>{{ shortcutKey('lockAgent') }}</kbd> {{ 'SESSIONS.VIEW.Hint lock' | translate }}</span>
+                          <span class="sa-shortcut-hint"><kbd>{{ modKey }}</kbd>+<kbd>{{ shortcutKey('focusMode') }}</kbd> {{ 'SESSIONS.VIEW.Hint focus' | translate }}</span>
+                        </div>
+
+                      }
+                    }
+                  </div>
+                }
+
+                <!-- Session Assets Panel -->
+                <app-session-assets-panel
+                  [workspacePath]="$safeNavigationMigration(session.workspace?.path)"
+                  [sessionId]="session.id"
+                  [sessionProvider]="session.provider"
+                  (onSendToTerminal)="sendAssetPromptToTerminal($event)"
+                  (onSpawnSubAgent)="spawnAssetSubAgent($event)"
+                  (layoutChanged)="onAssetsPanelLayoutChanged()"
+                ></app-session-assets-panel>
+
+                <!-- Git Panel (always at bottom, below sub-agents) -->
+                @if (ff.canAccess('git_panel')) {
+                  <app-session-git-panel></app-session-git-panel>
+                }
+
+              </div>
+
+              <div class="action-center-wrapper" [style.width.px]="actionCenterCollapsed() ? 40 : actionCenterWidth()" [class.ac-collapsed]="actionCenterCollapsed()">
+                @if (!actionCenterCollapsed()) {
+                  <div class="panel-resize-handle panel-resize-left"
+                       (mousedown)="startActionCenterResize($event)"></div>
+                }
+                <app-action-center
+                  [collapsed]="actionCenterCollapsed()"
+                  [panelWidth]="actionCenterWidth()"
+                  [interactions]="activeInteractions()"
+                  [aaSelectMode]="aaSelectMode()"
+                  [aaPickedCount]="aaPickedCount()"
+                  [aaTotalCount]="aaTotalCount()"
+                  [activeSubAgentId]="activeSubAgentTab()"
+                  [roster]="paneRoster()"
+                  (onCloseAgent)="destroySubAgent($event.id)"
+                  (onApprove)="handleApprove($event)"
+                  (onDeny)="handleDeny($event)"
+                  (onRespond)="handleRespond($event)"
+                  (onFocusTerminal)="terminalRef?.focus()"
+                  (onCollapsedChange)="setActionCenterCollapsed($event)"
+                  (onRequestAutoApproveSelection)="startAutoApproveSelection()"
+                  (onConfirmAutoApproveSelection)="confirmAutoApproveSelection()"
+                  (onCancelAutoApproveSelection)="cancelAutoApproveSelection()"
+                  (onSelectSubAgent)="onActionCenterSelectSubAgent($event)"
+                  (onOpenIntent)="openIntentModal()"
+                  (onOpenGitExplorer)="openGitExplorer()"
+                  (onOpenTodos)="openTodoModal()"
+                ></app-action-center>
+              </div>
+
+            </div>
+          }
+
+          <!-- ═══ CODE EDITOR (IDE) LAYOUT ═══ -->
+          @if (!providerMissing() && (currentLayoutMode() === 'code' || editorSessionId() === session.id)) {
+            @for (editorSession of [session.id]; track editorSession) {
+            <div class="ide-layout" [style.display]="currentLayoutMode() === 'code' ? null : 'none'">
+
+              <!-- CENTER: Code Editor (includes its own file tree sidebar) -->
+              <div class="ide-panel ide-panel-center">
+                <app-session-code-editor
+                  [inline]="true" [visible]="currentLayoutMode() === 'code'"
+                  [cwd]="session.workspace?.path || ''" [sessionId]="session.id"
+                  #inlineEditorRef
+                ></app-session-code-editor>
+              </div>
+
+              @if (currentLayoutMode() === 'code') {
+              <!-- RIGHT: tabbed terminals and the shared spawn composer -->
+              <div class="ide-panel ide-panel-right" [style.width.px]="ideRightWidth()" [class.collapsed]="ideRightCollapsed()" [style.flex-shrink]="0">
+                <div class="ide-panel-resize ide-resize-right"
+                     (mousedown)="startResize($event, 'right')"
+                ></div>
+                <button class="ide-collapse-btn ide-collapse-right" (click)="ideRightCollapsed.set(!ideRightCollapsed())"
+                        [appTooltip]="(ideRightCollapsed() ? 'SESSIONS.Show Terminal' : 'SESSIONS.Hide Terminal') | translate">
+                  <iconify-icon [icon]="ideRightCollapsed() ? 'solar:alt-arrow-left-bold' : 'solar:alt-arrow-right-bold'" width="12"></iconify-icon>
+                </button>
+                <div class="ide-right-content" [style.display]="ideRightCollapsed() ? 'none' : null">
+                  <div class="ide-terminal-tabs" role="tablist" [attr.aria-label]="'SESSIONS.VIEW.Terminals' | translate" (keydown)="onIdeTabKeydown($event)">
+                    @if (!mainIsFlattened() && !mainDismissed()) {
+                      <button role="tab" [attr.tabindex]="ideSelectedTerminal() === 'main' ? 0 : -1" [attr.aria-selected]="ideSelectedTerminal() === 'main'"
+                        [class.active]="ideSelectedTerminal() === 'main'" (click)="selectIdeTerminal('main')">{{ 'SESSIONS.VIEW.Main' | translate }}</button>
+                    }
+                    @for (sa of paneRoster(); track sa.id) {
+                      <button role="tab" [attr.tabindex]="ideSelectedTerminal() === sa.id ? 0 : -1" [attr.aria-selected]="ideSelectedTerminal() === sa.id"
+                        [class.active]="ideSelectedTerminal() === sa.id" (click)="selectIdeTerminal(sa.id)"
+                        [appTooltip]="sa.userPrompt || sa.autoPrompt || sa.title">
+                        <span class="sa-status-dot-compact" [class]="'sadc-' + sa.status"></span>{{ sa.title }}
+                      </button>
+                    }
+                  </div>
+                  @if (expandedSubAgentId()) {
+                    <div class="sa-expand-backdrop" (click)="expandedSubAgentId.set(null)"></div>
+                  }
+                  <div class="ide-terminal-stack">
+                    @if (!mainIsFlattened() && !mainDismissed()) {
+                    <div class="ide-terminal-area" [style.display]="ideSelectedTerminal() === 'main' ? null : 'none'" [class.pane-focused]="focusedPaneId() === 'main'"
+                         [class.pane-aa-on]="interactionService.isAutoApproved(session.id)"
+                         [class.sa-drag-over]="saDropZoneActive()"
+                         appFileDropZone
+                         (fileDropOver)="saDropZoneActive.set($event)"
+                         (fileDropped)="onSaDropZoneDrop($event)"
+                         (focusin)="focusedPaneId.set('main')">
+                      @if (saDropZoneActive()) {
+                        <div class="sa-drop-overlay">
+                          <iconify-icon icon="solar:upload-minimalistic-bold" width="18"></iconify-icon>
+                          <span>{{ 'SUBAGENTS.Drop or paste files' | translate }}</span>
+                        </div>
+                      }
+                      @if (interactionService.isAutoApproved(session.id)) {
+                        <div class="aa-terminal-banner" [class.ai-mode]="interactionService.getFlags(session.id).ai">
+                          <div class="aa-bouncer">
+                            <pre class="aa-ascii">{{ interactionService.getFlags(session.id).ai ? asciiAI : asciiQuick }}</pre>
+                          </div>
+                        </div>
+                      }
+                      @if (isTauriHost && session.standbyAt) {
+                        <div class="standby-cover" role="status">
+                          <iconify-icon icon="solar:moon-sleep-bold-duotone" width="30" aria-hidden="true"></iconify-icon>
+                          <div class="standby-cover-title">{{ 'SESSIONS.Standby_Cover_Title' | translate }}</div>
+                          <div class="standby-cover-subtitle">{{ 'SESSIONS.Standby_Cover_Subtitle' | translate }}</div>
+                          <button class="btn btn-sm btn-primary" (click)="wakeParkedSession(session.id)">
+                            <iconify-icon icon="solar:play-circle-bold" width="14"></iconify-icon>
+                            {{ 'SESSIONS.Standby_Cover_Resume' | translate }}
+                          </button>
+                        </div>
+                      }
+                      <app-session-terminal
+                        [sessionId]="session.id"
+                        [workspacePath]="$safeNavigationMigration(session.workspace?.path)"
+                        (openFileRequest)="onTerminalFileLink($event)"
+                        #terminalRef
+                      ></app-session-terminal>
+                      <ng-container *ngTemplateOutlet="termToolbar; context: {
+                        sessionId: session.id,
+                        sa: null,
+                        provider: session.provider,
+                        cover: false
+                      }"></ng-container>
+                    </div>
+
+                    }
+                              @for (sa of paneRoster(); track sa.id) {
+                                <div class="subagent-pane" [style.display]="ideSelectedTerminal() === sa.id ? null : 'none'" [class.pane-focused]="focusedPaneId() === 'sa:' + sa.id"
+                                     [class.pane-input-needed]="sa.status === 'waiting_input'"
+                                     [class.pane-done]="sa.status === 'completed'"
+                                     [class.sa-expanded]="expandedSubAgentId() === sa.id"
+                                     (focusin)="focusedPaneId.set('sa:' + sa.id)">
+                                  <div class="subagent-pane-header">
+                                    <span class="subagent-pane-title">
+                                      <img [src]="getProviderLogo(sa.provider)" width="13" height="13" alt="" class="provider-logo" [appTooltip]="getProviderLabel(sa.provider)" />
+                                      @if (sa.userPrompt || sa.autoPrompt) {
+                                        <span class="subagent-prompt-hint" [appTooltip]="sa.userPrompt || sa.autoPrompt">{{ (sa.userPrompt || sa.autoPrompt) | slice:0:60 }}{{ (sa.userPrompt || sa.autoPrompt).length > 60 ? '...' : '' }}</span>
+                                      } @else {
+                                        <!-- Pane without a prompt (the demoted main): the title IS the label. -->
+                                        <span class="subagent-prompt-hint">{{ sa.title }}</span>
+                                      }
+                                    </span>
+                                    <div class="subagent-pane-actions">
+                                      @if (saPaneStatusCompact(sa.id)) {
+                                        <span class="sa-status-dot-compact" [class]="'sadc-' + sa.status" [appTooltip]="'SESSIONS.Status ' + sa.status | translate"></span>
+                                      } @else if (sa.status === 'waiting_input') {
+                                        <span class="sa-attention-badge"><span class="sa-attention-dot"></span> {{ 'SESSIONS.Input required' | translate }}</span>
+                                      } @else {
+                                        <span class="subagent-status" [class]="'sa-status-' + sa.status">{{ 'SESSIONS.Status ' + sa.status | translate }}</span>
+                                      }
+                                      <button class="btn-expand-subagent" [class.sa-btn-locked]="lockedSubAgents().has(sa.id)"
+                                              (click)="toggleLockSubAgent(sa.id, $event)"
+                                              [appTooltip]="lockedSubAgents().has(sa.id) ? ('SESSIONS.TOOLTIPS.Unlock' | translate) : ('SESSIONS.TOOLTIPS.Lock' | translate)">
+                                        <iconify-icon [icon]="lockedSubAgents().has(sa.id) ? 'solar:lock-bold' : 'solar:lock-unlocked-bold'" width="13"></iconify-icon>
+                                      </button>
+                                      <button class="btn-expand-subagent" (click)="toggleExpandSubAgent(sa.id)"
+                                              [appTooltip]="expandedSubAgentId() === sa.id ? ('SESSIONS.TOOLTIPS.Collapse sub-agent' | translate) : ('SESSIONS.TOOLTIPS.Expand sub-agent' | translate)">
+                                        <iconify-icon [icon]="expandedSubAgentId() === sa.id ? 'solar:minimize-bold' : 'solar:maximize-bold'" width="13"></iconify-icon>
+                                      </button>
+                                      <button class="btn-expand-subagent" [disabled]="subAgentService.benchFull()"
+                                              (click)="subAgentService.bench(sa.id); $event.stopPropagation()"
+                                              [appTooltip]="(subAgentService.benchFull() ? 'SESSIONS.TOOLTIPS.Bench full' : 'SESSIONS.TOOLTIPS.Bench sub-agent') | translate">
+                                        <iconify-icon icon="solar:bed-bold-duotone" width="13"></iconify-icon>
+                                      </button>
+                                      @if (expandedSubAgentId() !== sa.id) {
+                                        <button class="btn-close-subagent" (click)="destroySubAgent(sa.id)"
+                                                [class.disabled]="lockedSubAgents().has(sa.id)">
+                                          <iconify-icon icon="solar:close-circle-bold" width="13"></iconify-icon>
+                                        </button>
+                                      }
+                                    </div>
+                                  </div>
+                                  <div class="subagent-pane-terminal">
+                                    @if (isMainPane(sa.id)) {
+                                  <!-- The demoted main: same place, same tile, no privileges. -->
+                                  <app-session-terminal [sessionId]="sa.sessionId" [workspacePath]="$safeNavigationMigration(activeSession()?.workspace?.path)" (openFileRequest)="onTerminalFileLink($event)"></app-session-terminal>
+                                } @else if (sa.executionMode === 'worker') {
+                                  <app-worker-chat [subAgentId]="sa.id" [status]="sa.status"></app-worker-chat>
+                                } @else {
+                                  <app-sub-agent-terminal [subAgentId]="sa.id" [expanded]="expandedSubAgentId() === sa.id" (escapePressed)="expandedSubAgentId.set(null)" (openFileRequest)="onTerminalFileLink($event)"></app-sub-agent-terminal>
+                                }
+                                    <ng-container *ngTemplateOutlet="termToolbar; context: {
+                                      sessionId: sa.sessionId,
+                                      sa: sa,
+                                      provider: sa.provider,
+                                      cover: false
+                                    }"></ng-container>
+                                  </div>
+                                </div>
+                              }
+
+                    @if (!ideSelectedTerminal()) {
+                      <div class="ide-empty-section">{{ 'SESSIONS.No active sub-agents' | translate }}</div>
+                    }
+                  </div>
+                          <!-- Panchinari (benched, still active) -->
+                          @if (subAgentService.benchedSubAgents().length > 0) {
+                            <div class="ide-bench-list">
+                              <div class="ide-bench-label">
+                                <iconify-icon icon="solar:bed-bold-duotone" width="13"></iconify-icon>
+                                {{ 'SESSIONS.Benched' | translate }} ({{ subAgentService.benchedSubAgents().length }}/{{ subAgentService.MAX_BENCH }})
+                              </div>
+                              @for (sa of subAgentService.benchedSubAgents(); track sa.id) {
+                                <div class="ide-bench-item" (click)="switchSubAgentTab(sa.id)">
+                                  <img [src]="getProviderLogo(sa.provider)" width="13" height="13" alt="" class="provider-logo" [appTooltip]="getProviderLabel(sa.provider)" />
+                                  <span class="ide-bench-name" [appTooltip]="sa.userPrompt || sa.autoPrompt">{{ sa.title }}</span>
+                                  <button class="btn-expand-subagent bench-back" (click)="subAgentService.unbench(sa.id); $event.stopPropagation()"
+                                          [appTooltip]="'SESSIONS.TOOLTIPS.Bring back sub-agent' | translate">
+                                    <iconify-icon icon="solar:running-round-bold" width="13"></iconify-icon>
+                                  </button>
+                                  <button class="btn-close-subagent" (click)="destroySubAgent(sa.id, $event)">
+                                    <iconify-icon icon="solar:close-circle-bold" width="13"></iconify-icon>
+                                  </button>
+                                </div>
+                              }
+                            </div>
+                          }                    <!-- ▶ Accordion: Pending Interactions -->
+                    @if (activeInteractions().length > 0) {
+                      <div class="ide-accordion-section" [class.open]="ideAccordion() === 'interactions'">
+                        <div class="ide-accordion-header ide-acc-warning" (click)="toggleIdeAccordion('interactions')">
+                          <span class="ide-accordion-title">
+                            <iconify-icon icon="solar:bell-bold-duotone" width="14"></iconify-icon>
+                            {{ 'SESSIONS.Pending Actions' | translate }}
+                            <span class="ide-acc-badge bg-warning text-dark">{{ activeInteractions().length }}</span>
+                          </span>
+                          <iconify-icon
+                            [icon]="ideAccordion() === 'interactions' ? 'solar:alt-arrow-down-bold' : 'solar:alt-arrow-right-bold'"
+                            width="12" class="ide-acc-chevron"
+                          ></iconify-icon>
+                        </div>
+                        @if (ideAccordion() === 'interactions') {
+                          <div class="ide-accordion-body">
+                            @for (item of activeInteractions(); track item.id) {
+                              <div class="ide-interaction-card">
+                                <p class="ide-interaction-prompt">{{ item.prompt || item.description }}</p>
+                                @if (item.inputType === 'confirmation' || item.type === 'human_action_request') {
+                                  <div class="ide-interaction-btns">
+                                    <button class="btn btn-sm btn-success" (click)="handleApprove(item.id)">
+                                      <iconify-icon icon="solar:check-circle-bold" width="13"></iconify-icon> {{ 'SESSIONS.Approve' | translate }}
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" (click)="handleDeny(item.id)">
+                                      <iconify-icon icon="solar:close-circle-bold" width="13"></iconify-icon> {{ 'SESSIONS.Deny' | translate }}
+                                    </button>
+                                  </div>
+                                } @else {
+                                  <div class="ide-interaction-input">
+                                    <input #ideInput type="text" class="form-control form-control-sm" [placeholder]="'SESSIONS.Type response' | translate"
+                                           (keyup.enter)="handleRespond({ interactionId: item.id, value: ideInput.value }); ideInput.value = ''" />
+                                    <button class="btn btn-sm btn-primary" (click)="handleRespond({ interactionId: item.id, value: ideInput.value }); ideInput.value = ''">{{ 'SESSIONS.Send' | translate }}</button>
+                                  </div>
+                                }
+                              </div>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+
+                  <div class="ide-spawn-composer">
+                    <app-action-center [composerOnly]="true" [panelWidth]="ideRightWidth()"
+                      (onOpenIntent)="openIntentModal()" (onOpenGitExplorer)="openGitExplorer()"
+                      (onOpenTodos)="openTodoModal()"></app-action-center>
+                  </div>
+                </div>
+              </div>
+              }
+            </div>
+            }
+          }
+
+        } @else if (isBootstrappingSessions()) {
+          <!-- Bootstrap loader — avoids flashing welcome/empty state before
+               we know whether the user has sessions to restore. -->
+          <div class="bootstrap-main" role="status" aria-live="polite">
+            <div class="bootstrap-logo-wrap">
+              <div class="bootstrap-halo" aria-hidden="true"></div>
+              <img
+                class="bootstrap-logo"
+                src="assets/logos/compact-logo-v3.png"
+                alt="PromptOps"
+                draggable="false" />
+            </div>
+            <div class="bootstrap-dots" aria-hidden="true">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+        } @else if (sessionsLoadFailed() && !simulateEmpty()) {
+          <!-- Load error — the list fetch failed (offline / local store down) and
+               nothing is cached: never show the first-run welcome here. -->
+          <div class="empty-main" role="alert">
+            <iconify-icon icon="solar:cloud-cross-bold-duotone" width="64" class="text-muted"></iconify-icon>
+            <h5 class="mt-3 mb-1">{{ 'SESSIONS.Load_Failed_Title' | translate }}</h5>
+            <p class="text-muted mb-0">{{ 'SESSIONS.Load_Failed_Desc' | translate }}</p>
+            <button class="btn btn-primary mt-3" (click)="retrySessionsLoad()" [disabled]="sessionsRetrying()">
+              <iconify-icon [icon]="sessionsRetrying() ? 'codicon:loading' : 'solar:refresh-bold'" [class.sa-spin]="sessionsRetrying()" width="16"></iconify-icon>
+              {{ 'SESSIONS.Load_Failed_Retry' | translate }}
+            </button>
+            <button class="btn btn-link mt-2" (click)="reloadApp()">
+              <iconify-icon icon="solar:restart-bold" width="16"></iconify-icon>
+              {{ 'SESSIONS.Reload_App' | translate }}
+            </button>
+          </div>
+        } @else {
+          @if (simulateEmpty() || sessions().length === 0) {
+            <!-- Welcome state — no sessions. The list is read from this device, and a
+                 failed read has its own screen above, so an empty list really is empty. -->
+            <div class="welcome-main">
+              <div class="welcome-hero">
+                <div class="welcome-emoji" aria-hidden="true">👋</div>
+                <h1 class="welcome-title">
+                  @if (userFirstName()) {
+                    {{ 'SESSIONS.Welcome_Title_Named' | translate: { name: userFirstName() } }}
+                  } @else {
+                    {{ 'SESSIONS.Welcome_Title' | translate }}
+                  }
+                </h1>
+                <p class="welcome-subtitle">{{ 'SESSIONS.Welcome_Subtitle' | translate }}</p>
+              </div>
+
+              <div class="welcome-grid">
+                <button type="button" class="quickstart-card" data-accent="indigo"
+                        (click)="openCreateModalForKind('debug')">
+                  <div class="qs-icon"><iconify-icon icon="solar:bug-bold-duotone" width="22"></iconify-icon></div>
+                  <h3 class="qs-title">{{ 'SESSIONS.Quickstart_Debug_Title' | translate }}</h3>
+                  <p class="qs-desc">{{ 'SESSIONS.Quickstart_Debug_Desc' | translate }}</p>
+                  <span class="qs-arrow" aria-hidden="true"><iconify-icon icon="solar:arrow-right-linear" width="16"></iconify-icon></span>
+                </button>
+
+                <button type="button" class="quickstart-card" data-accent="purple"
+                        (click)="openCreateModalForKind('refactor')">
+                  <div class="qs-icon"><iconify-icon icon="solar:code-square-bold-duotone" width="22"></iconify-icon></div>
+                  <h3 class="qs-title">{{ 'SESSIONS.Quickstart_Refactor_Title' | translate }}</h3>
+                  <p class="qs-desc">{{ 'SESSIONS.Quickstart_Refactor_Desc' | translate }}</p>
+                  <span class="qs-arrow" aria-hidden="true"><iconify-icon icon="solar:arrow-right-linear" width="16"></iconify-icon></span>
+                </button>
+
+                <button type="button" class="quickstart-card" data-accent="violet"
+                        (click)="openCreateModalForKind('explore')">
+                  <div class="qs-icon"><iconify-icon icon="solar:lightbulb-bolt-bold-duotone" width="22"></iconify-icon></div>
+                  <h3 class="qs-title">{{ 'SESSIONS.Quickstart_Explore_Title' | translate }}</h3>
+                  <p class="qs-desc">{{ 'SESSIONS.Quickstart_Explore_Desc' | translate }}</p>
+                  <span class="qs-arrow" aria-hidden="true"><iconify-icon icon="solar:arrow-right-linear" width="16"></iconify-icon></span>
+                </button>
+              </div>
+
+              <button type="button" class="welcome-blank-link" (click)="openCreateModal()">
+                {{ 'SESSIONS.Welcome_StartBlank' | translate }}
+              </button>
+            </div>
+          } @else {
+            <!-- Empty state — user has sessions but none selected -->
+            <div class="empty-main">
+              <iconify-icon icon="solar:magic-stick-3-bold-duotone" width="64" class="text-muted"></iconify-icon>
+              <p class="text-muted mt-3 mb-0">{{ (sessions().length === 0 ? 'SESSIONS.No_Sessions_Loaded' : 'SESSIONS.Select or create') | translate }}</p>
+              <div class="d-flex gap-2 mt-3">
+                <button class="btn btn-primary" (click)="openCreateModal()" [appTooltip]="'SESSIONS.TOOLTIPS.Create new session' | translate">
+                  <iconify-icon icon="solar:add-circle-bold" width="16"></iconify-icon>
+                  {{ 'SESSIONS.New Session' | translate }}
+                </button>
+                @if (sessions().length === 0) {
+                  <button class="btn btn-outline-secondary" (click)="reloadApp()">
+                    <iconify-icon icon="solar:restart-bold" width="16"></iconify-icon>
+                    {{ 'SESSIONS.Reload_App' | translate }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        }
+        }
+      </div>
+
+    </div>
+  }
+
+  <!-- ═══ SESSIONS FIRST-RUN GUIDE (dedicated, separate from global tutorial) ═══ -->
+  <app-sessions-guide-overlay />
+
+  <!-- ═══ TAILER RESPONSE PREVIEW MODAL ═══ -->
+  @if (interactionService.tailerResponse(); as tr) {
+    <div class="tailer-preview-overlay" (click)="interactionService.dismissTailerResponse()">
+      <div class="tailer-preview-modal" (click)="$event.stopPropagation()">
+        <div class="tailer-preview-header">
+          <iconify-icon icon="solar:cpu-bolt-bold-duotone" width="18"></iconify-icon>
+          <span>{{ 'SESSIONS.VIEW.Tailer title' | translate }}</span>
+          <span class="tailer-preview-badge" [class.ai]="tr.type === 'ai'" [class.heuristic]="tr.type === 'heuristic'">
+            {{ tr.type }}
+          </span>
+          <button class="tailer-preview-close" (click)="interactionService.dismissTailerResponse()" [attr.aria-label]="'SESSIONS.VIEW.Close' | translate">
+            <iconify-icon icon="solar:close-circle-bold" width="16"></iconify-icon>
+          </button>
+        </div>
+        <div class="tailer-preview-body">
+          <label>{{ 'SESSIONS.VIEW.Tailer detected' | translate }}</label>
+          <pre class="tailer-detected">{{ tr.prompt }}</pre>
+          <label>{{ 'SESSIONS.VIEW.Tailer response' | translate }}</label>
+          <pre class="tailer-response">{{ formatTailerResponse(tr.response) }}</pre>
+        </div>
+        <div class="tailer-preview-actions">
+          <button class="btn btn-sm btn-outline-secondary" (click)="interactionService.dismissTailerResponse()">
+            {{ 'FORWARD_PORTS.Dismiss' | translate }}
+          </button>
+          <button class="btn btn-sm btn-primary" (click)="interactionService.injectTailerResponse()">
+            <iconify-icon icon="solar:play-bold" width="14"></iconify-icon>
+            {{ 'SESSIONS.VIEW.Inject' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ═══ Model picker overlay (#modelPickerOverlay) ═══
+       One instance for the whole page, positioned from the badge's rect at
+       click time. It lives outside every pane on purpose: panes are
+       overflow:hidden and, with 3+ sub-agents side by side, an in-pane menu
+       was clipped to a sliver. Fixed + a z-index above the expanded-pane
+       modal means it always reads in full, however narrow the terminal is. -->
+  @if (modelMenu(); as mm) {
+    <div class="tb-model-menu"
+         [style.left.px]="mm.left"
+         [style.top.px]="mm.top"
+         [style.bottom.px]="mm.bottom"
+         [style.width.px]="mm.width"
+         [style.max-height.px]="mm.maxHeight"
+         (click)="$event.stopPropagation()">
+      <div class="tb-model-menu-head">
+        <img [src]="getProviderLogo(mm.provider)" width="12" height="12" alt="" class="tb-model-logo" />
+        <span>{{ getProviderLabel(mm.provider) }}</span>
+      </div>
+      @if (mm.kind === 'effort') {
+        <div role="menu" [attr.aria-label]="'SESSIONS.MODEL.Effort tooltip' | translate">
+          @for (effort of terminalEffortOptions(mm.sessionId, mm.provider, mm.sa); track effort) {
+            <button class="tb-model-opt" role="menuitemradio"
+                    [attr.aria-checked]="terminalEffortLabel(mm.sessionId, mm.provider, mm.sa) === effort"
+                    [class.active]="terminalEffortLabel(mm.sessionId, mm.provider, mm.sa) === effort"
+                    (click)="applyEffort(mm.sessionId, mm.provider, mm.sa, effort, $event)">{{ effort }}</button>
+          }
+        </div>
+      } @else {
+      @for (m of modelOptions(mm.provider); track m.id) {
+        <button class="tb-model-opt"
+                [class.active]="sessionModels.runtimeModel(mm.sessionId) === m.id || sessionModels.switchingTo(mm.sessionId) === m.id"
+                (click)="applyModel(mm.sessionId, mm.sa, m.id, $event)">
+          {{ m.label }}
+        </button>
+      }
+      <!-- Same in-place restart as the limit modal, for THIS pane only. -->
+      <button class="tb-model-opt tb-model-switch" (click)="openSwitchProviderModal(mm, $event)">
+        <iconify-icon icon="solar:refresh-circle-bold-duotone" width="13"></iconify-icon>
+        {{ 'SESSIONS.MODEL.Switch provider' | translate }}
+      </button>
+      @if (modelOptions(mm.provider).length > 0) {
+        <div class="tb-model-menu-foot">{{ 'SESSIONS.MODEL.Menu hint' | translate }}</div>
+      }
+      @if (modelSwitchSavesDefault(mm.provider)) {
+        <!-- Claude saves the /model as the global default (settings.json):
+             the user knows it BEFORE choosing (UX audit 10/2026). -->
+        <div class="tb-model-menu-foot tb-model-default-warn">
+          <iconify-icon icon="solar:info-circle-linear" width="12"></iconify-icon>
+          {{ 'SESSIONS.MODEL.Saves default' | translate }}
+        </div>
+      }
+      }
+    </div>
+  }
+</div>

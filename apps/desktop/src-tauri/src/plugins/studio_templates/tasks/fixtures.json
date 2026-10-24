@@ -1,0 +1,20 @@
+{
+  "http": [
+    { "method": "GET", "url": "https://api.github.com/repos/*/issues/*/comments*", "body": [
+      { "id": 9001, "user": { "login": "marta" }, "body": "Reproduced on Safari 17. The redirect keeps the old session cookie.", "created_at": "2026-09-12T09:14:00Z" },
+      { "id": 9002, "user": { "login": "devon" }, "body": "Fix is in review.", "created_at": "2026-09-13T16:40:00Z" }
+    ] },
+    { "method": "GET", "url": "https://api.github.com/repos/*/issues?*", "body": [
+      { "number": 42, "title": "Login redirect loses the return URL", "body": "After signing in, people land on the home page instead of the page they came from.", "state": "open", "html_url": "https://github.com/octo-org/storefront/issues/42", "assignees": [{ "login": "devon" }], "labels": [{ "name": "bug" }, { "name": "auth" }], "updated_at": "2026-09-13T16:40:00Z" },
+      { "number": 45, "title": "Add CSV export to the orders page", "body": "Finance asks for a monthly export.", "state": "open", "html_url": "https://github.com/octo-org/storefront/issues/45", "assignees": [], "labels": [{ "name": "feature" }], "updated_at": "2026-09-10T08:02:00Z" },
+      { "number": 47, "title": "Checkout button is hidden on small screens", "body": "", "state": "open", "html_url": "https://github.com/octo-org/storefront/issues/47", "assignees": [{ "login": "marta" }], "labels": [{ "name": "bug" }, { "name": "mobile" }], "updated_at": "2026-09-14T11:25:00Z" },
+      { "number": 39, "title": "Upgrade payment SDK to v5", "body": "Done in release 3.2.", "state": "closed", "html_url": "https://github.com/octo-org/storefront/issues/39", "assignees": [{ "login": "devon" }], "labels": [{ "name": "chore" }], "updated_at": "2026-09-01T14:00:00Z" },
+      { "number": 40, "title": "This one is a pull request and must be skipped", "state": "open", "pull_request": {}, "html_url": "", "updated_at": "2026-09-01T14:00:00Z" }
+    ] },
+    { "method": "GET", "url": "https://api.github.com/repos/*/issues/*", "body":
+      { "number": 42, "title": "Login redirect loses the return URL", "body": "After signing in, people land on the home page instead of the page they came from.\n\nSteps:\n1. Open /orders while signed out\n2. Sign in\n3. You land on /", "state": "open", "html_url": "https://github.com/octo-org/storefront/issues/42", "assignees": [{ "login": "devon" }], "labels": [{ "name": "bug" }, { "name": "auth" }], "updated_at": "2026-09-13T16:40:00Z" } },
+    { "method": "PATCH", "url": "https://api.github.com/repos/*/issues/*", "body":
+      { "number": 42, "title": "Login redirect loses the return URL", "body": "", "state": "closed", "html_url": "https://github.com/octo-org/storefront/issues/42", "assignees": [], "labels": [], "updated_at": "2026-09-15T10:00:00Z" } },
+    { "method": "GET", "url": "https://api.github.com/user", "body": { "login": "fixture-user" } }
+  ]
+}

@@ -1,0 +1,13 @@
+// Dark mode values that Bootstrap keeps the same in both color modes.
+//
+// Bootstrap emits --promptops-light / --promptops-dark and the shared box
+// shadow once, for light mode. In dark mode the "light" surface is the raised
+// panel color and "dark" is near white, so .bg-light, .text-dark and the
+// card shadow keep their meaning on a dark canvas.
+:root[data-bs-theme=dark] {
+  --#{$prefix}light: #{$light-bg-subtle-dark};
+  --#{$prefix}light-rgb: #{to-rgb($light-bg-subtle-dark)};
+  --#{$prefix}dark: #{$body-tertiary-color-dark};
+  --#{$prefix}dark-rgb: #{to-rgb($body-tertiary-color-dark)};
+  --#{$prefix}box-shadow: 0px 0px 35px 0px rgba(26, 27, 34, 0.5);
+}

@@ -1,0 +1,216 @@
+// =============================================================================
+//  PromptOps Design Tokens — Linear/Raycast direction
+// -----------------------------------------------------------------------------
+//  Dark-first. Light mode derived. Brand hue 275° (indigo/purple — original
+//  PromptOps palette kept). Single source of truth for color, type,
+//  space, radius, motion. All tokens exposed as CSS custom properties
+//  (--po-*) inheritable everywhere, even inside the inline styles of Angular
+//  components. The anti-patterns (glass, brand gradient, glow) have been removed
+//  from the global layer, but the indigo brand hue is preserved.
+// =============================================================================
+
+:root {
+  // ── Fonts ────────────────────────────────────────────────────────────────
+  --po-font-display: "Instrument Sans Variable", "Instrument Sans", system-ui, sans-serif;
+  --po-font-body:    "Geist Variable", "Geist", system-ui, sans-serif;
+  --po-font-mono:    "Geist Mono Variable", "Geist Mono", "Cascadia Code", ui-monospace, monospace;
+
+  // ── Type scale (base 13px, ratio ~1.25, 5 step + xs/xl) ──────────────────
+  --po-text-xs:   0.6875rem;  // 11px — overline, label, meta
+  --po-text-sm:   0.75rem;    // 12px — secondary body, code inline
+  --po-text-base: 0.8125rem;  // 13px — body default (app UI density)
+  --po-text-md:   1rem;       // 16px — section header, tab label
+  --po-text-lg:   1.25rem;    // 20px — panel title
+  --po-text-xl:   1.5625rem;  // 25px — view title
+
+  // Font weights — Geist is variable 100-900
+  --po-weight-body:     350;  // dark body: reduced to compensate for perception
+  --po-weight-medium:   450;
+  --po-weight-semibold: 570;
+  --po-weight-bold:     680;
+
+  // Line heights
+  --po-leading-tight: 1.25;
+  --po-leading-body:  1.55;
+  --po-leading-loose: 1.7;
+
+  // ── Spacing (4pt scale) ──────────────────────────────────────────────────
+  --po-space-0: 0;
+  --po-space-1: 4px;
+  --po-space-2: 8px;
+  --po-space-3: 12px;
+  --po-space-4: 16px;
+  --po-space-5: 24px;
+  --po-space-6: 32px;
+  --po-space-7: 48px;
+  --po-space-8: 64px;
+
+  // ── Radius ───────────────────────────────────────────────────────────────
+  --po-radius-xs:   2px;   // hairline decorations
+  --po-radius-sm:   4px;   // badge, chip
+  --po-radius-md:   6px;   // button, input
+  --po-radius-lg:   8px;   // card, tab, panel header
+  --po-radius-xl:   12px;  // modal, popover, large surface
+  --po-radius-pill: 9999px;
+
+  // ── Motion ───────────────────────────────────────────────────────────────
+  --po-duration-instant: 100ms;
+  --po-duration-fast:    160ms;
+  --po-duration-base:    220ms;
+  --po-duration-slow:    360ms;
+  --po-ease-out:    cubic-bezier(0.25, 1, 0.5, 1);
+  --po-ease-in:     cubic-bezier(0.5, 0, 1, 0.5);
+  --po-ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+
+  // ── Z-index semantic ─────────────────────────────────────────────────────
+  --po-z-topbar:      100;
+  --po-z-sidebar:     90;
+  --po-z-dropdown:    1000;
+  --po-z-modal:       1050;
+  --po-z-toast:       1100;
+  --po-z-tooltip:     1200;
+  --po-z-overlay-cdk: 2000;
+
+  // ── Layout dims (referenceable from calc() instead of hardcoding) ──────────
+  --po-topbar-h:    50px;
+  --po-bottombar-h: 28px;
+}
+
+// =============================================================================
+//  DARK (default — desktop app locked to dark)
+// -----------------------------------------------------------------------------
+//  Values calibrated to keep the original PromptOps palette:
+//    #1e1f27 → bg-1,  #17181e → bg-0,  #232830 → bg-2,
+//    #4F46E5/#6366F1 → accent (indigo-500/600),
+//    #a5b4fc → accent-muted text,
+//    #3fb950 / #d29922 / #f85149 → semantic success/warning/error.
+// =============================================================================
+:root,
+[data-bs-theme="dark"] {
+  // Surfaces — indigo-tinted quasi-neutral (very low chroma, hue 275°).
+  --po-bg-0: oklch(13% 0.008 275);  // deepest canvas ≈ #17181e
+  --po-bg-1: oklch(17% 0.009 275);  // surface base (body)  ≈ #1e1f27
+  --po-bg-2: oklch(20% 0.010 275);  // elevated panel       ≈ #232830
+  --po-bg-3: oklch(24% 0.011 275);  // popover/modal        ≈ #2a2c33
+  --po-bg-4: oklch(28% 0.011 275);  // highlight row, hover
+
+  // Borders
+  --po-border-subtle: oklch(28% 0.010 275);
+  --po-border-strong: oklch(38% 0.012 275);
+
+  // Text — indigo-tinted neutrals (without overloading with high chroma)
+  --po-text-primary:   oklch(92% 0.008 275);  // body default     ≈ #e6e7f0
+  --po-text-secondary: oklch(72% 0.030 275);  // secondary labels ≈ #a5a8c2 (WCAG AA on bg-1)
+  --po-text-tertiary:  oklch(62% 0.020 275);  // hint/meta: ≥4.5:1 on bg-0…bg-3 (WCAG AA)
+
+  // Brand accent — PromptOps indigo (hue 275°, preserved from the template)
+  --po-accent:          oklch(62% 0.19 275);  // ≈ #6366F1 (indigo-500)
+  --po-accent-hover:    oklch(68% 0.19 275);  // lighter
+  --po-accent-active:   oklch(56% 0.19 275);  // ≈ #4F46E5 (indigo-600)
+  --po-accent-muted-bg: oklch(62% 0.19 275 / 14%);
+  --po-accent-on:       oklch(98% 0.005 275); // text on solid accent (near white)
+
+  // Semantic (close to the original hex values)
+  --po-success:   oklch(68% 0.18 145);  // ≈ #3fb950
+  --po-warning:   oklch(75% 0.16 75);   // ≈ #d29922
+  --po-error:     oklch(66% 0.20 25);   // ≈ #f85149
+  --po-info:      oklch(70% 0.13 245);  // ≈ #58a6ff
+  --po-success-bg: oklch(68% 0.18 145 / 15%);
+  --po-warning-bg: oklch(75% 0.16 75 / 15%);
+  --po-error-bg:   oklch(66% 0.20 25 / 15%);
+  --po-info-bg:    oklch(70% 0.13 245 / 15%);
+
+  // Bootstrap remap — the --bs-* point to the new tokens, components that
+  // use var(--bs-*) automatically pick up the new palette.
+  --bs-body-bg:       var(--po-bg-1);
+  --bs-body-color:    var(--po-text-primary);
+  --bs-secondary-bg:  var(--po-bg-2);
+  --bs-tertiary-bg:   var(--po-bg-3);
+  --bs-border-color:  var(--po-border-subtle);
+  --bs-primary:       var(--po-accent);
+  --bs-success:       var(--po-success);
+  --bs-warning:       var(--po-warning);
+  --bs-danger:        var(--po-error);
+  --bs-info:          var(--po-info);
+}
+
+// =============================================================================
+//  LIGHT (fallback web mode) — hue 275° for consistency with the indigo brand
+// =============================================================================
+[data-bs-theme="light"] {
+  --po-bg-0: oklch(99% 0.003 275);
+  --po-bg-1: oklch(97% 0.005 275);
+  --po-bg-2: oklch(94% 0.006 275);
+  --po-bg-3: oklch(100% 0 0);
+  --po-bg-4: oklch(91% 0.008 275);
+
+  --po-border-subtle: oklch(90% 0.008 275);
+  --po-border-strong: oklch(78% 0.012 275);
+
+  --po-text-primary:   oklch(18% 0.012 275);
+  --po-text-secondary: oklch(42% 0.015 275);
+  --po-text-tertiary:  oklch(50% 0.015 275);  // ≥4.5:1 on bg-0…bg-3 (WCAG AA)
+
+  --po-accent:          oklch(54% 0.20 275);  // ≈ #4F46E5
+  --po-accent-hover:    oklch(48% 0.20 275);
+  --po-accent-active:   oklch(42% 0.20 275);
+  --po-accent-muted-bg: oklch(54% 0.20 275 / 10%);
+  --po-accent-on:       oklch(99% 0.003 275);
+
+  --po-success:   oklch(49% 0.16 145);  // AA as text on the light surfaces
+  --po-warning:   oklch(50% 0.14 75);
+  --po-error:     oklch(52% 0.20 25);
+  --po-info:      oklch(56% 0.14 245);
+  --po-success-bg: oklch(49% 0.16 145 / 12%);
+  --po-warning-bg: oklch(50% 0.14 75 / 12%);
+  --po-error-bg:   oklch(52% 0.20 25 / 12%);
+  --po-info-bg:    oklch(56% 0.14 245 / 12%);
+}
+
+// =============================================================================
+//  Utility classes — status dot / surface tiers / modal / skeleton
+//  Used by components to remove hardcoded duplication.
+// =============================================================================
+
+.po-status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--po-radius-pill);
+  flex-shrink: 0;
+
+  &--running   { background: var(--po-success); }
+  &--idle      { background: var(--po-text-tertiary); }
+  &--waiting   { background: var(--po-warning); }
+  &--error     { background: var(--po-error); }
+  &--completed { background: var(--po-accent); }
+}
+
+.po-surface-0 { background: var(--po-bg-0); }
+.po-surface-1 { background: var(--po-bg-1); }
+.po-surface-2 { background: var(--po-bg-2); }
+.po-surface-3 { background: var(--po-bg-3); }
+
+.po-modal {
+  background: var(--po-bg-3);
+  border: 1px solid var(--po-border-strong);
+  border-radius: var(--po-radius-xl);
+  box-shadow: 0 20px 48px rgb(0 0 0 / 0.4);
+}
+
+.po-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--po-bg-2) 0%,
+    var(--po-bg-3) 50%,
+    var(--po-bg-2) 100%
+  );
+  background-size: 200% 100%;
+  animation: po-shimmer 1.4s var(--po-ease-in-out) infinite;
+  border-radius: var(--po-radius-md);
+}
+
+@keyframes po-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

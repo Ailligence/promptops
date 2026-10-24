@@ -1,0 +1,1457 @@
+<div class="action-center" [class.collapsed]="collapsed()" [class.composer-only]="composerOnly()">
+  @if (!composerOnly()) {
+  <div class="action-header" (click)="toggleCollapse()">
+    <h6 class="action-title">
+      <iconify-icon icon="solar:cpu-bolt-bold-duotone" width="16"></iconify-icon>
+      {{ 'SUBAGENTS.Sub-Agents' | translate }}
+      @if (activeAgents().length > 0) {
+        <span class="badge bg-success ms-1">{{ activeAgents().length }}</span>
+      }
+      @if (interactions().length > 0) {
+        <span class="badge bg-warning text-dark ms-1">{{ interactions().length }}</span>
+      }
+    </h6>
+    <iconify-icon
+      [icon]="collapsed() ? 'solar:alt-arrow-left-bold' : 'solar:alt-arrow-right-bold'"
+      width="16"
+      class="collapse-icon"
+    ></iconify-icon>
+  </div>
+
+  }
+  @if (!collapsed()) {
+    @if (!composerOnly()) {
+    @if (builtins.isOn('auto-approve')) {
+    <!-- Auto-Approve Toggle / Selection Mode Controls -->
+    <div class="auto-approve-bar" [class.active]="isActiveSessionAutoApproved()" [class.selecting]="aaSelectMode()">
+      @if (!aaSelectMode()) {
+        <button
+          class="btn-auto-approve"
+          [class.on]="isActiveSessionAutoApproved()"
+          (click)="toggleAutoApprove()"
+        >
+          <iconify-icon [icon]="isActiveSessionAutoApproved() ? 'solar:shield-warning-bold' : 'solar:shield-check-bold-duotone'" width="16"></iconify-icon>
+          <span class="btn-auto-approve-label">
+            {{ 'SESSIONS.AUTO_APPROVE.Label' | translate }}: {{ isActiveSessionAutoApproved() ? ('SESSIONS.AUTO_APPROVE.On' | translate) : ('SESSIONS.AUTO_APPROVE.Off' | translate) }}
+          </span>
+          <span class="badge-new">{{ 'SESSIONS.AUTO_APPROVE.New' | translate }}</span>
+        </button>
+
+        @if (isActiveSessionThinking()) {
+          <div class="aa-status-bar thinking">
+            <iconify-icon icon="solar:refresh-bold" width="13" class="spin"></iconify-icon>
+            {{ 'SESSIONS.AUTO_APPROVE.Thinking' | translate }}
+          </div>
+        } @else if (isActiveSessionAutoApproved()) {
+          <div class="aa-status-bar active">
+            <span class="aa-status-dot"></span>
+            {{ 'SESSIONS.AUTO_APPROVE.Active indicator' | translate }}
+          </div>
+        }
+      } @else {
+        <!-- Selection-mode controls: title + helper + cancel/apply -->
+        <div class="aa-select-inline">
+          <div class="aa-select-inline-head">
+            <iconify-icon icon="solar:shield-warning-bold" width="16"></iconify-icon>
+            <span class="aa-select-inline-title">{{ 'SESSIONS.AUTO_APPROVE.Enable inline' | translate }}</span>
+            @if (aaTotalCount() > 0) {
+              <span class="aa-select-inline-progress"
+                    [class.complete]="aaPickedCount() === aaTotalCount()"
+                    [appTooltip]="'SESSIONS.AUTO_APPROVE.Picked so far' | translate">
+                {{ aaPickedCount() }} / {{ aaTotalCount() }}
+              </span>
+            }
+          </div>
+          <p class="aa-select-inline-hint">
+            <iconify-icon icon="solar:cursor-bold" width="11"></iconify-icon>
+            {{ 'SESSIONS.AUTO_APPROVE.Pick hint' | translate }}
+          </p>
+          <div class="aa-select-inline-actions">
+            <button class="btn-aa-cancel" (click)="onCancelAutoApproveSelection.emit()">
+              {{ 'SESSIONS.Cancel' | translate }}
+            </button>
+            <button class="btn-aa-apply" (click)="onConfirmAutoApproveSelection.emit()">
+              <iconify-icon icon="solar:check-circle-bold" width="13"></iconify-icon>
+              {{ 'SESSIONS.SOFT_SKILL.Apply' | translate }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+    }
+
+    <div class="action-center-scroll">
+
+    <!-- Active Sub-Agents List -->
+    @if (activeAgents().length > 0) {
+      <div class="active-agents-section">
+        <h6 class="section-label">
+          <iconify-icon icon="solar:play-circle-bold" width="13"></iconify-icon>
+          {{ 'SESSIONS.Active' | translate }}
+        </h6>
+        @for (sa of activeAgents(); track sa.id) {
+          <div class="agent-card"
+               [class.agent-card-main]="isMainPane(sa.id)"
+               [class.active]="activeSubAgentId() === sa.id"
+               (click)="onSelectSubAgent.emit(sa)">
+            <div class="agent-card-left">
+              <img [src]="getProviderLogo(sa.provider)" width="14" height="14" alt="" class="provider-logo" [appTooltip]="getProviderLabel(sa.provider)" />
+              <div class="agent-card-info">
+                <span class="agent-card-title" [appTooltip]="sa.userPrompt || sa.autoPrompt">{{ sa.title }}</span>
+                @if (sa.status === 'waiting_input') {
+                  <span class="agent-attention-badge">
+                    <span class="agent-attention-dot"></span>
+                    {{ 'SESSIONS.Input required' | translate }}
+                  </span>
+                } @else {
+                  <span class="agent-card-status" [class]="'st-' + sa.status">{{ 'SESSIONS.Status ' + sa.status | translate }}</span>
+                }
+              </div>
+            </div>
+            <div class="agent-card-actions">
+              @if (ecoService.enabled()) {
+                <button
+                  class="btn-agent-eco"
+                  [class.eco-on]="ecoService.isActiveForSession(sa.sessionId)"
+                  (click)="ecoService.toggleSessionStandalone(sa.sessionId); $event.stopPropagation()"
+                  [appTooltip]="ecoService.isActiveForSession(sa.sessionId) ? ('SESSIONS.ACTION_CENTER.Eco on' | translate) : ('SESSIONS.ACTION_CENTER.Eco off' | translate)"
+                >
+                  <iconify-icon [icon]="ecoService.isActiveForSession(sa.sessionId) ? 'solar:leaf-bold' : 'solar:leaf-bold-duotone'" width="12"></iconify-icon>
+                </button>
+              }
+              <button
+                class="btn-agent-aa"
+                [class.aa-on]="isSubAgentAutoApproved(sa.sessionId)"
+                (click)="toggleSubAgentAutoApprove(sa.sessionId); $event.stopPropagation()"
+                [appTooltip]="isSubAgentAutoApproved(sa.sessionId) ? ('SESSIONS.AUTO_APPROVE.Agent on' | translate) : ('SESSIONS.AUTO_APPROVE.Agent off' | translate)"
+              >
+                <iconify-icon [icon]="isSubAgentAutoApproved(sa.sessionId) ? 'solar:shield-warning-bold' : 'solar:shield-check-bold-duotone'" width="12"></iconify-icon>
+              </button>
+              <!-- The main doesn't go on the bench: it isn't a backend sub-agent. -->
+              @if (!isMainPane(sa.id)) {
+                <button
+                  class="btn-agent-bench"
+                  [disabled]="subAgentService.benchFull()"
+                  (click)="subAgentService.bench(sa.id); $event.stopPropagation()"
+                  [appTooltip]="(subAgentService.benchFull() ? 'SESSIONS.TOOLTIPS.Bench full' : 'SESSIONS.TOOLTIPS.Bench sub-agent') | translate"
+                >
+                  <iconify-icon icon="solar:bed-bold-duotone" width="12"></iconify-icon>
+                </button>
+              }
+              <button class="btn-agent-close" (click)="onCloseAgent.emit(sa); $event.stopPropagation()" [appTooltip]="'SESSIONS.TOOLTIPS.Terminate sub-agent' | translate">
+                <iconify-icon icon="solar:close-circle-bold" width="12"></iconify-icon>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Bench (Panchinari) — sub-agents parked but still active -->
+    @if (subAgentService.benchedSubAgents().length > 0) {
+      <div class="bench-section">
+        <h6 class="section-label">
+          <iconify-icon icon="solar:bed-bold-duotone" width="13"></iconify-icon>
+          {{ 'SESSIONS.Benched' | translate }} ({{ subAgentService.benchedSubAgents().length }}/{{ subAgentService.MAX_BENCH }})
+        </h6>
+        @for (sa of subAgentService.benchedSubAgents(); track sa.id) {
+          <div class="agent-card benched"
+               [class.active]="activeSubAgentId() === sa.id"
+               (click)="onSelectSubAgent.emit(sa)">
+            <div class="agent-card-left">
+              <img [src]="getProviderLogo(sa.provider)" width="14" height="14" alt="" class="provider-logo" [appTooltip]="getProviderLabel(sa.provider)" />
+              <div class="agent-card-info">
+                <span class="agent-card-title" [appTooltip]="sa.userPrompt || sa.autoPrompt">{{ sa.title }}</span>
+                @if (sa.status === 'waiting_input') {
+                  <span class="agent-attention-badge">
+                    <span class="agent-attention-dot"></span>
+                    {{ 'SESSIONS.Input required' | translate }}
+                  </span>
+                } @else {
+                  <span class="agent-card-status" [class]="'st-' + sa.status">{{ 'SESSIONS.Status ' + sa.status | translate }}</span>
+                }
+              </div>
+            </div>
+            <div class="agent-card-actions">
+              <button
+                class="btn-agent-bench bench-back"
+                (click)="subAgentService.unbench(sa.id); $event.stopPropagation()"
+                [appTooltip]="'SESSIONS.TOOLTIPS.Bring back sub-agent' | translate"
+              >
+                <iconify-icon icon="solar:running-round-bold" width="12"></iconify-icon>
+              </button>
+              <button class="btn-agent-close" (click)="subAgentService.destroy(sa.id); $event.stopPropagation()" [appTooltip]="'SESSIONS.TOOLTIPS.Terminate sub-agent' | translate">
+                <iconify-icon icon="solar:close-circle-bold" width="12"></iconify-icon>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Pending Interactions -->
+    @if (interactions().length > 0) {
+      <div class="interactions-section">
+        <h6 class="section-label">
+          <iconify-icon icon="solar:bell-bold-duotone" width="13"></iconify-icon>
+          {{ 'SESSIONS.Pending Actions' | translate }}
+        </h6>
+        <div class="action-list">
+          @for (item of interactions(); track item.id) {
+            <div class="action-card">
+              @if (item.type === 'input_request') {
+                <div class="action-badge input">
+                  <iconify-icon icon="solar:chat-round-dots-bold" width="14"></iconify-icon>
+                  {{ 'SESSIONS.Input Request' | translate }}
+                </div>
+                @if (item.context?.length) {
+                  <div class="action-context">
+                    @for (line of item.context; track $index) {
+                      <div>{{ line }}</div>
+                    }
+                  </div>
+                }
+                <p class="action-prompt">{{ item.prompt }}</p>
+                @if (item.inputType === 'confirmation') {
+                  <div class="action-buttons">
+                    <button class="btn btn-sm btn-success" (click)="onApprove.emit(item.id)">{{ 'SESSIONS.Yes' | translate }}</button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="onDeny.emit(item.id)">{{ 'SESSIONS.No' | translate }}</button>
+                  </div>
+                } @else {
+                  <div class="action-input-row">
+                    <input
+                      #inputField
+                      type="text"
+                      class="form-control form-control-sm"
+                      [placeholder]="'SESSIONS.Type response' | translate"
+                      (keyup.enter)="onRespond.emit({ interactionId: item.id, value: inputField.value }); inputField.value = ''"
+                    />
+                    <button
+                      class="btn btn-sm btn-primary"
+                      (click)="onRespond.emit({ interactionId: item.id, value: inputField.value }); inputField.value = ''"
+                    >
+                      {{ 'SESSIONS.Send' | translate }}
+                    </button>
+                  </div>
+                }
+              } @else {
+                <div class="action-badge action">
+                  <iconify-icon icon="solar:shield-warning-bold" width="14"></iconify-icon>
+                  {{ 'SESSIONS.Action Request' | translate }}
+                </div>
+                @if (item.context?.length) {
+                  <div class="action-context">
+                    @for (line of item.context; track $index) {
+                      <div>{{ line }}</div>
+                    }
+                  </div>
+                }
+                <p class="action-prompt">{{ item.description }}</p>
+                @if (item.details?.['command']) {
+                  <code class="action-detail">{{ item.details?.['command'] }}</code>
+                }
+                @if (item.details?.['filePath']) {
+                  <code class="action-detail">{{ item.details?.['filePath'] }}</code>
+                }
+                <div class="action-buttons">
+                  <button class="btn btn-sm btn-success" (click)="onApprove.emit(item.id)">
+                    <iconify-icon icon="solar:check-circle-bold" width="14"></iconify-icon>
+                    {{ 'SESSIONS.Approve' | translate }}
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="onDeny.emit(item.id)">
+                    <iconify-icon icon="solar:close-circle-bold" width="14"></iconify-icon>
+                    {{ 'SESSIONS.Deny' | translate }}
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    </div><!-- end action-center-scroll -->
+    }
+
+    <!-- Spawn Composer (PINNED above bottom accordions) -->
+    @if (ff.canAccess('sub_agents')) {
+    <div class="create-agent-section">
+
+      <!-- Compact saved prompts, shared with Classic. -->
+      <section #quickActionsPanel class="quick-actions-mini" [attr.aria-label]="'SESSIONS.Quick Actions' | translate">
+        <div class="quick-actions-mini-header">
+          <span>{{ 'SESSIONS.Quick Actions' | translate }}</span>
+          <button type="button" (click)="openQuickCreatePrompt()" [appTooltip]="'QUICK_ACTION_BUILDER.Create title' | translate" [attr.aria-label]="'QUICK_ACTION_BUILDER.Create title' | translate" ><iconify-icon icon="solar:add-circle-linear" width="14"></iconify-icon></button>
+        </div>
+        <div class="quick-actions-mini-row">
+          <span class="quick-action-scope" [class.global]="slotService.scopeMode() === 'global'" (click)="$event.stopPropagation()" [appTooltip]="(slotService.scopeMode() === 'global' ? 'QUICK_ACTION_SCOPE.Global switch hint' : 'QUICK_ACTION_SCOPE.Session switch hint') | translate">
+            <iconify-icon [icon]="slotService.scopeMode() === 'global' ? 'solar:global-linear' : 'solar:window-frame-linear'" width="15"></iconify-icon>
+            <iconify-icon icon="solar:alt-arrow-down-linear" width="10"></iconify-icon>
+            <select [value]="slotService.scopeMode()" (change)="slotService.setScopeMode($any($event.target).value)" [attr.aria-label]="'QUICK_ACTION_SCOPE.Select scope' | translate">
+              <option value="session">{{ 'QUICK_ACTION_SCOPE.Session' | translate }}</option>
+              <option value="global">{{ 'QUICK_ACTION_SCOPE.Global' | translate }}</option>
+            </select>
+          </span>
+          <select [value]="selectedQuickSlot()?.id ?? ''" (change)="selectQuickSlot($any($event.target).value)" [disabled]="!slots().length || editingSlotId() !== null" [attr.aria-label]="'SESSIONS.Quick Actions' | translate" [title]="selectedQuickSlot()?.prompt?.title || selectedQuickSlot()?.label || ''">
+            @for (slot of slots(); track slot.id) {
+              <option [value]="slot.id">{{ slot.prompt?.title || slot.label }}</option>
+            } @empty {
+              <option value="">{{ 'SESSIONS.No action slots' | translate }}</option>
+            }
+          </select>
+          @if (selectedQuickSlot(); as slot) {
+            <button type="button" (click)="startEditing(slot, true)" [appTooltip]="'SESSIONS.TOOLTIPS.Edit prompt' | translate" [attr.aria-label]="'SESSIONS.TOOLTIPS.Edit prompt' | translate" [disabled]="!slot.prompt" [class.active]="editingSlotId() === slot.id" [attr.aria-expanded]="editingSlotId() === slot.id"><iconify-icon icon="solar:pen-2-linear" width="14"></iconify-icon></button>
+            <button type="button" (click)="spawnFromSlot(slot)" [appTooltip]="'SESSIONS.TOOLTIPS.Run prompt' | translate" [attr.aria-label]="'SESSIONS.TOOLTIPS.Run prompt' | translate" [disabled]="!activeSessionId() || !slot.prompt?.body || editingSlotId() !== null || runningSlotId() === slot.id" [class.active]="runningSlotId() === slot.id"><iconify-icon icon="solar:play-bold" width="14"></iconify-icon></button>
+          }
+        </div>
+        @if (selectedQuickSlot(); as slot) {
+          @if (editingSlotId() === slot.id) {
+            <div class="quick-actions-mini-editor">
+              <textarea class="slot-edit-textarea quick-actions-mini-textarea" [attr.aria-label]="'SESSIONS.TOOLTIPS.Edit prompt' | translate" [value]="editingBody()" (input)="editingBody.set($any($event.target).value)" (keydown.control.enter)="saveEditing(slot)" (keydown.meta.enter)="saveEditing(slot)" (keydown.escape)="cancelEditing()" rows="3"></textarea>
+              <div class="quick-actions-mini-footer">
+                <button type="button" class="delete-edit-action" (click)="removeSlot(slot.id)" [disabled]="deletingSlotId() !== null" [attr.aria-label]="'SESSIONS.TOOLTIPS.Remove action' | translate" [title]="'SESSIONS.TOOLTIPS.Remove action' | translate"><iconify-icon icon="solar:trash-bin-trash-linear" width="14"></iconify-icon>{{ 'BUTTONS.Delete' | translate }}</button>
+                <button type="button" (click)="cancelEditing()">{{ 'BUTTONS.Cancel' | translate }}</button>
+                <button type="button" (click)="saveEditing(slot)" [disabled]="!editingBody().trim()">{{ 'BUTTONS.Save' | translate }}</button>
+              </div>
+            </div>
+          }
+        }
+        @if (slotService.loadError()) {
+          <div class="quick-actions-mini-row">
+            <small>{{ 'QUICK_ACTION_SCOPE.Load error' | translate }}</small>
+            <button type="button" (click)="slotService.loadSlots()" [attr.aria-label]="'QUICK_ACTION_SCOPE.Retry' | translate"><iconify-icon icon="solar:refresh-linear" width="12"></iconify-icon></button>
+          </div>
+        }
+      </section>
+
+      <!-- Quick git commit — detached minimal bar above the whole spawn block (minimal UI only).
+           Always shown while a git repo is detected (NOT gated on totalChanges): the bar must
+           stay put when the repo is clean so Push remains reachable after a commit, instead of
+           the whole bar vanishing. Reads as idle (.clean) when there's nothing to commit. -->
+      @if (git.isRepo()) {
+        <div class="quick-commit-bar" [class.clean]="!git.totalChanges()">
+          <!-- Multi-repo workspace: pick which repo the bar targets. Kept in sync
+               (and persisted per workspace) with the Git Explorer's repo switcher. -->
+          @if (git.discoveredRepos().length > 1) {
+            <div class="quick-commit-repo">
+              <iconify-icon icon="mdi:source-repository" width="12"></iconify-icon>
+              <select
+                class="quick-commit-repo-select"
+                [appTooltip]="'SESSIONS.ACTION_CENTER.Switch repository' | translate"
+                [attr.aria-label]="'SESSIONS.ACTION_CENTER.Switch repository' | translate"
+                (change)="onQuickRepoSwitch($any($event.target).value)"
+              >
+                @for (repo of git.discoveredRepos(); track repo.path) {
+                  <option [value]="repo.path" [selected]="repo.path === git.activeRepoPath()">{{ repo.name }}</option>
+                }
+              </select>
+            </div>
+          }
+          <!-- Input row: the AI "generate message" wand is pinned top-right INSIDE the
+               textarea zone (same pattern as the composer's enhance button), so it sits
+               on the input line instead of crowding the action row below. -->
+          <div class="quick-commit-input-zone">
+            <textarea
+              class="quick-commit-input"
+              [class.generating]="git.generatingMessage()"
+              rows="2"
+              [placeholder]="(git.generatingMessage() ? 'SESSIONS.ACTION_CENTER.Generating commit message' : (git.totalChanges() ? 'SESSIONS.ACTION_CENTER.Quick commit' : 'SESSIONS.ACTION_CENTER.No changes')) | translate"
+              [value]="git.commitMessage()"
+              [disabled]="git.generatingMessage()"
+              (focus)="quickRefresh()"
+              (input)="git.commitMessage.set($any($event.target).value)"
+              (keydown.enter)="onQuickCommitEnter($event)"
+            ></textarea>
+            <button
+              type="button"
+              class="quick-commit-icon quick-commit-ai-floating"
+              [disabled]="git.generatingMessage() || !git.totalChanges()"
+              (click)="quickGenerateMessage()"
+              [appTooltip]="'SESSIONS.TOOLTIPS.AI commit message' | translate"
+            >
+              <iconify-icon [icon]="git.generatingMessage() ? 'mdi:refresh' : 'solar:magic-stick-3-bold-duotone'" width="13" [class.spinning]="git.generatingMessage()"></iconify-icon>
+            </button>
+          </div>
+          <div class="quick-commit-row">
+            <button
+              type="button"
+              class="quick-commit-branch"
+              (click)="onOpenGitExplorer.emit()"
+              [appTooltip]="'SESSIONS.TOOLTIPS.Git history' | translate"
+            >
+              <iconify-icon icon="mdi:git" width="12"></iconify-icon>
+              <span class="quick-commit-branch-name">{{ git.branch() || 'git' }}</span>
+            </button>
+            <button
+              type="button"
+              class="quick-commit-go"
+              [disabled]="!git.commitMessage().trim() || git.committing() || !git.totalChanges()"
+              (click)="quickCommit()"
+              [appTooltip]="'SESSIONS.TOOLTIPS.Stage commit' | translate"
+            >
+              <iconify-icon [icon]="git.committing() ? 'mdi:refresh' : 'mdi:check'" width="13" [class.spinning]="git.committing()"></iconify-icon>
+              <span class="quick-commit-total">{{ git.addedCount() + git.modifiedCount() + git.deletedCount() }}</span>
+              <span class="quick-commit-label">{{ 'SESSIONS.ACTION_CENTER.Stage commit' | translate }}</span>
+              <span class="quick-commit-counts">
+                @if (git.addedCount() > 0) {
+                  <span class="qc-count qc-added"><iconify-icon icon="mdi:plus" width="11"></iconify-icon>{{ git.addedCount() }}</span>
+                }
+                @if (git.modifiedCount() > 0) {
+                  <span class="qc-count qc-modified"><iconify-icon icon="mdi:pencil" width="11"></iconify-icon>{{ git.modifiedCount() }}</span>
+                }
+                @if (git.deletedCount() > 0) {
+                  <span class="qc-count qc-deleted"><iconify-icon icon="mdi:minus" width="11"></iconify-icon>{{ git.deletedCount() }}</span>
+                }
+              </span>
+            </button>
+            <button
+              type="button"
+              class="quick-commit-icon"
+              [disabled]="git.pushing()"
+              (click)="quickPush()"
+              [appTooltip]="'SESSIONS.TOOLTIPS.Push' | translate"
+            >
+              <iconify-icon icon="mdi:arrow-up-bold" width="13" [class.spinning]="git.pushing()"></iconify-icon>
+            </button>
+            <button
+              type="button"
+              class="quick-commit-icon"
+              (click)="gitSettings.open()"
+              [appTooltip]="'SESSIONS.ACTION_CENTER.Git settings' | translate"
+              [attr.aria-label]="'SESSIONS.ACTION_CENTER.Git settings' | translate"
+            >
+              <iconify-icon icon="mdi:cog-outline" width="13"></iconify-icon>
+            </button>
+          </div>
+          @if (git.commitError() || git.generateError() || git.syncError()) {
+            <div class="quick-commit-error" [title]="git.commitError() || git.generateError() || git.syncError()">
+              <iconify-icon icon="mdi:alert-circle-outline" width="12"></iconify-icon>
+              <span>{{ git.commitError() || git.generateError() || git.syncError() }}</span>
+              @if (git.commitError() || git.syncError()) {
+                <button
+                  type="button"
+                  class="quick-commit-ai-resolver"
+                  [disabled]="git.aiResolving()"
+                  (click)="aiResolveQuick()"
+                  [appTooltip]="'SESSIONS.GIT_PANEL.AI resolver hint' | translate"
+                >
+                  <iconify-icon icon="solar:magic-stick-3-bold-duotone" width="12" [class.spinning]="git.aiResolving()"></iconify-icon>
+                  {{ (git.aiResolving() ? 'SESSIONS.GIT_PANEL.Resolving' : 'SESSIONS.GIT_PANEL.AI resolver') | translate }}
+                </button>
+              }
+            </div>
+          }
+          <!-- AI Resolver activity — same live phase + checked steps as the git explorer.
+               Standalone so it survives the error banner clearing on success. -->
+          @if (git.aiResolving() || git.aiResolveSteps().length > 0) {
+            <div class="quick-commit-ai-log">
+              @if (git.aiResolving()) {
+                <div class="qc-ai-working">
+                  <iconify-icon icon="solar:magic-stick-3-bold-duotone" width="12" class="spinning"></iconify-icon>
+                  <span>{{ git.aiResolvePhase() || ('SESSIONS.GIT_PANEL.Working on it' | translate) }}</span>
+                  <span class="qc-ai-dots"><i></i><i></i><i></i></span>
+                </div>
+              }
+              @for (s of git.aiResolveSteps(); track $index) {
+                <div class="qc-ai-step done">
+                  <iconify-icon icon="mdi:check" width="11"></iconify-icon>
+                  <span>{{ s }}</span>
+                </div>
+              }
+            </div>
+          }
+          <!-- Resolver outcome only — scoped to when the AI resolver produced steps,
+               so normal quick push/pull success toasts don't leak into this bar. -->
+          @if (git.syncSuccess() && git.aiResolveSteps().length > 0) {
+            <div class="quick-commit-success">
+              <iconify-icon icon="mdi:check-circle" width="12"></iconify-icon>
+              <span>{{ git.syncSuccess() }}</span>
+            </div>
+          }
+        </div>
+      }
+
+      <div class="spawn-composer" [class.composer-voice-listening]="voiceState() === 'listening'" [class.composer-enhancing]="enhancing()">
+
+        <!-- Row 1 — mode · pen · custom config · plugins & skills -->
+        <div class="composer-tier tier-primary">
+          <div class="tier-controls">
+            <!-- Mode selector — custom dropdown so per-mode colors render on every OS
+                 (native <select> popups ignore option colors on macOS). -->
+            <!-- Soft skill / mode chip — quick selector (saved soft skills first,
+                 then the built-in modes). Custom dropdown so per-mode colors
+                 render on every OS (native <select> popups ignore option colors
+                 on macOS). The pen next to it opens the Soft skill modal. -->
+            <div
+              class="meta-chip mode-chip"
+              [class.disabled]="showCustomConfig()"
+              [class.open]="modeMenuOpen()"
+              [class.soft-skill]="!!selectedSoftSkill()"
+              [style.--mode-color]="currentModeColor()"
+              [appTooltip]="modeMenuOpen() ? '' : currentModeTooltip()"
+            >
+              <button type="button" class="mode-chip-trigger" (click)="toggleModeMenu($event)" [attr.aria-label]="'SESSIONS.SOFT_SKILL.Chip label' | translate">
+                <iconify-icon [icon]="currentModeIcon()" width="14"></iconify-icon>
+                <span class="mode-chip-label">{{ currentModeLabel() }}</span>
+                <iconify-icon class="mode-chip-caret" icon="solar:alt-arrow-down-linear" width="12"></iconify-icon>
+              </button>
+              @if (modeMenuOpen()) {
+                <div class="mode-menu" role="listbox">
+                  @if (softSkills().length > 0) {
+                    <div class="mode-menu-group">{{ 'SESSIONS.SOFT_SKILL.Menu skills' | translate }}</div>
+                    @for (s of softSkills(); track s.id) {
+                      <button
+                        type="button"
+                        role="option"
+                        class="mode-menu-item"
+                        [class.selected]="selectedSoftSkill()?.id === s.id"
+                        [style.--item-color]="'#a78bfa'"
+                        (click)="selectSoftSkillFromMenu(s)"
+                      >
+                        <iconify-icon [icon]="s.icon" width="14"></iconify-icon>
+                        <span class="mode-menu-label">{{ s.name }}</span>
+                        <span class="mode-menu-hint">{{ modeLabelOf(s.baseMode) }}</span>
+                      </button>
+                    }
+                    <div class="mode-menu-group">{{ 'SESSIONS.SOFT_SKILL.Menu modes' | translate }}</div>
+                  }
+                  @for (m of allModesList; track m.mode) {
+                    <button
+                      type="button"
+                      role="option"
+                      class="mode-menu-item"
+                      [class.selected]="!selectedSoftSkill() && m.mode === selectedMode()"
+                      [style.--item-color]="m.color"
+                      (click)="selectedSoftSkill.set(null); selectModeFromMenu(m.mode)"
+                    >
+                      <iconify-icon [icon]="m.iconify" width="14"></iconify-icon>
+                      <span class="mode-menu-label">{{ m.label }}</span>
+                      <span class="mode-menu-hint">{{ m.hint }}</span>
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+            <!-- Pen — create / edit a soft skill (+ Plugins · Skills · MCP picker) -->
+            <button
+              type="button"
+              class="meta-chip boost-chip config-icon skill-pen"
+              [class.active]="!!selectedSoftSkill()"
+              (click)="openSoftSkillModal($event)"
+              [appTooltip]="'SESSIONS.SOFT_SKILL.Pen tooltip' | translate"
+            >
+              <iconify-icon icon="solar:pen-2-linear" width="14"></iconify-icon>
+            </button>
+            <!-- Custom config — icon-only, pinned right -->
+            <button
+              type="button"
+              class="meta-chip boost-chip config-icon"
+              [class.active]="showCustomConfig()"
+              (click)="toggleCustomConfig()"
+              [appTooltip]="'SESSIONS.MODE.Custom config' | translate"
+            >
+              <iconify-icon [icon]="showCustomConfig() ? 'solar:tuning-2-bold' : 'solar:tuning-2-linear'" width="14"></iconify-icon>
+            </button>
+            <!-- Plugins & Skills — icon-only like the pen and the tuning, count badge when something is injected -->
+            <button
+              type="button"
+              class="meta-chip boost-chip config-icon plugins-chip"
+              [class.active]="injectedCount() > 0"
+              (click)="openInjectModal()"
+              [appTooltip]="'INJECT.Plugins and Skills' | translate"
+            >
+              <iconify-icon icon="solar:plug-circle-bold-duotone" width="14"></iconify-icon>
+              @if (injectedCount() > 0) {
+                <span class="plugins-btn-badge">{{ injectedCount() }}</span>
+              }
+            </button>
+          </div>
+        </div>
+
+        @if (runtimeRowVisible()) {
+        <!-- Dashed divider -->
+        <div class="composer-divider"></div>
+
+        <!-- Row 2 — 50% Squad · 50% Worker -->
+        <div class="composer-tier tier-split">
+          <div class="tier-controls">
+            @if (builtins.isOn('ai-squad')) {
+            <button
+              type="button"
+              class="meta-chip boost-chip squad-chip"
+              (click)="onOpenIntent.emit()"
+              [appTooltip]="'SESSIONS.INTENT.Cta tooltip' | translate"
+            >
+              <iconify-icon icon="fluent:people-team-24-filled" width="13"></iconify-icon>
+              <span class="boost-chip-label">{{ 'SESSIONS.INTENT.Cta title' | translate }}</span>
+            </button>
+            }
+            <!-- Goal runtime toggle — autonomous evaluate-vs-goal loop on a worker -->
+            @if (goalSupported && builtins.isOn('goal')) {
+              <button
+                type="button"
+                class="meta-chip worker-chip goal-chip"
+                [class.active]="goalMode()"
+                (click)="toggleGoalMode()"
+                [appTooltip]="'SESSIONS.ACTION_CENTER.Goal hint' | translate"
+              >
+                <span class="chip-toggle-knob"></span>
+                <span class="chip-toggle-label">
+                  <iconify-icon class="chip-toggle-icon" icon="solar:target-bold-duotone" width="14"></iconify-icon>
+                  <span class="chip-toggle-text">{{ 'SESSIONS.ACTION_CENTER.Goal' | translate }}</span>
+                </span>
+              </button>
+            }
+            <!-- Worker runtime toggle — headless turn loop instead of a PTY -->
+            @if (builtins.isOn('worker')) {
+            <button
+              type="button"
+              class="meta-chip worker-chip"
+              [class.active]="workerMode()"
+              (click)="toggleWorkerMode()"
+              [appTooltip]="'SESSIONS.HELP.Worker desc' | translate"
+            >
+              <span class="chip-toggle-knob"></span>
+              <span class="chip-toggle-label">
+                <iconify-icon class="chip-toggle-icon" icon="solar:bolt-circle-bold-duotone" width="14"></iconify-icon>
+                <span class="chip-toggle-text">{{ 'SESSIONS.ACTION_CENTER.Worker' | translate }}</span>
+              </span>
+            </button>
+            }
+            @if (pluginRuntime.available) {
+              <!-- Plugin buttons in the AI Squad, Goal and Worker row (place: runtime). -->
+              <app-plugin-session-buttons variant="chip" place="runtime" paneAgentId="main"
+                [sessionId]="activeSessionId()" [sessionName]="activeSession()?.name ?? ''" [provider]="activeSession()?.provider ?? ''"
+                [sessionStatus]="activeSession()?.status ?? ''" [composerText]="newAgentPrompt()" (insertText)="onPluginInsert($event)" />
+            }
+          </div>
+        </div>
+        }
+
+        @if (ff.canAccess('sub_agents') && showCustomConfig()) {
+          <div class="custom-config-panel">
+            <div class="config-row">
+              <span class="config-label">
+                <iconify-icon icon="solar:question-circle-linear" width="11" class="config-hint" [appTooltip]="'SESSIONS.MODE.Reasoning hint' | translate"></iconify-icon>
+                {{ 'SESSIONS.MODE.Reasoning' | translate }}
+              </span>
+              <select class="config-select" [value]="customReasoningDepth()" (change)="customReasoningDepth.set($any($event.target).value)">
+                <option value="LOW">LOW</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="HIGH">HIGH</option>
+                <option value="MAX">MAX</option>
+              </select>
+            </div>
+            <div class="config-row">
+              <span class="config-label">
+                <iconify-icon icon="solar:question-circle-linear" width="11" class="config-hint" [appTooltip]="'SESSIONS.MODE.Verbosity hint' | translate"></iconify-icon>
+                {{ 'SESSIONS.MODE.Verbosity' | translate }}
+              </span>
+              <select class="config-select" [value]="customVerbosity()" (change)="customVerbosity.set($any($event.target).value)">
+                <option value="ZERO">ZERO</option>
+                <option value="MINIMAL">MINIMAL</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="STRUCTURED">STRUCTURED</option>
+              </select>
+            </div>
+            <div class="config-row">
+              <span class="config-label">
+                <iconify-icon icon="solar:question-circle-linear" width="11" class="config-hint" [appTooltip]="'SESSIONS.MODE.Exploration hint' | translate"></iconify-icon>
+                {{ 'SESSIONS.MODE.Exploration' | translate }}
+              </span>
+              <select class="config-select" [value]="customExploration()" (change)="customExploration.set($any($event.target).value)">
+                <option value="NONE">NONE</option>
+                <option value="LOW">LOW</option>
+                <option value="FOCUSED">FOCUSED</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="HIGH">HIGH</option>
+                <option value="EXTREME">EXTREME</option>
+              </select>
+            </div>
+            <div class="config-row">
+              <span class="config-label">
+                <iconify-icon icon="solar:question-circle-linear" width="11" class="config-hint" [appTooltip]="'SESSIONS.MODE.Speed hint' | translate"></iconify-icon>
+                {{ 'SESSIONS.MODE.Speed' | translate }}
+              </span>
+              <select class="config-select" [value]="customSpeedPriority()" (change)="customSpeedPriority.set($any($event.target).value)">
+                <option value="LOW">LOW</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="HIGH">HIGH</option>
+                <option value="MAX">MAX</option>
+              </select>
+            </div>
+            <div class="config-row">
+              <span class="config-label">
+                <iconify-icon icon="solar:question-circle-linear" width="11" class="config-hint" [appTooltip]="'SESSIONS.MODE.Risk hint' | translate"></iconify-icon>
+                {{ 'SESSIONS.MODE.Risk' | translate }}
+              </span>
+              <select class="config-select" [value]="customRiskTolerance()" (change)="customRiskTolerance.set($any($event.target).value)">
+                <option value="ZERO">ZERO</option>
+                <option value="LOW">LOW</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="HIGH">HIGH</option>
+              </select>
+            </div>
+            <!-- Plugins & Skills — opens the same selector used in classic mode -->
+            <div class="config-divider"></div>
+            <button
+              type="button"
+              class="config-extensions-row"
+              [class.has-selection]="injectedCount() > 0"
+              (click)="openInjectModal()"
+            >
+              <span class="config-label">
+                <iconify-icon icon="solar:plug-circle-bold-duotone" width="12"></iconify-icon>
+                {{ 'INJECT.Plugins and Skills' | translate }}
+              </span>
+              <span class="config-extensions-meta">
+                @if (injectedCount() > 0) {
+                  <span class="config-extensions-count">{{ injectedCount() }}</span>
+                }
+                <iconify-icon icon="solar:alt-arrow-right-linear" width="12"></iconify-icon>
+              </span>
+            </button>
+          </div>
+        }
+
+        <!-- ③ Prompt — the textarea, raised with breathing room above -->
+        <div class="composer-input-wrapper composer-prompt-zone">
+          <!-- Enhance (magic wand) — pinned top-right of the input -->
+          <button
+            type="button"
+            class="tool-btn enhance-btn enhance-btn-floating"
+            [class.active]="showEnhanceDepthPicker()"
+            [disabled]="!newAgentPrompt().trim() || enhancing()"
+            (click)="onEnhanceSpawnClick($event)"
+            [appTooltip]="'SESSIONS.ACTION_CENTER.Enhance prompt' | translate"
+            [attr.aria-label]="'SESSIONS.ACTION_CENTER.Enhance prompt' | translate"
+          >
+            @if (enhancing()) {
+              <div class="enhance-spinner"></div>
+            } @else {
+              <iconify-icon icon="solar:magic-stick-3-bold-duotone" width="14"></iconify-icon>
+            }
+          </button>
+          <textarea
+            #promptTextarea
+            class="composer-input"
+            [class.enhancing]="enhancing()"
+            [placeholder]="(newAgentProvider() === 'generic-shell' ? 'SESSIONS.Shell placeholder' : 'SESSIONS.Agent placeholder') | translate"
+            rows="1"
+            [value]="newAgentPrompt()"
+            [disabled]="enhancing()"
+            (input)="onPromptInput($event)"
+            (paste)="onPromptPaste($event)"
+            (keydown.enter)="onComposerEnter($event)"
+          ></textarea>
+          <app-mention-autocomplete
+            [textareaRef]="promptTextareaEl()"
+            [workspacePath]="activeWorkspacePathValue()"
+          ></app-mention-autocomplete>
+          <app-command-autocomplete
+            [textareaRef]="promptTextareaEl()"
+            [workspacePath]="activeWorkspacePathValue()"
+            [enabled]="true"
+          ></app-command-autocomplete>
+          @if (showEnhanceDepthPicker() && !enhancing()) {
+            <div class="enhance-depth-popover" (click)="$event.stopPropagation()">
+              <div class="enhance-depth-title">{{ 'SESSIONS.INTENT.Depth title' | translate }}</div>
+              <div class="enhance-depth-options">
+                @for (opt of enhanceDepthOptions; track opt.value) {
+                  <button
+                    class="enhance-depth-option"
+                    type="button"
+                    (click)="runEnhanceSpawn(opt.value)"
+                    [title]="opt.hintKey | translate"
+                  >
+                    <iconify-icon [icon]="opt.icon" width="16"></iconify-icon>
+                    <span class="enhance-depth-label">{{ opt.labelKey | translate }}</span>
+                    <span class="enhance-depth-hint">{{ opt.hintKey | translate }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Toolbar — two stacked rows (provider/model/attach · plugins/resume/accounts/voice)
+             with the Spawn button spanning both on the right. -->
+        <div class="composer-toolbar">
+          <div class="toolbar-main">
+            <div class="toolbar-row toolbar-row-top">
+            <!-- Provider — logo icon that opens a custom dropdown with per-provider logos
+                 (native <select> popups can't render option icons). -->
+            <div
+              class="tool-btn provider-tool"
+              [class.open]="providerMenuOpen()"
+              [appTooltip]="providerMenuOpen() ? '' : getProviderLabel(newAgentProvider())"
+            >
+              <!-- mousedown.preventDefault: keep focus in the prompt textarea, so
+                   opening/picking never triggers a blur-driven re-render that
+                   could unmount the menu between mousedown and click. -->
+              <button type="button" class="provider-trigger" (mousedown)="$event.preventDefault()" (click)="toggleProviderMenu($event)">
+                <!-- The picked logo shows at once; the CLI probe only adds a ring
+                     around it. Hiding the logo behind a spinner read as "not
+                     selected" whenever the IPC round-trip lagged. -->
+                <span class="provider-logo-wrap">
+                  <img [src]="getProviderLogo(newAgentProvider())" class="provider-logo" alt="" />
+                  @if (providerChecking()) {
+                    <span class="provider-logo-spinner" role="status" [attr.aria-label]="'SESSIONS.ACTION_CENTER.Checking provider' | translate"></span>
+                  }
+                </span>
+                <iconify-icon icon="solar:alt-arrow-down-linear" width="9" class="provider-caret"></iconify-icon>
+              </button>
+              @if (providerMenuOpen()) {
+                <div class="provider-menu" role="listbox">
+                  @for (p of spawnProviderList; track p.value) {
+                    <button
+                      type="button"
+                      role="option"
+                      class="provider-menu-item"
+                      [class.selected]="p.value === newAgentProvider()"
+                      (mousedown)="$event.preventDefault()"
+                      (click)="selectProvider(p.value)"
+                    >
+                      <img [src]="getProviderLogo(p.value)" class="provider-menu-logo" alt="" />
+                      <span class="provider-menu-label">{{ p.labelKey | translate }}</span>
+                      @if (p.value === newAgentProvider()) {
+                        <iconify-icon class="provider-menu-check" icon="solar:check-circle-bold" width="13"></iconify-icon>
+                      }
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+            <!-- Model quick-switch — Claude / Codex only; spawns directly with the picked model -->
+            @if (spawnModelOptions().length > 0) {
+              <div
+                class="tool-btn provider-tool model-tool"
+                [class.open]="modelMenuOpen()"
+                [appTooltip]="modelMenuOpen() ? '' : ('SESSIONS.Model' | translate)"
+              >
+                <button type="button" class="provider-trigger" (click)="toggleModelMenu($event)">
+                  <span class="model-chip-label">{{ currentModelLabel() }}</span>
+                  <iconify-icon icon="solar:alt-arrow-down-linear" width="9" class="provider-caret"></iconify-icon>
+                </button>
+                @if (modelMenuOpen()) {
+                  <div class="provider-menu model-menu" role="listbox">
+                    <button
+                      type="button"
+                      role="option"
+                      class="provider-menu-item"
+                      [class.selected]="!newAgentModel()"
+                      (click)="selectModel(null)"
+                    >
+                      <span class="provider-menu-label">{{ 'SESSIONS.ACTION_CENTER.Auto' | translate }}</span>
+                      @if (!newAgentModel()) {
+                        <iconify-icon class="provider-menu-check" icon="solar:check-circle-bold" width="13"></iconify-icon>
+                      }
+                    </button>
+                    @for (m of spawnModelOptions(); track m.id) {
+                      <button
+                        type="button"
+                        role="option"
+                        class="provider-menu-item"
+                        [class.selected]="m.id === newAgentModel()"
+                        (click)="selectModel(m.id)"
+                      >
+                        <span class="provider-menu-label">{{ m.label }}</span>
+                        @if (m.id === newAgentModel()) {
+                          <iconify-icon class="provider-menu-check" icon="solar:check-circle-bold" width="13"></iconify-icon>
+                        }
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            }
+            @if (effortOptions().length > 0) {
+              <div class="tool-btn provider-tool model-tool effort-tool" [class.open]="effortMenuOpen()"
+                   [appTooltip]="effortMenuOpen() ? '' : ('SESSIONS.ACTION_CENTER.Effort' | translate: { level: ((effortLabels[selectedEffort() ?? ''] ?? 'SESSIONS.ACTION_CENTER.Auto') | translate) })">
+                <button type="button" class="provider-trigger" aria-haspopup="menu"
+                        [attr.aria-expanded]="effortMenuOpen()"
+                        [attr.aria-label]="'SESSIONS.ACTION_CENTER.Effort' | translate: { level: ((effortLabels[selectedEffort() ?? ''] ?? 'SESSIONS.ACTION_CENTER.Auto') | translate) }"
+                        (click)="toggleEffortMenu($event)">
+                  <span class="model-chip-label effort-full">{{ (effortLabels[selectedEffort() ?? ''] ?? 'SESSIONS.ACTION_CENTER.Auto') | translate }}</span>
+                  <span class="model-chip-label effort-short" aria-hidden="true">{{ effortShortLabels[selectedEffort() ?? ''] ?? 'A' }}</span>
+                  <iconify-icon icon="solar:alt-arrow-down-linear" width="9" class="provider-caret"></iconify-icon>
+                </button>
+                @if (effortMenuOpen()) {
+                  <div class="provider-menu effort-menu" role="menu">
+                    <button type="button" role="menuitemradio" class="provider-menu-item"
+                            [attr.aria-checked]="!selectedEffort()" [class.selected]="!selectedEffort()" (click)="selectEffort('')">{{ 'SESSIONS.ACTION_CENTER.Auto' | translate }}</button>
+                    @for (effort of effortOptions(); track effort) {
+                      <button type="button" role="menuitemradio" class="provider-menu-item"
+                              [attr.aria-checked]="selectedEffort() === effort" [class.selected]="selectedEffort() === effort"
+                              (click)="selectEffort(effort)">
+                        <span class="provider-menu-label">{{ effortLabels[effort] | translate }}</span>
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            }
+            <!-- Attach image — uploads into .promptops-assets/ and inserts the path -->
+            <input
+              #imageFileInput
+              type="file"
+              accept="image/*"
+              multiple
+              hidden
+              (change)="onAttachImagesSelected($event)"
+            />
+            <button
+              type="button"
+              class="tool-btn attach-btn"
+              (click)="triggerImageAttach()"
+              [disabled]="!activeSessionId() || !activeWorkspacePathValue() || attachingImage()"
+              [appTooltip]="'SESSIONS.Attach image' | translate"
+            >
+              @if (attachingImage()) {
+                <iconify-icon icon="solar:refresh-bold" width="14" class="spin"></iconify-icon>
+              } @else {
+                <iconify-icon icon="solar:paperclip-bold-duotone" width="14"></iconify-icon>
+              }
+            </button>
+            </div>
+            <div class="toolbar-row toolbar-row-bottom">
+            <button
+              type="button"
+              class="tool-btn resume-btn"
+              (click)="openResumeModal()"
+              [disabled]="!activeSessionId()"
+              [appTooltip]="'SUBAGENTS.Resume a previously closed sub-agent session' | translate"
+            >
+              <iconify-icon icon="solar:history-bold" width="14"></iconify-icon>
+            </button>
+            <button
+              type="button"
+              class="tool-btn todo-btn"
+              (click)="onOpenTodos.emit()"
+              [disabled]="!activeSessionId()"
+              [appTooltip]="'TODOS.Open list' | translate"
+            >
+              <iconify-icon icon="solar:checklist-minimalistic-bold" width="14"></iconify-icon>
+            </button>
+            <po-provider-account-switcher
+              [provider]="$any(newAgentProvider())"
+              mode="picker"
+              [value]="newAgentAccountId()"
+              [showInherit]="true"
+              [allowOptOut]="true"
+              [compact]="true"
+              [iconOnly]="true"
+              placement="top-end bottom-end"
+              (valueChange)="newAgentAccountId.set($event)"
+            />
+            <button
+              type="button"
+              class="tool-btn voice-btn"
+              [class.voice-listening]="voiceState() === 'listening'"
+              [class.voice-processing]="voiceState() === 'processing'"
+              (click)="toggleVoice()"
+              [disabled]="!activeSessionId() || voiceState() === 'processing'"
+              [appTooltip]="voiceState() === 'listening' ? ('VOICE.Stop' | translate) : ('VOICE.Speak' | translate)"
+            >
+              @if (voiceState() === 'processing') {
+                <iconify-icon icon="solar:refresh-bold" width="14" class="spin"></iconify-icon>
+              } @else if (voiceState() === 'listening') {
+                <iconify-icon icon="solar:microphone-bold" width="14"></iconify-icon>
+              } @else {
+                <iconify-icon icon="solar:microphone-bold-duotone" width="14"></iconify-icon>
+              }
+              <span class="beta-dot"></span>
+            </button>
+            @if (pluginRuntime.available) {
+              <!-- Plugin buttons among the composer tools (place: composer). -->
+              <app-plugin-session-buttons variant="composer" place="composer" paneAgentId="main"
+                [sessionId]="activeSessionId()" [sessionName]="activeSession()?.name ?? ''" [provider]="activeSession()?.provider ?? ''"
+                [sessionStatus]="activeSession()?.status ?? ''" [composerText]="newAgentPrompt()" (insertText)="onPluginInsert($event)" />
+            }
+            </div>
+          </div>
+          <button
+              class="btn-spawn-primary btn-spawn-tall"
+              (click)="spawnFromForm()"
+              [disabled]="!activeSessionId() || !newAgentPrompt() || spawning() || enhancing()"
+            >
+              <iconify-icon [icon]="spawning() ? 'solar:refresh-bold' : 'solar:play-bold'" width="13" [class.spin]="spawning()"></iconify-icon>
+              <span class="btn-spawn-label">
+                {{ spawning() ? ('SESSIONS.Spawning' | translate) : ((newAgentProvider() === 'generic-shell' ? 'SESSIONS.Open Terminal' : 'SESSIONS.Spawn') | translate) }}
+              </span>
+          </button>
+        </div>
+
+        <!-- Voice feedback (inline) -->
+        @if (voiceFeedback()) {
+          <div class="voice-inline-feedback" [class.voice-fb-error]="voiceState() === 'idle' && !newAgentPrompt()">
+            <iconify-icon icon="solar:microphone-bold-duotone" width="11"></iconify-icon>
+            {{ voiceFeedback() }}
+          </div>
+        }
+        @if (voiceState() === 'listening') {
+          <div class="voice-inline-feedback voice-fb-listening">
+            <span class="voice-listening-dots"><span></span><span></span><span></span></span>
+            {{ 'VOICE.Listening' | translate }}...
+          </div>
+        }
+
+      </div>
+    </div>
+    }
+
+    @if (!composerOnly()) {
+    <!-- Bottom Accordions -->
+    <div class="bottom-accordions">
+
+      <!-- Provider Usage (Claude Code + Codex = quota bars; Gemini = activity metrics) -->
+      @if (activeSessionId() && isUsageSupportedSession()) {
+      <div class="accordion-panel acc-panel-usage" [class.acc-collapsed]="!usageOpen()">
+        <div class="acc-header" (click)="usageOpen.set(!usageOpen())">
+          <h6 class="acc-title">
+            <iconify-icon icon="solar:chart-square-bold-duotone" width="14"></iconify-icon>
+            {{ 'SESSIONS.ACTION_CENTER.Usage' | translate }}
+            @if (usageLoading()) {
+              <span class="usage-badge usage-badge-loading">
+                <iconify-icon icon="solar:refresh-bold" width="10" class="spin-slow"></iconify-icon>
+              </span>
+            } @else {
+              @if (providerUsage(); as pu) {
+                @if (hasTokenActivity() && activityMetrics(); as m) {
+                  @if (m.tokensUsed != null) {
+                    <span class="usage-badge">{{ formatTokenCount(m.tokensUsed) }}</span>
+                  }
+                } @else if (isGeminiSession()) {
+                  @if (activityMetrics(); as m) {
+                    @if (m.successRatePct != null) {
+                      <span class="usage-badge">{{ m.successRatePct }}%</span>
+                    } @else if (m.toolCalls != null) {
+                      <span class="usage-badge">{{ m.toolCalls }}</span>
+                    }
+                  }
+                } @else {
+                  <span class="usage-badge" [class.usage-badge-warn]="pu.sessionPercent >= 80" [class.usage-badge-crit]="pu.sessionPercent >= 95">
+                    {{ pu.sessionPercent }}%
+                  </span>
+                  <!-- Weekly quota scoped to a model bucket: Claude `/usage` → "Current week (Fable)".
+                       Dropped on a narrow panel — the bar inside still carries it. -->
+                  @if (pu.modelWeeklyLabel && !narrowPanel()) {
+                    <span class="usage-badge"
+                          [class.usage-badge-warn]="(pu.modelWeeklyPercent ?? 0) >= 80"
+                          [class.usage-badge-crit]="(pu.modelWeeklyPercent ?? 0) >= 95"
+                          [attr.title]="pu.modelWeeklyLabel + ' · ' + (pu.modelWeeklyPercent ?? 0) + '% weekly'">
+                    {{ pu.modelWeeklyLabel }} {{ pu.modelWeeklyPercent ?? 0 }}%
+                  </span>
+                  }
+                }
+              }
+            }
+          </h6>
+          <div class="acc-header-right">
+            <button type="button"
+                    class="usage-refresh-btn"
+                    (click)="manualRefreshUsage($event)"
+                    [disabled]="usageRefreshLockSec() > 0"
+                    [attr.aria-label]="'SESSIONS.USAGE.Refresh' | translate"
+                    [attr.title]="usageRefreshLockSec() > 0 ? (usageRefreshLockSec() + 's') : ('SESSIONS.USAGE.Refresh' | translate)">
+              @if (usageRefreshLockSec() > 0) {
+                <span class="usage-refresh-cd">{{ usageRefreshLockSec() }}</span>
+              } @else {
+                <iconify-icon icon="solar:refresh-bold" width="11"></iconify-icon>
+              }
+            </button>
+            <iconify-icon
+              [icon]="usageOpen() ? 'solar:alt-arrow-down-bold' : 'solar:alt-arrow-right-bold'"
+              width="14"
+              class="acc-chevron"
+            ></iconify-icon>
+          </div>
+        </div>
+        @if (usageOpen()) {
+          <div class="acc-body usage-body">
+            @if (hasTokenActivity() && activityMetrics()) {
+              @let m = activityMetrics()!;
+              <div class="activity-metrics">
+                @if (m.tier) {
+                  <div class="activity-row">
+                    <span class="activity-label">{{ 'SESSIONS.USAGE.ACTIVITY.Provider' | translate }}</span>
+                    <span class="activity-value">{{ m.tier }}</span>
+                  </div>
+                }
+                @if (m.tokensUsed != null) {
+                  <div class="activity-row">
+                    <span class="activity-label">{{ 'SESSIONS.USAGE.ACTIVITY.Tokens used' | translate }}</span>
+                    <span class="activity-value">{{ formatTokenCount(m.tokensUsed) }}</span>
+                  </div>
+                }
+                @if (m.tokensSaved != null && m.tokensSaved > 0) {
+                  <div class="activity-row">
+                    <span class="activity-label">{{ 'SESSIONS.USAGE.ACTIVITY.Tokens saved' | translate }}</span>
+                    <span class="activity-value">{{ formatTokenCount(m.tokensSaved) }}</span>
+                  </div>
+                }
+                @if (m.efficiencyPct != null && m.efficiencyPct > 0) {
+                  <div class="activity-row">
+                    <span class="activity-label">{{ 'SESSIONS.USAGE.ACTIVITY.Efficiency' | translate }}</span>
+                    <span class="activity-value">{{ m.efficiencyPct }}%</span>
+                  </div>
+                }
+                @if (m.costUsd != null && m.costUsd > 0) {
+                  <div class="activity-row">
+                    <span class="activity-label">{{ 'SESSIONS.USAGE.ACTIVITY.Cost' | translate }}</span>
+                    <span class="activity-value">${{ m.costUsd.toFixed(4) }}</span>
+                  </div>
+                }
+                @if (m.promptCount != null) {
+                  <div class="activity-row">
+                    <span class="activity-label">{{ 'SESSIONS.USAGE.ACTIVITY.Prompts' | translate }}</span>
+                    <span class="activity-value">{{ m.promptCount }}</span>
+                  </div>
+                }
+                <div class="activity-row activity-note">
+                  <span class="activity-label-sub">
+                    <iconify-icon icon="solar:info-circle-bold-duotone" width="11"></iconify-icon>
+                    {{ 'SESSIONS.USAGE.ACTIVITY.Token estimate hint' | translate }}
+                  </span>
+                </div>
+              </div>
+            } @else if (isGeminiSession() && activityMetrics()) {
+              @let m = activityMetrics()!;
+              <div class="activity-metrics">
+                @if (m.tier) {
+                  <div class="activity-row">
+                    <span class="activity-label">{{ 'SESSIONS.USAGE.ACTIVITY.Tier' | translate }}</span>
+                    <span class="activity-value">{{ m.tier }}</span>
+                  </div>
+                }
+                @if (m.authMethod) {
+                  <div class="activity-row">
+                    <span class="activity-label">{{ 'SESSIONS.USAGE.ACTIVITY.Auth' | translate }}</span>
+                    <span class="activity-value">{{ m.authMethod }}</span>
+                  </div>
+                }
+                @if (m.toolCalls != null) {
+                  <div class="activity-row">
+                    <span class="activity-label">{{ 'SESSIONS.USAGE.ACTIVITY.Tool calls' | translate }}</span>
+                    <span class="activity-value">
+                      {{ m.toolCalls }}
+                      @if (m.toolCallsSuccess != null || m.toolCallsError != null) {
+                        <span class="activity-sub">
+                          (<span class="ok">✓ {{ m.toolCallsSuccess ?? 0 }}</span>
+                          · <span class="err">✕ {{ m.toolCallsError ?? 0 }}</span>)
+                        </span>
+                      }
+                    </span>
+                  </div>
+                }
+                @if (m.successRatePct != null) {
+                  <div class="activity-row">
+                    <span class="activity-label">{{ 'SESSIONS.USAGE.ACTIVITY.Success rate' | translate }}</span>
+                    <span class="activity-value">{{ m.successRatePct }}%</span>
+                  </div>
+                }
+                @if (m.wallTime) {
+                  <div class="activity-row">
+                    <span class="activity-label">{{ 'SESSIONS.USAGE.ACTIVITY.Wall time' | translate }}</span>
+                    <span class="activity-value">{{ m.wallTime }}</span>
+                  </div>
+                }
+                @if (m.agentActive) {
+                  <div class="activity-row">
+                    <span class="activity-label">{{ 'SESSIONS.USAGE.ACTIVITY.Agent active' | translate }}</span>
+                    <span class="activity-value">{{ m.agentActive }}</span>
+                  </div>
+                }
+                @if (m.apiTime) {
+                  <div class="activity-row">
+                    <span class="activity-label">{{ 'SESSIONS.USAGE.ACTIVITY.API time' | translate }}</span>
+                    <span class="activity-value">{{ m.apiTime }}</span>
+                  </div>
+                }
+                @if (m.toolTime) {
+                  <div class="activity-row">
+                    <span class="activity-label">{{ 'SESSIONS.USAGE.ACTIVITY.Tool time' | translate }}</span>
+                    <span class="activity-value">{{ m.toolTime }}</span>
+                  </div>
+                }
+              </div>
+            } @else if (usageSections().length > 0) {
+              <!-- track by index: two model-scoped weeks can share a label if the CLI truncates it -->
+              @for (section of usageSections(); track $index) {
+                <div class="usage-section">
+                  <div class="usage-section-header">
+                    <span class="usage-section-label">{{ section.label }}</span>
+                    <span class="usage-section-pct" [class.warn]="section.pct >= 80" [class.crit]="section.pct >= 95">{{ section.pct }}%</span>
+                  </div>
+                  <div class="usage-bar-track">
+                    <div class="usage-bar-fill"
+                         [style.width.%]="section.pct"
+                         [class.usage-fill-warn]="section.pct >= 80"
+                         [class.usage-fill-crit]="section.pct >= 95">
+                    </div>
+                  </div>
+                  @if (section.resets) {
+                    <span class="usage-resets">{{ section.resets }}</span>
+                  }
+                </div>
+              }
+              @if (providerUsage() && !providerUsage()!.extraUsageEnabled) {
+                <div class="usage-footer">
+                  <span class="usage-extra-off">
+                    <iconify-icon icon="solar:danger-triangle-bold" width="11"></iconify-icon>
+                    {{ 'SESSIONS.ACTION_CENTER.Extra usage off' | translate }}
+                  </span>
+                </div>
+              }
+            } @else if (usageLoading()) {
+              <div class="usage-loading-body">
+                <div class="usage-section-skeleton">
+                  <div class="skel-label"></div>
+                  <div class="usage-bar-track"><div class="skel-bar-pulse"></div></div>
+                </div>
+                <div class="usage-section-skeleton">
+                  <div class="skel-label short"></div>
+                  <div class="usage-bar-track"><div class="skel-bar-pulse delay"></div></div>
+                </div>
+                <span class="usage-loading-hint">
+                  <iconify-icon icon="solar:refresh-bold" width="11" class="spin-slow"></iconify-icon>
+                  {{ 'SESSIONS.USAGE.Fetching' | translate }}
+                </span>
+              </div>
+            } @else {
+              <div class="usage-error-body">
+                <iconify-icon icon="solar:danger-triangle-bold-duotone" width="18" class="usage-error-icon"></iconify-icon>
+                <span class="usage-error-title">
+                  @switch (usageError()?.reason) {
+                    @case ('command-not-found') { {{ 'SESSIONS.USAGE.Title command not found' | translate }} }
+                    @case ('timeout') { {{ 'SESSIONS.USAGE.Title timeout' | translate }} }
+                    @case ('no-output') { {{ 'SESSIONS.USAGE.Title no output' | translate }} }
+                    @case ('user-action-required') { {{ 'SESSIONS.USAGE.Title user action' | translate }} }
+                    @default { {{ 'SESSIONS.USAGE.Unavailable title' | translate }} }
+                  }
+                </span>
+                <span class="usage-error-hint">
+                  @switch (usageError()?.reason) {
+                    @case ('command-not-found') { {{ 'SESSIONS.USAGE.Hint command not found' | translate }} }
+                    @case ('timeout') { {{ 'SESSIONS.USAGE.Hint timeout' | translate }} }
+                    @case ('no-output') { {{ 'SESSIONS.USAGE.Hint no output' | translate }} }
+                    @case ('user-action-required') { {{ 'SESSIONS.USAGE.Hint user action' | translate }} }
+                    @default { {{ 'SESSIONS.USAGE.Unavailable hint' | translate }} }
+                  }
+                </span>
+                <button type="button" class="usage-retry-btn" (click)="retryUsageProbe()">
+                  <iconify-icon icon="solar:refresh-bold" width="12"></iconify-icon>
+                  {{ 'SESSIONS.USAGE.Retry' | translate }}
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+      }
+
+      <!-- Quick Agents -->
+      @if (ff.canAccess('quick_agents')) {
+      <div class="accordion-panel acc-panel-quick-agents" [class.acc-collapsed]="quickAgentsCollapsed()" [style.height]="quickAgentsCollapsed() ? '36px' : quickAgentsHeight() + 'px'">
+        @if (!quickAgentsCollapsed()) {
+          <div class="acc-resize-handle" (mousedown)="onQaResizeStart($event)"></div>
+        }
+        <div class="acc-header" (click)="toggleQuickAgentsCollapse()">
+          <h6 class="acc-title">
+            <iconify-icon icon="solar:bolt-bold-duotone" width="14"></iconify-icon>
+            {{ 'SESSIONS.Quick Agents' | translate }}
+            @if (quickAgentsCollapsed()) {
+              <span class="slots-count-badge">{{ quickAgents.length }}</span>
+            }
+          </h6>
+          <iconify-icon
+            [icon]="quickAgentsCollapsed() ? 'solar:alt-arrow-up-bold' : 'solar:alt-arrow-down-bold'"
+            width="14"
+            class="acc-chevron"
+          ></iconify-icon>
+        </div>
+        @if (!quickAgentsCollapsed()) {
+          <div class="acc-body">
+            @for (agent of quickAgents; track agent.id) {
+              <button
+                class="acc-item"
+                [class.spawning]="spawningQuickId() === agent.id"
+                (click)="spawnQuickAgent(agent)"
+                [disabled]="!activeSessionId() || spawningQuickId()"
+                [appTooltip]="agent.prompt"
+              >
+                <div class="acc-item-icon" [style.color]="agent.color">
+                  <iconify-icon [icon]="agent.icon" width="14"></iconify-icon>
+                </div>
+                <span class="acc-item-label">{{ agent.label }}</span>
+                <iconify-icon icon="solar:play-bold" width="11" class="acc-item-run"></iconify-icon>
+              </button>
+            }
+          </div>
+        }
+      </div>
+      }
+
+      <!-- Quick Actions (Saved Prompts) -->
+      <div class="accordion-panel acc-panel-actions" [class.acc-collapsed]="slotsCollapsed()" [style.height]="slotsCollapsed() ? '36px' : slotsHeight() + 'px'">
+        @if (!slotsCollapsed()) {
+          <div class="acc-resize-handle" (mousedown)="onSlotsResizeStart($event)"></div>
+        }
+        <div class="acc-header" (click)="toggleSlotsCollapse()">
+          <h6 class="acc-title">
+            <span class="quick-action-scope" [class.global]="slotService.scopeMode() === 'global'" (click)="$event.stopPropagation()" [appTooltip]="(slotService.scopeMode() === 'global' ? 'QUICK_ACTION_SCOPE.Global switch hint' : 'QUICK_ACTION_SCOPE.Session switch hint') | translate">
+            <iconify-icon [icon]="slotService.scopeMode() === 'global' ? 'solar:global-linear' : 'solar:window-frame-linear'" width="15"></iconify-icon>
+            <iconify-icon icon="solar:alt-arrow-down-linear" width="10"></iconify-icon>
+            <select [value]="slotService.scopeMode()" (change)="slotService.setScopeMode($any($event.target).value)" [attr.aria-label]="'QUICK_ACTION_SCOPE.Select scope' | translate">
+              <option value="session">{{ 'QUICK_ACTION_SCOPE.Session' | translate }}</option>
+              <option value="global">{{ 'QUICK_ACTION_SCOPE.Global' | translate }}</option>
+            </select>
+          </span>
+            {{ 'SESSIONS.Quick Actions' | translate }}
+            @if (slotsCollapsed() && slots().length) {
+              <span class="slots-count-badge">{{ slots().length }}</span>
+            }
+          </h6>
+          <div class="acc-header-right">
+            @if (!slotsCollapsed()) {
+              <div class="slots-actions" (click)="$event.stopPropagation()">
+                <button (click)="openQuickCreatePrompt()" [appTooltip]="'QUICK_ACTION_BUILDER.Create title' | translate">
+                  <iconify-icon icon="solar:add-circle-linear" width="16"></iconify-icon>
+                </button>
+                <button (click)="toggleEditMode()" [appTooltip]="(editMode() ? 'SESSIONS.TOOLTIPS.Done' : 'SESSIONS.TOOLTIPS.Edit') | translate">
+                  <iconify-icon [icon]="editMode() ? 'solar:check-circle-bold' : 'solar:pen-bold'" width="14"></iconify-icon>
+                </button>
+              </div>
+            }
+            <iconify-icon
+              [icon]="slotsCollapsed() ? 'solar:alt-arrow-up-bold' : 'solar:alt-arrow-down-bold'"
+              width="14"
+              class="acc-chevron"
+            ></iconify-icon>
+          </div>
+        </div>
+        @if (!slotsCollapsed()) {
+          <div
+            class="acc-body"
+            cdkDropList
+            [cdkDropListData]="slots()"
+            [cdkDropListDisabled]="!editMode()"
+            (cdkDropListDropped)="onSlotDrop($event)"
+          >
+            @for (slot of slots(); track slot.id) {
+              <div
+                class="slot-card"
+                [class.run-feedback]="runningSlotId() === slot.id"
+                [class.slot-editing]="editingSlotId() === slot.id"
+                cdkDrag
+              >
+                <div *cdkDragPlaceholder class="slot-placeholder"></div>
+
+                <div class="slot-card-row">
+                  @if (editMode()) {
+                    <div class="slot-drag-handle" cdkDragHandle>
+                      <iconify-icon icon="solar:hamburger-menu-linear" width="14"></iconify-icon>
+                    </div>
+                  } @else {
+                    <button
+                      class="slot-edit-btn"
+                      (click)="startEditing(slot); $event.stopPropagation()"
+                      [appTooltip]="'SESSIONS.TOOLTIPS.Edit prompt' | translate"
+                    >
+                      <iconify-icon [icon]="editingSlotId() === slot.id ? 'solar:check-circle-bold' : 'solar:pen-2-bold'" width="12"></iconify-icon>
+                    </button>
+                  }
+
+                  <div class="slot-icon">
+                    <i class="ti {{ slot.icon }}"></i>
+                  </div>
+
+                  <div class="slot-info">
+                    <div class="slot-label">{{ slot.prompt?.title || slot.label }}</div>
+                  </div>
+
+                  <div class="slot-card-actions">
+                    @if (editMode()) {
+                      <button class="btn-remove-slot" (click)="removeSlot(slot.id)" [disabled]="deletingSlotId() !== null" [appTooltip]="'SESSIONS.TOOLTIPS.Remove action' | translate">
+                        <iconify-icon icon="solar:trash-bin-minimalistic-bold" width="14"></iconify-icon>
+                      </button>
+                    } @else if (editingSlotId() !== slot.id) {
+                      <button
+                        class="btn-run"
+                        (click)="spawnFromSlot(slot)"
+                        [disabled]="!activeSessionId()"
+                        [appTooltip]="'SESSIONS.TOOLTIPS.Run prompt' | translate"
+                      >
+                        <iconify-icon icon="solar:play-bold" width="14"></iconify-icon>
+                      </button>
+                    }
+                  </div>
+                </div>
+
+                @if (editingSlotId() === slot.id) {
+                  <div class="slot-edit-panel">
+                    <textarea
+                      class="slot-edit-textarea"
+                      [value]="editingBody()"
+                      (input)="editingBody.set($any($event.target).value)"
+                      (keydown.control.enter)="saveEditing(slot)"
+                      (keydown.escape)="cancelEditing()"
+                      rows="4"
+                    ></textarea>
+                    <div class="slot-edit-footer">
+                      <button type="button" class="delete-edit-action" (click)="removeSlot(slot.id)" [disabled]="deletingSlotId() !== null" [attr.aria-label]="'SESSIONS.TOOLTIPS.Remove action' | translate" [title]="'SESSIONS.TOOLTIPS.Remove action' | translate"><iconify-icon icon="solar:trash-bin-trash-linear" width="14"></iconify-icon>{{ 'BUTTONS.Delete' | translate }}</button>
+                      <span class="slot-edit-hint">{{ 'SESSIONS.Slot edit hint' | translate }}</span>
+                      <button class="btn-edit-save" (click)="saveEditing(slot)">
+                        <iconify-icon icon="solar:check-circle-bold" width="13"></iconify-icon>
+                      </button>
+                      <button class="btn-edit-cancel" (click)="cancelEditing()">
+                        <iconify-icon icon="solar:close-circle-bold" width="13"></iconify-icon>
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            } @empty {
+              <div class="slots-empty">
+                <iconify-icon icon="solar:bolt-circle-bold-duotone" width="28"></iconify-icon>
+                <span class="slots-empty-title">{{ 'SESSIONS.No action slots' | translate }}</span>
+                <span class="slots-empty-hint">{{ 'QUICK_ACTION_BUILDER.Empty hint' | translate }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+    </div><!-- end bottom-accordions -->
+    }
+
+    <!-- Prompt Picker Modal -->
+    @if (showPromptPicker()) {
+      <app-prompt-picker-modal
+        [excludedIds]="excludedPromptIds()"
+        (selected)="onPromptSelected($event)"
+        (closed)="showPromptPicker.set(false)"
+      ></app-prompt-picker-modal>
+    }
+
+  }
+</div>
+
+<!-- No Session Toast -->
+@if (noSessionToast()) {
+  <div class="no-session-toast">
+    <iconify-icon icon="solar:danger-triangle-bold" width="16"></iconify-icon>
+    {{ 'SESSIONS.No active session' | translate }}
+  </div>
+}
+
+<!-- Provider Switch Toast (missing CLI / failed save) -->
+@if (providerToast(); as toast) {
+  <div class="no-session-toast">
+    <iconify-icon icon="solar:danger-triangle-bold" width="16"></iconify-icon>
+    {{ toast.key | translate: (toast.params ?? {}) }}
+  </div>
+}
+
+<!-- Git Settings (commit convention, …) -->
+<app-git-settings-modal />

@@ -26,7 +26,7 @@
 </p>
 
 <p align="center">
-  <sub>계정도, 로그인도, PromptOps 서버도 필요 없는 오픈소스 에디션의 소스 코드가 곧 이 저장소에 공개됩니다. PromptOps Desktop은 바로 실행할 수 있는 앱으로, Teams, 동기화, 모바일 앱을 제공합니다. <a href="../../PRIVACY.md">내 컴퓨터 밖으로 나가는 데이터 →</a></sub>
+  <sub>이 저장소에는 PromptOps Desktop 릴리스와 오픈 소스 에디션이 있습니다. 계정도, 로그인도, PromptOps 서버도 필요 없으며 <a href="../../README.md#open-source-edition--build-it-yourself">직접 빌드</a>해서 사용합니다. PromptOps Desktop은 바로 실행할 수 있는 앱으로, Teams, 동기화, 모바일 앱을 제공합니다. <a href="../../PRIVACY.md">내 컴퓨터 밖으로 나가는 데이터 →</a></sub>
 </p>
 
 ## 빠른 시작
@@ -170,7 +170,7 @@ macOS, Windows, Linux 지원. Teams, 기기 간 동기화, 모바일 앱, SSO를
 
 ### 오픈소스 에디션
 
-계정도 서버도 필요 없습니다: 모든 것이 내 컴퓨터에 남습니다. 소스 코드는 macOS, Windows, Linux에서 직접 빌드하는 명령과 함께 곧 이 저장소에 공개됩니다. 저장소에 [Star](https://github.com/shellonback/promptops)를 눌러 공개 소식을 받아보세요.
+계정도 서버도 필요 없습니다. 모든 것이 내 컴퓨터에 남습니다. 코드는 이 저장소에 있으며, 이 에디션의 미리 빌드된 바이너리는 없습니다. macOS, Windows, Linux에서 빌드하는 명령은 [영어 README](../../README.md#open-source-edition--build-it-yourself)에 있습니다.
 
 ---
 

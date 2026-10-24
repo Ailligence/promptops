@@ -26,7 +26,7 @@
 </p>
 
 <p align="center">
-  <sub>Der Quellcode der Open-Source-Edition – ohne Konto, ohne Anmeldung und ohne PromptOps-Server – kommt in dieses Repository. PromptOps Desktop ist die sofort einsatzbereite App, mit Teams, Sync und der mobilen App. <a href="../../PRIVACY.md">Was deinen Rechner verlässt →</a></sub>
+  <sub>Dieses Repository enthält die Releases von PromptOps Desktop und die Open-Source-Edition: kein Konto, keine Anmeldung, kein PromptOps-Server, und <a href="../../README.md#open-source-edition--build-it-yourself">du baust sie selbst</a>. PromptOps Desktop ist die sofort einsatzbereite App, mit Teams, Sync und der mobilen App. <a href="../../PRIVACY.md">Was deinen Rechner verlässt →</a></sub>
 </p>
 
 ## Schnellstart
@@ -170,7 +170,7 @@ Deine Sitzungsdaten werden mit demselben Algorithmus verschlüsselt wie in der O
 
 ### Open-Source-Edition
 
-Kein Konto und kein Server: Alles bleibt auf deinem Computer. Der Quellcode kommt in dieses Repository, zusammen mit den Befehlen, um ihn selbst unter macOS, Windows und Linux zu bauen. Gib dem Repo einen [Stern](https://github.com/shellonback/promptops), um zu erfahren, wann es so weit ist.
+Kein Konto und kein Server: Alles bleibt auf deinem Rechner. Der Code liegt in diesem Repository; vorkompilierte Binärdateien dieser Edition gibt es nicht: Die Befehle zum Bauen unter macOS, Windows und Linux stehen in der [englischen README](../../README.md#open-source-edition--build-it-yourself).
 
 ---
 

@@ -1,0 +1,870 @@
+<div class="modal-header flex-column align-items-stretch gap-2">
+  <div class="d-flex align-items-center justify-content-between w-100">
+    <h5 class="modal-title m-0">
+      @if (isEdit) {
+        {{ 'SESSIONS.Edit Session' | translate }}
+      } @else if (skipSessionCreation) {
+        {{ 'SESSIONS.New workspace' | translate }}
+      } @else {
+        @if (currentStep() === 1) {
+          {{ 'SESSIONS.Step provider title' | translate }}
+        } @else {
+          {{ 'SESSIONS.Step config title' | translate }}
+        }
+      }
+    </h5>
+    <button type="button" class="btn-close" (click)="modal.dismiss()" [attr.aria-label]="'BUTTONS.Close' | translate"></button>
+  </div>
+
+  @if (useWizard) {
+    <div class="wizard-stepper">
+      <button type="button"
+        class="wizard-step"
+        [class.is-active]="currentStep() === 1"
+        [class.is-done]="currentStep() > 1"
+        [attr.aria-current]="currentStep() === 1 ? 'step' : null"
+        (click)="goToStep(1)">
+        <span class="step-num">1</span>
+        <span class="step-label">{{ 'SESSIONS.Step provider short' | translate }}</span>
+      </button>
+      <span class="wizard-step-divider" aria-hidden="true"></span>
+      <button type="button"
+        class="wizard-step"
+        [class.is-active]="currentStep() === 2"
+        [attr.aria-current]="currentStep() === 2 ? 'step' : null"
+        [disabled]="!canGoNextFromStep1"
+        (click)="goToStep(2)">
+        <span class="step-num">2</span>
+        <span class="step-label">{{ 'SESSIONS.Step config short' | translate }}</span>
+      </button>
+    </div>
+  }
+</div>
+
+<div class="modal-body create-session-body">
+  <!-- ─── STEP 1 (create only): Provider picker ─── -->
+  @if (useWizard && currentStep() === 1) {
+    <section class="form-section provider-section">
+      <div class="section-head">
+        <iconify-icon icon="solar:magic-stick-3-bold-duotone" width="18" class="section-head-icon"></iconify-icon>
+        <div class="section-head-text">
+          <h6 class="section-title">{{ 'SESSIONS.Provider' | translate }}</h6>
+          <p class="section-hint">{{ 'SESSIONS.Provider picker hint' | translate }}</p>
+        </div>
+      </div>
+      <app-provider-picker
+        [value]="provider"
+        [disabled]="saving()"
+        (valueChange)="onProviderChange($event)"
+      />
+    </section>
+  }
+
+  <!-- ─── STEP 2 (create) / EDIT single page ─── -->
+  @if (!useWizard || currentStep() === 2) {
+
+    <!-- Session name (edit + create) -->
+    <div class="form-section">
+      <div class="mb-0">
+        <label class="form-label" for="create-session-name">{{ 'SESSIONS.Session Name' | translate }}</label>
+        <input
+          id="create-session-name"
+          type="text"
+          class="form-control"
+          ngbAutofocus
+          [placeholder]="'SESSIONS.Session name placeholder' | translate"
+          [(ngModel)]="name"
+        />
+      </div>
+    </div>
+
+    <!-- Provider in edit mode: read-only. The provider is chosen at session
+         start; afterwards the spawn sub-agent input decides, so changing it
+         here would be misleading. -->
+    @if (isEdit) {
+      <section class="form-section provider-readonly">
+        <iconify-icon icon="solar:magic-stick-3-bold-duotone" width="18" class="section-head-icon"></iconify-icon>
+        <span class="provider-readonly-text">
+          <strong>{{ 'SESSIONS.Provider edit current' | translate }}: <code>{{ provider }}</code></strong>
+          <small class="text-muted d-block">{{ 'SESSIONS.Provider locked hint' | translate }}</small>
+        </span>
+        <iconify-icon icon="solar:lock-bold" width="14" class="text-muted" aria-hidden="true"></iconify-icon>
+      </section>
+    }
+
+    @if (workspaceFirstUI && skipSessionCreation && !isEdit) {
+      <section class="form-section">
+        <div class="form-check form-switch">
+          <input
+            type="checkbox"
+            id="create-initial-session-toggle"
+            class="form-check-input"
+            [(ngModel)]="createInitialSession"
+          />
+          <label class="form-check-label" for="create-initial-session-toggle">
+            {{ 'SESSIONS.Create initial session toggle' | translate }}
+          </label>
+        </div>
+        <small class="form-text text-muted d-block mt-1">
+          {{ 'SESSIONS.Create initial session hint' | translate }}
+        </small>
+      </section>
+    }
+
+    <section class="form-section">
+      <div class="section-head">
+        <iconify-icon icon="solar:folder-bold-duotone" width="18" class="section-head-icon"></iconify-icon>
+        <div class="section-head-text">
+          <h6 class="section-title">{{ 'SESSIONS.Session path' | translate }}</h6>
+          <p class="section-hint">{{ 'SESSIONS.Session path hint' | translate }}</p>
+        </div>
+      </div>
+      <div class="mb-0">
+        <label class="form-label d-flex align-items-center justify-content-between">
+          <span>
+            {{ 'SESSIONS.Path' | translate }}
+            @if (workspaceFirstUI) {
+              <span class="text-danger">*</span>
+            }
+          </span>
+          @if (workspaceFirstUI) {
+            @if (sessionTypeBadge() === 'workspace') {
+              <span class="badge text-bg-primary d-inline-flex align-items-center gap-1">
+                <iconify-icon icon="solar:folder-with-files-bold" width="12"></iconify-icon>
+                {{ 'SESSIONS.Type workspace badge' | translate }}
+              </span>
+            } @else {
+              <span class="badge text-bg-secondary d-inline-flex align-items-center gap-1">
+                <iconify-icon icon="solar:document-text-bold" width="12"></iconify-icon>
+                {{ 'SESSIONS.Type standalone badge' | translate }}
+              </span>
+            }
+          }
+        </label>
+
+        <!-- Path mode toggle -->
+        @if (!pathLocked) {
+          <div class="path-mode-toggle">
+            <button type="button" class="path-mode-btn" [class.is-active]="pathMode() === 'browse'" (click)="setPathMode('browse')">
+              <iconify-icon icon="solar:folder-open-bold-duotone" width="16"></iconify-icon>
+              {{ 'SESSIONS.DEVICE_WORKSPACE.Select folder' | translate }}
+            </button>
+            <button type="button" class="path-mode-btn" [class.is-active]="pathMode() === 'new'" (click)="setPathMode('new')">
+              <iconify-icon icon="solar:add-folder-bold-duotone" width="16"></iconify-icon>
+              {{ 'SESSIONS.DEVICE_WORKSPACE.Create folder' | translate }}
+            </button>
+            <button type="button" class="path-mode-btn" [class.is-active]="pathMode() === 'clone'" (click)="setPathMode('clone')">
+              <iconify-icon icon="solar:cloud-download-bold-duotone" width="16"></iconify-icon>
+              {{ 'SESSIONS.DEVICE_WORKSPACE.Clone repository' | translate }}
+            </button>
+            @if (remoteAvailable) {
+              <button type="button" class="path-mode-btn" [class.is-active]="pathMode() === 'remote'" (click)="setPathMode('remote')">
+                <iconify-icon icon="solar:server-path-bold-duotone" width="16"></iconify-icon>
+                {{ 'SESSIONS.REMOTE.Remote folder' | translate }}
+                <span class="badge text-bg-secondary" style="font-size: 9px;">{{ 'COMMON.Beta' | translate }}</span>
+              </button>
+            }
+          </div>
+        }
+
+        @if (pathMode() === 'browse' || pathLocked) {
+          <div class="d-flex gap-2">
+            <input
+              type="text"
+              class="form-control"
+              [value]="workspace?.path ?? ''"
+              readonly
+              [placeholder]="'SESSIONS.Select path placeholder' | translate"
+            />
+            <button class="btn btn-outline-secondary" (click)="selectWorkspace()" [disabled]="pathLocked" [appTooltip]="'SESSIONS.TOOLTIPS.Select folder' | translate" [attr.aria-label]="'SESSIONS.TOOLTIPS.Select folder' | translate">
+              <iconify-icon icon="solar:folder-bold" width="16"></iconify-icon>
+            </button>
+          </div>
+          @if (pathLocked) {
+            <small class="text-muted d-flex align-items-center gap-1 mt-1">
+              <iconify-icon icon="solar:lock-keyhole-bold" width="12"></iconify-icon>
+              {{ 'SESSIONS.Workspace path locked hint' | translate }}
+            </small>
+          }
+        } @else if (pathMode() === 'new') {
+          <!-- New folder form: the session is created inside the folder made here -->
+          <div class="clone-inline-form">
+            <div class="clone-inline-field">
+              <label>{{ 'SESSIONS.DEVICE_WORKSPACE.New folder parent label' | translate }}</label>
+              <div class="clone-dest-row">
+                <input
+                  type="text"
+                  class="form-control"
+                  [value]="newFolderParent() ?? ''"
+                  readonly
+                  [placeholder]="'SESSIONS.DEVICE_WORKSPACE.Clone destination placeholder' | translate"
+                />
+                <button class="btn btn-outline-secondary" (click)="selectNewFolderParent()" [disabled]="creatingFolder()" [appTooltip]="'SESSIONS.TOOLTIPS.Select folder' | translate" [attr.aria-label]="'SESSIONS.TOOLTIPS.Select folder' | translate">
+                  <iconify-icon icon="solar:folder-bold" width="16"></iconify-icon>
+                </button>
+              </div>
+            </div>
+
+            <div class="clone-inline-field">
+              <label>{{ 'SESSIONS.DEVICE_WORKSPACE.New folder name label' | translate }}</label>
+              <input
+                type="text"
+                class="form-control"
+                [ngModel]="newFolderName()"
+                (ngModelChange)="newFolderName.set($event)"
+                placeholder="my-project"
+                [disabled]="creatingFolder()"
+              />
+            </div>
+
+            @if (newFolderPreview) {
+              <small class="text-muted" style="font-family: monospace; font-size: 12px;">{{ newFolderPreview }}</small>
+            }
+
+            @if (newFolderError()) {
+              <div class="clone-error-msg" role="alert">
+                <iconify-icon icon="solar:close-circle-bold" width="14"></iconify-icon>
+                {{ newFolderError() }}
+              </div>
+            }
+
+            @if (creatingFolder()) {
+              <div class="clone-progress-bar">
+                <span class="spinner-border spinner-border-sm"></span>
+                {{ 'SESSIONS.DEVICE_WORKSPACE.Creating folder' | translate }}
+              </div>
+            } @else {
+              <button
+                class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1"
+                (click)="createFolderAndSelect()"
+                [disabled]="!canCreateFolder"
+              >
+                <iconify-icon icon="solar:add-folder-bold" width="14"></iconify-icon>
+                {{ 'SESSIONS.DEVICE_WORKSPACE.Create folder confirm' | translate }}
+              </button>
+            }
+
+            @if (workspace?.path) {
+              <div class="d-flex align-items-center gap-2 mt-1">
+                <iconify-icon icon="solar:check-circle-bold" width="16" style="color: var(--bs-success, #198754)"></iconify-icon>
+                <small class="text-success" style="font-family: monospace; font-size: 12px;">{{ workspace.path }}</small>
+              </div>
+            }
+          </div>
+        } @else if (pathMode() === 'remote') {
+          <!-- Remote Folder, guided setup: 1) verified connection (OS/arch) → 2) folder (dropdown / typed / terminal) -->
+          <div class="clone-inline-form">
+            <div class="remote-steps">
+              <span class="remote-step" [class.is-done]="remoteConnected" [class.is-active]="!remoteConnected">
+                <span class="remote-step-num">@if (remoteConnected) {<iconify-icon icon="solar:check-read-linear" width="12"></iconify-icon>} @else {1}</span>
+                {{ 'SESSIONS.REMOTE.Step connect' | translate }}
+              </span>
+              <span class="remote-step-sep"></span>
+              <span class="remote-step" [class.is-active]="remoteConnected" [class.is-done]="!!workspace?.path && isRemoteWorkspace">
+                <span class="remote-step-num">2</span>
+                {{ 'SESSIONS.REMOTE.Step folder' | translate }}
+              </span>
+            </div>
+
+            <!-- ── Passo 1: connessione ── -->
+            <div class="clone-inline-field">
+              <label>{{ 'SESSIONS.REMOTE.Type' | translate }}</label>
+              <select class="form-select" [ngModel]="remoteType()" (ngModelChange)="setRemoteType($event)" [disabled]="remoteLoading() || remoteProbing()">
+                <option value="command">{{ 'SESSIONS.REMOTE.Type command' | translate }}</option>
+                <option value="ssh">{{ 'SESSIONS.REMOTE.Type ssh' | translate }}</option>
+              </select>
+            </div>
+
+            @if (remoteType() === 'command') {
+              <div class="clone-inline-field">
+                <label>{{ 'SESSIONS.REMOTE.Connect command' | translate }}</label>
+                <div class="clone-dest-row">
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="ssh ubuntu@203.0.113.10"
+                    [ngModel]="remoteCommand()"
+                    (ngModelChange)="onRemoteCommandChange($event)"
+                    (keydown.enter)="$event.preventDefault(); $event.stopPropagation(); remoteConnect()"
+                    [disabled]="remoteProbing()"
+                    style="font-family: monospace; font-size: 12px;"
+                  />
+                  <button
+                    class="btn btn-primary d-inline-flex align-items-center gap-1 text-nowrap"
+                    (click)="remoteConnect()"
+                    [disabled]="remoteProbing() || !remoteCommand().trim()"
+                  >
+                    @if (remoteProbing()) {
+                      <span class="spinner-border spinner-border-sm"></span>
+                    } @else {
+                      <iconify-icon icon="solar:plug-circle-bold" width="16"></iconify-icon>
+                    }
+                    {{ (remoteProbe()?.ok ? 'SESSIONS.REMOTE.Reconnect' : 'SESSIONS.REMOTE.Connect') | translate }}
+                  </button>
+                </div>
+                @if (!remoteConnected) {
+                  <div class="remote-example-chips">
+                    @for (ex of remoteCommandExamples; track ex.label) {
+                      <button type="button" class="remote-example-chip" (click)="fillRemoteExample(ex.cmd)" [appTooltip]="ex.cmd">
+                        <iconify-icon icon="solar:magic-stick-3-bold" width="12"></iconify-icon>
+                        {{ ex.labelKey ? (ex.labelKey | translate) : ex.label }}
+                      </button>
+                    }
+                  </div>
+                  <small class="text-muted">{{ 'SESSIONS.REMOTE.Command hint' | translate }}</small>
+                }
+              </div>
+            } @else {
+            <div class="clone-inline-field">
+              <label>{{ 'SESSIONS.REMOTE.Connection' | translate }}</label>
+              <div class="clone-dest-row">
+                <select
+                  class="form-select"
+                  [ngModel]="remoteConnId()"
+                  (ngModelChange)="pickRemoteConnection($event)"
+                  [disabled]="remoteLoading() || remoteProbing()"
+                >
+                  <option [ngValue]="null">{{ 'SESSIONS.REMOTE.Pick connection' | translate }}</option>
+                  @for (c of remoteConnections(); track c.id) {
+                    <option [ngValue]="c.id">{{ c.name }} — {{ c.username }}&#64;{{ c.host }}</option>
+                  }
+                </select>
+                @if (remoteConnId()) {
+                  <button class="btn btn-outline-secondary" (click)="remoteConnect()" [disabled]="remoteProbing()" [appTooltip]="'SESSIONS.REMOTE.Reconnect' | translate" [attr.aria-label]="'SESSIONS.REMOTE.Reconnect' | translate">
+                    @if (remoteProbing()) {
+                      <span class="spinner-border spinner-border-sm"></span>
+                    } @else {
+                      <iconify-icon icon="solar:refresh-bold" width="16"></iconify-icon>
+                    }
+                  </button>
+                }
+                <button
+                  class="btn btn-outline-secondary"
+                  (click)="toggleRemoteNewConn()"
+                  [appTooltip]="'SESSIONS.REMOTE.New connection' | translate"
+                  [attr.aria-label]="'SESSIONS.REMOTE.New connection' | translate"
+                  [attr.aria-expanded]="remoteNewConn()"
+                >
+                  <iconify-icon [icon]="remoteNewConn() ? 'solar:minus-circle-bold' : 'solar:add-circle-bold'" width="16"></iconify-icon>
+                </button>
+              </div>
+            </div>
+
+            @if (remoteNewConn()) {
+              <div class="remote-conn-form">
+                <div class="remote-conn-grid">
+                  <input type="text" class="form-control form-control-sm" [placeholder]="'SESSIONS.REMOTE.Conn name' | translate" [(ngModel)]="remoteConnForm.name" />
+                  <input type="text" class="form-control form-control-sm" placeholder="host.example.com" [(ngModel)]="remoteConnForm.host" />
+                  <input type="number" class="form-control form-control-sm" placeholder="22" [(ngModel)]="remoteConnForm.port" />
+                  <input type="text" class="form-control form-control-sm" [placeholder]="'SESSIONS.REMOTE.Username' | translate" [(ngModel)]="remoteConnForm.username" />
+                  <select class="form-select form-select-sm" [(ngModel)]="remoteConnForm.authType">
+                    <option value="password">{{ 'SESSIONS.REMOTE.Auth password' | translate }}</option>
+                    <option value="key">{{ 'SESSIONS.REMOTE.Auth key' | translate }}</option>
+                  </select>
+                  @if (remoteConnForm.authType === 'password') {
+                    <input type="password" class="form-control form-control-sm" [placeholder]="'SESSIONS.REMOTE.Password' | translate" [(ngModel)]="remoteConnForm.secret" />
+                  } @else {
+                    <textarea class="form-control form-control-sm remote-key-input" rows="3" [placeholder]="'SESSIONS.REMOTE.Private key' | translate" [(ngModel)]="remoteConnForm.secret"></textarea>
+                    <input type="password" class="form-control form-control-sm" [placeholder]="'SESSIONS.REMOTE.Passphrase' | translate" [(ngModel)]="remoteConnForm.passphrase" />
+                  }
+                </div>
+                <button
+                  class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1"
+                  (click)="saveRemoteConnection()"
+                  [disabled]="!canSaveRemoteConnection"
+                >
+                  @if (remoteSavingConn()) {
+                    <span class="spinner-border spinner-border-sm"></span>
+                  } @else {
+                    <iconify-icon icon="solar:diskette-bold" width="14"></iconify-icon>
+                  }
+                  {{ 'SESSIONS.REMOTE.Save and connect' | translate }}
+                </button>
+              </div>
+            }
+            }
+
+            @if (remoteProbing()) {
+              <div class="remote-probe-card is-pending">
+                <span class="spinner-border spinner-border-sm"></span>
+                <span>{{ 'SESSIONS.REMOTE.Probing' | translate }}</span>
+              </div>
+            } @else if (remoteProbe()?.ok) {
+              <div class="remote-probe-card is-ok">
+                <iconify-icon icon="solar:check-circle-bold" width="18" class="remote-probe-icon"></iconify-icon>
+                <div class="remote-probe-body">
+                  <div class="remote-probe-title">
+                    {{ 'SESSIONS.REMOTE.Connected' | translate }} — <code>{{ remoteProbe()!.user }}&#64;{{ remoteProbe()!.host }}</code>
+                  </div>
+                  <div class="remote-probe-meta">
+                    <span class="remote-probe-chip"><iconify-icon icon="solar:cpu-bolt-bold" width="12"></iconify-icon>{{ remotePlatformLabel }}</span>
+                    @if (remoteProbe()!.shell) {
+                      <span class="remote-probe-chip"><iconify-icon icon="solar:command-bold" width="12"></iconify-icon>{{ remoteProbe()!.shell }}</span>
+                    }
+                    @for (c of remoteProbe()!.clis; track c) {
+                      <span class="remote-probe-chip is-cli"><iconify-icon icon="solar:check-read-linear" width="12"></iconify-icon>{{ c }}</span>
+                    }
+                  </div>
+                  @if (remoteProviderMissing; as cli) {
+                    <div class="remote-probe-warn">
+                      <iconify-icon icon="solar:danger-triangle-bold" width="13"></iconify-icon>
+                      {{ 'SESSIONS.REMOTE.Provider missing' | translate: { cli: cli } }}
+                    </div>
+                  }
+                </div>
+              </div>
+            } @else if (remoteSkipProbe()) {
+              <div class="remote-probe-card is-pending">
+                <iconify-icon icon="solar:info-circle-bold" width="16"></iconify-icon>
+                <span>{{ 'SESSIONS.REMOTE.Probe skipped' | translate }}</span>
+              </div>
+            }
+
+            @if (remoteError()) {
+              <div class="clone-error-msg" role="alert">
+                <iconify-icon icon="solar:close-circle-bold" width="14"></iconify-icon>
+                {{ remoteError() }}
+              </div>
+              @if (!remoteConnected && remoteType() === 'command' && remoteCommand().trim()) {
+                <button type="button" class="btn btn-link btn-sm p-0 align-self-start" (click)="remoteContinueWithoutProbe()">
+                  {{ 'SESSIONS.REMOTE.Continue manual' | translate }}
+                </button>
+              }
+            }
+
+            <!-- ── Step 2: folder ── -->
+            @if (remoteReady) {
+              <div class="clone-inline-field">
+                <label>{{ 'SESSIONS.REMOTE.Remote path' | translate }}</label>
+                @if (!remoteSkipProbe()) {
+                  <div class="path-mode-toggle remote-folder-tabs">
+                    <button type="button" class="path-mode-btn" [class.is-active]="remoteFolderMode() === 'browse'" (click)="setRemoteFolderMode('browse')">
+                      <iconify-icon icon="solar:list-down-bold" width="14"></iconify-icon>
+                      {{ 'SESSIONS.REMOTE.Folder from list' | translate }}
+                    </button>
+                    <button type="button" class="path-mode-btn" [class.is-active]="remoteFolderMode() === 'manual'" (click)="setRemoteFolderMode('manual')">
+                      <iconify-icon icon="solar:pen-bold" width="14"></iconify-icon>
+                      {{ 'SESSIONS.REMOTE.Folder manual' | translate }}
+                    </button>
+                    <button type="button" class="path-mode-btn" [class.is-active]="remoteFolderMode() === 'terminal'" (click)="setRemoteFolderMode('terminal')">
+                      <iconify-icon icon="solar:code-square-bold" width="14"></iconify-icon>
+                      {{ 'SESSIONS.REMOTE.Folder terminal' | translate }}
+                    </button>
+                  </div>
+                }
+
+                @if (remoteFolderMode() === 'browse') {
+                  <div class="remote-current-path">
+                    <iconify-icon icon="solar:folder-open-bold" width="14"></iconify-icon>
+                    <code>{{ remoteBrowserPath() || '~' }}</code>
+                    @if (remoteLoading()) { <span class="spinner-border spinner-border-sm ms-auto"></span> }
+                  </div>
+                  <select
+                    class="form-select"
+                    (change)="remotePickDir($any($event.target).value); $any($event.target).value = ''"
+                    [disabled]="remoteLoading()"
+                    style="font-family: monospace; font-size: 12.5px;"
+                  >
+                    <option value="" disabled selected>{{ (remoteDirs.length ? 'SESSIONS.REMOTE.Pick subfolder' : 'SESSIONS.REMOTE.No subfolders') | translate }}</option>
+                    @if (remoteBrowserPath() && remoteBrowserPath() !== '/') {
+                      <option value="..">⬑ .. ({{ 'SESSIONS.REMOTE.Parent folder' | translate }})</option>
+                    }
+                    @for (d of remoteDirs; track d.name) {
+                      <option [value]="d.name">📁 {{ d.name }}</option>
+                    }
+                  </select>
+                  <div class="clone-dest-row">
+                    <input
+                      type="text"
+                      class="form-control form-control-sm"
+                      placeholder="new-folder"
+                      [ngModel]="remoteNewFolderName()"
+                      (ngModelChange)="remoteNewFolderName.set($event)"
+                      [disabled]="remoteLoading()"
+                    />
+                    <button class="btn btn-outline-secondary btn-sm" (click)="remoteMkdir()" [disabled]="remoteLoading() || !remoteNewFolderName().trim()" [appTooltip]="'SESSIONS.DEVICE_WORKSPACE.Create folder' | translate" [attr.aria-label]="'SESSIONS.DEVICE_WORKSPACE.Create folder' | translate">
+                      <iconify-icon icon="solar:add-folder-bold" width="14"></iconify-icon>
+                    </button>
+                  </div>
+                } @else if (remoteFolderMode() === 'manual') {
+                  <div class="clone-dest-row">
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="/home/ubuntu/my-project"
+                      [ngModel]="remoteBrowserPath()"
+                      (ngModelChange)="remoteBrowserPath.set($event)"
+                      [disabled]="remoteLoading()"
+                      style="font-family: monospace; font-size: 12px;"
+                    />
+                    @if (!remoteSkipProbe()) {
+                      <button class="btn btn-outline-secondary" (click)="remoteBrowse(remoteBrowserPath())" [disabled]="remoteLoading()" [appTooltip]="'SESSIONS.REMOTE.Verify path' | translate" [attr.aria-label]="'SESSIONS.REMOTE.Verify path' | translate">
+                        @if (remoteLoading()) {
+                          <span class="spinner-border spinner-border-sm"></span>
+                        } @else {
+                          <iconify-icon icon="solar:check-square-bold" width="16"></iconify-icon>
+                        }
+                      </button>
+                    }
+                  </div>
+                  <small class="text-muted">{{ 'SESSIONS.REMOTE.Path hint' | translate }}</small>
+                } @else {
+                  <div class="remote-term" (click)="remoteTermInputEl.focus()">
+                    <div class="remote-term-out" #remoteTermOut>
+                      @if (!remoteTermLines().length) {
+                        <div class="remote-term-line is-hint">{{ 'SESSIONS.REMOTE.Terminal hint' | translate }}</div>
+                      }
+                      @for (l of remoteTermLines(); track $index) {
+                        <div class="remote-term-line" [class.is-cmd]="l.kind === 'cmd'" [class.is-err]="l.kind === 'err'">{{ l.text }}</div>
+                      }
+                    </div>
+                    <div class="remote-term-prompt">
+                      <span class="remote-term-ps1">{{ remoteBrowserPath() || '~' }} $</span>
+                      <input
+                        #remoteTermInputEl
+                        type="text"
+                        spellcheck="false"
+                        autocomplete="off"
+                        [ngModel]="remoteTermInput()"
+                        (ngModelChange)="remoteTermInput.set($event)"
+                        (keydown.enter)="$event.preventDefault(); $event.stopPropagation(); remoteTermRun()"
+                        [disabled]="remoteTermBusy()"
+                        placeholder="cd /var/www && ls"
+                      />
+                      @if (remoteTermBusy()) { <span class="spinner-border spinner-border-sm"></span> }
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <button
+                class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1 align-self-start"
+                (click)="remoteSelectCurrent()"
+                [disabled]="remoteLoading() || remoteTermBusy() || (remoteType() === 'ssh' && !remoteBrowserPath())"
+              >
+                <iconify-icon icon="solar:check-circle-bold" width="14"></iconify-icon>
+                {{ 'SESSIONS.REMOTE.Use this folder' | translate }}
+                @if (remoteBrowserPath()) { <code class="remote-use-path">{{ remoteBrowserPath() }}</code> }
+              </button>
+            }
+
+            @if (workspace?.path && isRemoteWorkspace) {
+              <div class="d-flex align-items-center gap-2 mt-1">
+                <iconify-icon icon="solar:check-circle-bold" width="16" style="color: var(--bs-success, #198754)"></iconify-icon>
+                <small class="text-success" style="font-family: monospace; font-size: 12px;">{{ workspace?.name }} — {{ workspace?.path }}</small>
+              </div>
+            }
+          </div>
+        } @else {
+          <!-- Clone form -->
+          <div class="clone-inline-form">
+            <div class="clone-inline-field">
+              <label>{{ 'SESSIONS.DEVICE_WORKSPACE.Clone url label' | translate }}</label>
+              <input
+                type="text"
+                class="form-control"
+                [ngModel]="cloneUrl()"
+                (ngModelChange)="cloneUrl.set($event)"
+                placeholder="https://github.com/user/repo.git"
+                [disabled]="cloning()"
+              />
+            </div>
+            <div class="clone-inline-field">
+              <label>{{ 'SESSIONS.DEVICE_WORKSPACE.Clone branch label' | translate }}</label>
+              <input
+                type="text"
+                class="form-control"
+                [ngModel]="cloneBranch()"
+                (ngModelChange)="cloneBranch.set($event)"
+                placeholder="main"
+                [disabled]="cloning()"
+              />
+            </div>
+            <div class="clone-inline-field">
+              <label>{{ 'SESSIONS.DEVICE_WORKSPACE.Clone destination label' | translate }}</label>
+              <div class="clone-dest-row">
+                <input
+                  type="text"
+                  class="form-control"
+                  [value]="cloneDestination() ?? ''"
+                  readonly
+                  [placeholder]="'SESSIONS.DEVICE_WORKSPACE.Clone destination placeholder' | translate"
+                />
+                <button class="btn btn-outline-secondary" (click)="selectCloneDestination()" [disabled]="cloning()" [appTooltip]="'SESSIONS.TOOLTIPS.Select folder' | translate" [attr.aria-label]="'SESSIONS.TOOLTIPS.Select folder' | translate">
+                  <iconify-icon icon="solar:folder-bold" width="16"></iconify-icon>
+                </button>
+              </div>
+            </div>
+
+            @if (cloneError()) {
+              <div class="clone-error-msg" role="alert">
+                <iconify-icon icon="solar:close-circle-bold" width="14"></iconify-icon>
+                {{ cloneError() }}
+              </div>
+            }
+
+            @if (cloning()) {
+              <div class="clone-progress-bar">
+                <span class="spinner-border spinner-border-sm"></span>
+                {{ 'SESSIONS.DEVICE_WORKSPACE.Cloning' | translate }}
+              </div>
+            } @else {
+              <button
+                class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1"
+                (click)="cloneAndSelect()"
+                [disabled]="!canClone"
+              >
+                <iconify-icon icon="solar:cloud-download-bold" width="14"></iconify-icon>
+                {{ 'SESSIONS.DEVICE_WORKSPACE.Clone and configure' | translate }}
+              </button>
+            }
+
+            @if (workspace?.path) {
+              <div class="d-flex align-items-center gap-2 mt-1">
+                <iconify-icon icon="solar:check-circle-bold" width="16" style="color: var(--bs-success, #198754)"></iconify-icon>
+                <small class="text-success" style="font-family: monospace; font-size: 12px;">{{ workspace.path }}</small>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      @if (workspaceFirstUI && !isEdit && !presetWorkspace && !forceMode) {
+        <div class="mt-3">
+          <label class="form-label">{{ 'SESSIONS.Session type label' | translate }}</label>
+          <div class="btn-group w-100" role="group" [attr.aria-label]="'SESSIONS.Session type label' | translate">
+            <input
+              type="radio"
+              class="btn-check"
+              id="session-type-workspace"
+              name="session-type"
+              [checked]="mode === 'workspace'"
+              (change)="mode = 'workspace'"
+            />
+            <label class="btn btn-outline-primary" for="session-type-workspace">
+              <iconify-icon icon="solar:folder-with-files-bold" width="14" class="me-1"></iconify-icon>
+              {{ 'SESSIONS.Type workspace badge' | translate }}
+            </label>
+
+            <input
+              type="radio"
+              class="btn-check"
+              id="session-type-standalone"
+              name="session-type"
+              [checked]="mode === 'standalone'"
+              (change)="mode = 'standalone'"
+            />
+            <label class="btn btn-outline-secondary" for="session-type-standalone">
+              <iconify-icon icon="solar:document-text-bold" width="14" class="me-1"></iconify-icon>
+              {{ 'SESSIONS.Type standalone badge' | translate }}
+            </label>
+          </div>
+          <small class="form-text text-muted d-block mt-1">
+            @if (mode === 'workspace') {
+              <strong>{{ 'SESSIONS.Type workspace badge' | translate }}:</strong>
+              {{ 'SESSIONS.Workspace explanation' | translate }}
+            } @else {
+              <strong>{{ 'SESSIONS.Type standalone badge' | translate }}:</strong>
+              {{ 'SESSIONS.Standalone explanation' | translate }}
+            }
+          </small>
+        </div>
+      }
+
+      @if (canPromoteOnEdit) {
+        <div class="form-check form-switch mt-3">
+          <input
+            type="checkbox"
+            id="promote-to-workspace-toggle"
+            class="form-check-input"
+            [(ngModel)]="promoteToWorkspaceOnEdit"
+          />
+          <label class="form-check-label fw-semibold" for="promote-to-workspace-toggle">
+            {{ 'SESSIONS.Promote toggle label' | translate }}
+          </label>
+        </div>
+        <small class="form-text text-muted d-block mt-1">
+          {{ 'SESSIONS.Promote hint' | translate }}
+          @if (promoteToWorkspaceOnEdit) {
+            <span class="d-block mt-1 text-warning">
+              <iconify-icon icon="solar:lock-keyhole-bold" width="12"></iconify-icon>
+              {{ 'SESSIONS.Promote irreversible' | translate }}
+            </span>
+          }
+        </small>
+      }
+
+      @if (workspaceFirstUI && isEdit && editSession?.workspaceId) {
+        <div class="alert alert-info d-flex align-items-center gap-2 mt-3 mb-0 py-2">
+          <iconify-icon icon="solar:lock-keyhole-minimalistic-bold" width="16"></iconify-icon>
+          <small class="m-0">{{ 'SESSIONS.Workspace locked' | translate }}</small>
+        </div>
+      }
+
+      @if (!isEdit) {
+        @if (showAdvanced()) {
+          <div class="form-grid-2 mt-3">
+            <div class="mb-0">
+              <label class="form-label">{{ 'SESSIONS.Columns' | translate }}</label>
+              <input type="number" class="form-control" [(ngModel)]="cols" />
+            </div>
+            <div class="mb-0">
+              <label class="form-label">{{ 'SESSIONS.Rows' | translate }}</label>
+              <input type="number" class="form-control" [(ngModel)]="rows" />
+            </div>
+          </div>
+        }
+        <!-- Auto-approve toggle: never shown in the minimal UI (auto-approve is
+             managed post-creation there); classic keeps the pre-rollout rule —
+             hidden only during new-workspace creation. -->
+        @if (autoApproveVisible()) {
+          <div class="form-check form-switch mt-3">
+            <input
+              type="checkbox"
+              id="auto-approve-toggle"
+              class="form-check-input"
+              [(ngModel)]="autoApprove"
+            />
+            <label class="form-check-label fw-semibold" for="auto-approve-toggle">
+              {{ 'SESSIONS.Auto-approve toggle label' | translate }}
+            </label>
+          </div>
+          <small class="form-text text-muted d-block mt-1">
+            {{ 'SESSIONS.Auto-approve hint' | translate }}
+            @if (autoApprove) {
+              <span class="d-block mt-1 text-warning">
+                <iconify-icon icon="solar:danger-triangle-bold" width="12"></iconify-icon>
+                {{ 'SESSIONS.Auto-approve warning' | translate }}
+              </span>
+            }
+          </small>
+        }
+        <button class="btn btn-link btn-sm p-0 advanced-toggle mt-3" (click)="showAdvanced.set(!showAdvanced())">
+          <iconify-icon [icon]="showAdvanced() ? 'solar:alt-arrow-up-bold' : 'solar:alt-arrow-down-bold'" width="14"></iconify-icon>
+          {{ (showAdvanced() ? 'SESSIONS.Hide advanced' : 'SESSIONS.Show advanced') | translate }}
+        </button>
+      }
+    </section>
+
+    <!-- Windows-only: terminal shell (PowerShell / pwsh / cmd / Git Bash / WSL)
+         + on-demand detection of the provider CLI in each shell -->
+    @if (isWindowsDesktop && terminalShells().length) {
+      <section class="form-section">
+        <div class="section-head">
+          <iconify-icon icon="solar:file-terminal-bold-duotone" width="18" class="section-head-icon"></iconify-icon>
+          <div class="section-head-text">
+            <h6 class="section-title">{{ 'SESSIONS.Shell terminal label' | translate }}</h6>
+            <p class="section-hint">{{ 'SESSIONS.Shell terminal hint' | translate }}</p>
+          </div>
+        </div>
+        <div class="d-flex gap-2">
+          <select class="form-select" [(ngModel)]="shellId" [disabled]="saving()">
+            @if (isTauriDesktop) {
+              <option [ngValue]="''">{{ 'SESSIONS.Shell default option' | translate }}</option>
+            }
+            @for (s of terminalShells(); track s.id) {
+              <option [ngValue]="s.id">{{ s.label }}{{ shellProbeSuffix(s.id) }}</option>
+            }
+          </select>
+          <button
+            class="btn btn-outline-primary"
+            type="button"
+            (click)="detectProviderShells()"
+            [disabled]="probingShells() || saving()"
+            [appTooltip]="'SESSIONS.Shell detect provider' | translate"
+            [attr.aria-label]="'SESSIONS.Shell detect provider' | translate"
+          >
+            @if (probingShells()) {
+              <span class="spinner-border spinner-border-sm"></span>
+            } @else {
+              <iconify-icon icon="solar:magnifer-zoom-in-bold" width="16"></iconify-icon>
+            }
+          </button>
+        </div>
+        @if (probingShells()) {
+          <small class="form-text text-muted d-block mt-1">{{ 'SESSIONS.Shell detecting' | translate }}</small>
+        } @else {
+          @if (shellProbe(); as probe) {
+            @if (probe.command) {
+              <small class="form-text text-muted d-block mt-2">
+                {{ 'SESSIONS.Shell probe availability' | translate }} <code>{{ probe.command }}</code>
+              </small>
+              <ul class="list-unstyled mb-0 mt-1">
+                @for (s of terminalShells(); track s.id) {
+                  <li class="d-flex align-items-center gap-1 small">
+                    @if (shellInstalled(s.id)) {
+                      <iconify-icon icon="solar:check-circle-bold" width="14" class="text-success" role="img" [attr.aria-label]="'PROVIDERS.STATUS.INSTALLED' | translate"></iconify-icon>
+                    } @else {
+                      <iconify-icon icon="solar:close-circle-bold" width="14" class="text-danger" role="img" [attr.aria-label]="'PROVIDERS.STATUS.NOT_INSTALLED' | translate"></iconify-icon>
+                    }
+                    <span>{{ s.label }}</span>
+                  </li>
+                }
+              </ul>
+            }
+          }
+        }
+        @if (isEdit) {
+          <small class="form-text text-muted d-block mt-2">
+            <iconify-icon icon="solar:refresh-bold" width="12"></iconify-icon>
+            {{ 'SESSIONS.Shell edit note' | translate }}
+          </small>
+        }
+      </section>
+    }
+  }
+
+  @if (contextFilePrompt(); as curatedFiles) {
+    <section class="context-file-prompt">
+      <div class="context-file-prompt-text">
+        <iconify-icon icon="solar:shield-warning-bold" width="18"></iconify-icon>
+        <div>
+          <strong>{{ 'SESSIONS.Context file exists title' | translate }}</strong>
+          <p class="mb-1">
+            {{ 'SESSIONS.Context file exists hint' | translate }}
+            @for (f of curatedFiles; track f) {
+              <code class="me-1">{{ f }}</code>
+            }
+          </p>
+        </div>
+      </div>
+      <div class="context-file-prompt-actions">
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="resolveContextFileDecision('preserve')">
+          {{ 'SESSIONS.Context file keep' | translate }}
+        </button>
+        <button type="button" class="btn btn-sm btn-primary" (click)="resolveContextFileDecision('allow')">
+          {{ 'SESSIONS.Context file update' | translate }}
+        </button>
+      </div>
+    </section>
+  }
+</div>
+
+<div class="modal-footer">
+  @if (useWizard && currentStep() === 1) {
+    <button class="btn btn-outline-secondary" (click)="modal.dismiss()">{{ 'SESSIONS.Cancel' | translate }}</button>
+    <button class="btn btn-primary" (click)="goNextStep()" [disabled]="!canGoNextFromStep1">
+      {{ 'SESSIONS.Next' | translate }}
+      <iconify-icon icon="solar:alt-arrow-right-bold" width="14" class="ms-1"></iconify-icon>
+    </button>
+  } @else if (useWizard && currentStep() === 2) {
+    <button class="btn btn-outline-secondary" (click)="goPrevStep()">
+      <iconify-icon icon="solar:alt-arrow-left-bold" width="14" class="me-1"></iconify-icon>
+      {{ 'SESSIONS.Back' | translate }}
+    </button>
+    <button class="btn btn-primary" (click)="submit()" [disabled]="submitDisabled">
+      @if (saving()) {
+        <span class="spinner-border spinner-border-sm me-1"></span>
+      }
+      {{ 'SESSIONS.Create Session' | translate }}
+    </button>
+  } @else {
+    <button class="btn btn-outline-secondary" (click)="modal.dismiss()">{{ 'SESSIONS.Cancel' | translate }}</button>
+    <button class="btn btn-primary" (click)="submit()" [disabled]="submitDisabled">
+      @if (saving()) {
+        <span class="spinner-border spinner-border-sm me-1"></span>
+      }
+      {{ 'SESSIONS.Save' | translate }}
+    </button>
+  }
+</div>

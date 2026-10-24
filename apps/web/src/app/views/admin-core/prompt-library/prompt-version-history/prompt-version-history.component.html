@@ -1,0 +1,175 @@
+<div class="container p-3">
+  <div class="d-flex justify-content-start mb-3">
+    <button type="button" class="btn btn-link p-0" (click)="goBack()">
+      <i class="ti ti-arrow-left me-1"></i>
+      {{ "BUTTONS.Back" | translate }}
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h5 class="card-title mb-0">
+        <i class="ti ti-history me-2"></i>
+        {{ "PROMPTS.Version History" | translate }}
+      </h5>
+    </div>
+    <div class="card-body">
+      @if (loading()) {
+      <div class="d-flex justify-content-center py-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+      } @else if (versions().length === 0) {
+      <div class="text-center text-muted py-4">
+        <i class="ti ti-history-off fs-1 d-block mb-2"></i>
+        {{ "PROMPTS.No versions found" | translate }}
+      </div>
+      } @else {
+      <div class="ps-2">
+        @for (version of versions(); track version.id; let i = $index) {
+        <div class="timeline-item">
+          <div
+            class="timeline-dot"
+            [class.latest]="i === 0"
+          ></div>
+
+          <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+            <div>
+              <h6 class="mb-1">
+                <span class="badge bg-light text-dark me-2">
+                  v{{ version.version_number }}
+                </span>
+                <span
+                  class="badge"
+                  [class]="getStatusBadgeClass(version.status)"
+                >
+                  {{ version.status }}
+                </span>
+                @if (i === 0) {
+                <span class="badge bg-primary ms-1">
+                  {{ "PROMPTS.Latest" | translate }}
+                </span>
+                }
+              </h6>
+              <p class="text-muted small mb-1">
+                <i class="ti ti-calendar me-1"></i>
+                {{ formatDate(version.created_at) }}
+                @if (version.creator) {
+                <span class="ms-2">
+                  <i class="ti ti-user me-1"></i>
+                  {{ version.creator.first_name }}
+                  {{ version.creator.last_name }}
+                </span>
+                }
+              </p>
+              @if (version.change_summary) {
+              <p class="mb-0 small">
+                <i class="ti ti-notes me-1"></i>
+                {{ version.change_summary }}
+              </p>
+              }
+            </div>
+            <div class="d-flex gap-1">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-primary"
+                (click)="openVersionDetail(version)"
+              >
+                <i class="ti ti-eye me-1"></i>
+                {{ "PROMPTS.View" | translate }}
+              </button>
+              @if (i !== 0) {
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-warning"
+                (click)="restoreVersion(version)"
+              >
+                <i class="ti ti-restore me-1"></i>
+                {{ "PROMPTS.Restore" | translate }}
+              </button>
+              }
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- Version detail modal -->
+<ng-template #versionDetailTpl let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">
+      {{ "PROMPTS.Version" | translate }} v{{ selectedVersion()?.version_number }}
+    </h4>
+    <button
+      type="button"
+      class="btn-close"
+      (click)="modal.dismiss()"
+      [attr.aria-label]="'COMMON.Close' | translate"
+    ></button>
+  </div>
+  <div class="modal-body">
+    @if (selectedVersion()) {
+    <div class="mb-3">
+      <label class="form-label fw-bold">{{ "PROMPTS.Title field" | translate }}</label>
+      <p>{{ selectedVersion()!.title }}</p>
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-bold">{{ "PROMPTS.Status" | translate }}</label>
+      <span
+        class="badge ms-2"
+        [class]="getStatusBadgeClass(selectedVersion()!.status)"
+      >
+        {{ selectedVersion()!.status }}
+      </span>
+    </div>
+    @if (selectedVersion()!.ai_model) {
+    <div class="mb-3">
+      <label class="form-label fw-bold">{{ "PROMPTS.AI Model" | translate }}</label>
+      <p>{{ selectedVersion()!.ai_model }}</p>
+    </div>
+    }
+    @if (selectedVersion()!.change_summary) {
+    <div class="mb-3">
+      <label class="form-label fw-bold">{{ "PROMPTS.Change Summary" | translate }}</label>
+      <p>{{ selectedVersion()!.change_summary }}</p>
+    </div>
+    }
+    @if (selectedVersion()!.variables && selectedVersion()!.variables.length > 0) {
+    <div class="mb-3">
+      <label class="form-label fw-bold">{{ "PROMPTS.Variables" | translate }}</label>
+      <div class="d-flex flex-wrap gap-1">
+        @for (v of selectedVersion()!.variables; track v) {
+        <span class="badge bg-light text-dark">{{ '{{' + v + '}}' }}</span>
+        }
+      </div>
+    </div>
+    }
+    <div class="mb-3">
+      <label class="form-label fw-bold">{{ "PROMPTS.Body" | translate }}</label>
+      <pre class="version-body-pre">{{ selectedVersion()!.body }}</pre>
+    </div>
+    @if (selectedVersion()!.system_prompt) {
+    <div class="mb-3">
+      <label class="form-label fw-bold">{{ "PROMPTS.System Prompt" | translate }}</label>
+      <pre class="version-body-pre">{{ selectedVersion()!.system_prompt }}</pre>
+    </div>
+    }
+    @if (selectedVersion()!.notes) {
+    <div class="mb-3">
+      <label class="form-label fw-bold">{{ "PROMPTS.Notes" | translate }}</label>
+      <p>{{ selectedVersion()!.notes }}</p>
+    </div>
+    }
+    }
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-light" (click)="modal.dismiss()">
+      {{ "BUTTONS.Close" | translate }}
+    </button>
+  </div>
+</ng-template>

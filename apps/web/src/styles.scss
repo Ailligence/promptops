@@ -1,0 +1,904 @@
+/* PromptOps - Global Styles */
+// Tabler Icons (MIT), official package: https://tabler.io/icons
+@use "@tabler/icons-webfont/dist/tabler-icons.scss" as *;
+@use "../public/assets/scss/app.scss" as *;
+@use "./styles/common-pages";
+/* Spin animation for loading icons */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Overlay z-index fixes */
+.cdk-overlay-container {
+  z-index: 2000;
+}
+
+/* Database Explorer fullscreen modal */
+.db-explorer-modal .modal-dialog {
+  max-width: 100vw;
+  margin: 0;
+}
+.db-explorer-modal .modal-content {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+/* Locked feature dialog (cloud-feature-modal) */
+.cloud-feature-window .modal-dialog {
+  max-width: 440px;
+}
+.cloud-feature-window .modal-content {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* Code Editor fullscreen modal */
+.code-editor-modal .modal-dialog {
+  max-width: 100vw;
+  margin: 0;
+}
+.code-editor-modal .modal-content {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+/* Monaco Editor - git diff gutter decorations */
+.glyph-added {
+  border-left: 3px solid #3fb950 !important;
+  margin-left: 3px;
+}
+.glyph-modified {
+  border-left: 3px solid #d29922 !important;
+  margin-left: 3px;
+}
+.glyph-deleted {
+  border-left: 3px solid #f85149 !important;
+  margin-left: 3px;
+}
+.ng-dropdown-panel {
+  z-index: 2000;
+}
+
+.btn-outline-secondary:hover i,
+.btn-outline-secondary:focus i,
+.btn-outline-secondary:active i {
+  color: #fff !important;
+}
+
+.btn-outline-secondary:focus-within i {
+  color: #000000 !important;
+}
+
+[data-bs-theme="dark"] {
+  .btn-outline-secondary:hover i,
+  .btn-outline-secondary:focus i,
+  .btn-outline-secondary:active i {
+    color: #000 !important;
+  }
+}
+
+/* ================================
+ * Datatable: modern pagination
+ * ================================ */
+.datatable-pagination {
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 0.75rem;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+
+  .card-body {
+    padding-inline: 0.75rem;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+  }
+}
+
+.datatable-page-size select {
+  min-width: 80px;
+  border-radius: 999px;
+  padding-inline: 0.75rem;
+}
+
+.datatable-pagination-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+}
+
+.datatable-pagination-controls {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.datatable-pagination-controls .pagination {
+  margin-bottom: 0;
+}
+
+@media (max-width: 576px) {
+  .datatable-pagination {
+    border-radius: 0.75rem;
+  }
+
+  .datatable-pagination-controls {
+    justify-content: center;
+  }
+
+  .datatable-pagination .card-body {
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
+  }
+}
+
+/* Shellonback logo in powered-by sections */
+img[src*="shellonback"] {
+  filter: none;
+}
+
+/* Mobile action buttons */
+.btn-mobile-action i {
+  font-size: 1.2rem;
+}
+
+@media (max-width: 576px) {
+  .btn-mobile-action {
+    padding: 0.5rem;
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-mobile-action i {
+    font-size: 1.2rem;
+  }
+}
+
+/* Detail form card refinements */
+.container.p-3 > form .card {
+  border-radius: 0.9rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+/* Compact table spacing */
+.datatable-pagination.card {
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.card app-user-filters {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.card-body > app-custom-datatable:first-child {
+  display: block;
+  margin-top: -0.25rem;
+  margin-bottom: -0.25rem;
+}
+
+/* ================================
+ * Buttons — flat tokens, no gradient, no glow
+ * ================================ */
+.btn-primary {
+  border-radius: var(--po-radius-md);
+  padding-inline: var(--po-space-4);
+  padding-block: var(--po-space-2);
+  font-weight: var(--po-weight-semibold);
+  letter-spacing: 0.01em;
+  background: var(--po-accent);
+  color: var(--po-accent-on);
+  border: 1px solid transparent;
+  box-shadow: none;
+  transition: background var(--po-duration-fast) var(--po-ease-out);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background: var(--po-accent-hover);
+  box-shadow: none;
+}
+
+.btn-primary:active {
+  background: var(--po-accent-active);
+}
+
+.btn-primary:disabled,
+.btn-primary.disabled {
+  opacity: 0.55;
+  box-shadow: none;
+}
+
+.btn-outline-secondary,
+.btn-outline-primary {
+  border-radius: var(--po-radius-md) !important;
+}
+
+/* Pagination buttons */
+.datatable-pagination .page-link,
+.datatable-pagination-controls .page-link {
+  border-radius: var(--po-radius-md) !important;
+  border: 1px solid transparent;
+  margin-inline: 2px;
+  color: var(--po-text-secondary);
+}
+
+.datatable-pagination .page-item.active .page-link,
+.datatable-pagination-controls .page-item.active .page-link {
+  background: var(--po-accent);
+  color: var(--po-accent-on);
+  box-shadow: none;
+}
+
+.datatable-pagination .page-link:hover,
+.datatable-pagination-controls .page-link:hover {
+  background-color: var(--po-bg-2);
+  color: var(--po-text-primary);
+}
+
+/* ─── Session Picker Modal (portal to body) ─── */
+.session-picker-host {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: auto;
+}
+
+.session-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 0.5);
+  z-index: 9999;
+}
+
+.session-picker-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10000;
+  width: 400px;
+  max-width: 90vw;
+  max-height: 60vh;
+  background: var(--po-bg-3);
+  border: 1px solid var(--po-border-strong);
+  border-radius: var(--po-radius-xl);
+  box-shadow: 0 20px 48px rgb(0 0 0 / 0.45);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: sessionPickerIn var(--po-duration-base) var(--po-ease-out);
+}
+
+.session-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--po-space-4) var(--po-space-5) var(--po-space-3);
+
+  h6 {
+    margin: 0;
+    font-weight: var(--po-weight-semibold);
+    font-size: var(--po-text-md);
+    color: var(--po-text-primary);
+  }
+}
+
+.session-picker-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid transparent;
+  border-radius: var(--po-radius-md);
+  background: transparent;
+  color: var(--po-text-secondary);
+  cursor: pointer;
+  transition: background var(--po-duration-fast) var(--po-ease-out),
+              color var(--po-duration-fast) var(--po-ease-out);
+
+  &:hover {
+    background: var(--po-error-bg);
+    color: var(--po-error);
+  }
+}
+
+.session-picker-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 var(--po-space-3) var(--po-space-3);
+}
+
+.session-picker-item {
+  display: flex;
+  align-items: center;
+  gap: var(--po-space-3);
+  width: 100%;
+  padding: var(--po-space-2) var(--po-space-3);
+  border: 1px solid transparent;
+  border-radius: var(--po-radius-md);
+  background: transparent;
+  color: var(--po-text-primary);
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--po-duration-fast) var(--po-ease-out);
+
+  &:hover {
+    background: var(--po-bg-2);
+  }
+}
+
+.session-picker-icon {
+  color: var(--po-success);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.session-picker-name {
+  flex: 1;
+  font-size: var(--po-text-base);
+  font-weight: var(--po-weight-medium);
+  color: var(--po-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-picker-workspace {
+  font-size: var(--po-text-xs);
+  font-weight: var(--po-weight-semibold);
+  padding: 2px var(--po-space-2);
+  border-radius: var(--po-radius-pill);
+  background: var(--po-success-bg);
+  color: var(--po-success);
+  white-space: nowrap;
+}
+
+.session-picker-section-label {
+  display: flex;
+  align-items: center;
+  gap: var(--po-space-2);
+  padding: var(--po-space-2) var(--po-space-3) var(--po-space-1);
+  font-size: var(--po-text-xs);
+  font-weight: var(--po-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--po-text-tertiary);
+
+  &.workspace {
+    color: var(--po-text-tertiary);
+  }
+
+  i {
+    font-size: 0.8rem;
+  }
+}
+
+.session-picker-item.workspace {
+  &:hover {
+    background: var(--po-warning-bg);
+  }
+}
+
+.session-picker-icon.workspace {
+  color: var(--po-warning) !important;
+}
+
+.session-picker-badge {
+  font-size: var(--po-text-xs);
+  font-weight: var(--po-weight-semibold);
+  padding: 1px var(--po-space-2);
+  border-radius: var(--po-radius-pill);
+  background: var(--po-success-bg);
+  color: var(--po-success);
+
+  &.workspace {
+    background: var(--po-warning-bg);
+    color: var(--po-warning);
+  }
+}
+
+.session-picker-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--po-space-6);
+  color: var(--po-text-secondary);
+  font-size: var(--po-text-sm);
+}
+
+@keyframes sessionPickerIn {
+  from { opacity: 0; transform: translate(-50%, -48%) scale(0.98); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* ─── Quick Access — tokens (prompts = accent, sessions = success) ─── */
+:root {
+  --qa-icon-bg: var(--po-accent-muted-bg);
+  --qa-icon-color: var(--po-accent);
+  --qa-icon-bg-hover: var(--po-accent-muted-bg);
+  --qa-icon-color-hover: var(--po-accent-hover);
+  --qa-session-bg: var(--po-success-bg);
+  --qa-session-color: var(--po-success);
+  --qa-session-bg-hover: var(--po-success-bg);
+  --qa-session-color-hover: var(--po-success);
+}
+
+.quick-access-edit-toggle {
+  background: var(--po-accent-muted-bg);
+  color: var(--po-accent);
+
+  &:hover {
+    background: var(--po-accent-muted-bg);
+    color: var(--po-accent-hover);
+  }
+}
+
+.drag-icon-btn {
+  background: var(--po-accent-muted-bg);
+  color: var(--po-accent);
+
+  &:hover {
+    background: var(--po-bg-3);
+    color: var(--po-accent-hover);
+  }
+}
+
+.drag-handle {
+  color: var(--po-text-tertiary);
+
+  &:hover {
+    color: var(--po-text-secondary);
+  }
+}
+
+.quick-access-drag-item {
+  background: var(--po-bg-2);
+  border-color: var(--po-border-subtle);
+
+  &:hover {
+    background: var(--po-bg-3);
+    border-color: var(--po-border-strong);
+  }
+}
+
+.quick-access-add-btn {
+  border-color: var(--po-border-subtle) !important;
+  background: var(--po-bg-2) !important;
+  color: var(--po-text-secondary) !important;
+
+  &:hover {
+    background: var(--po-bg-3) !important;
+    border-color: var(--po-accent) !important;
+    color: var(--po-accent) !important;
+  }
+
+  &.session {
+    border-color: var(--po-border-subtle) !important;
+    background: var(--po-success-bg) !important;
+    color: var(--po-success) !important;
+
+    &:hover {
+      background: var(--po-bg-3) !important;
+      border-color: var(--po-success) !important;
+      color: var(--po-success) !important;
+    }
+  }
+}
+
+.quick-access-empty {
+  background: var(--po-bg-2);
+  border-color: var(--po-border-subtle);
+}
+
+.quick-access-add-empty {
+  border-color: var(--po-border-subtle);
+  background: var(--po-bg-2);
+  color: var(--po-text-tertiary);
+
+  &:hover {
+    background: var(--po-bg-3);
+    border-color: var(--po-accent);
+    color: var(--po-accent);
+  }
+}
+
+.drag-type-badge {
+  background: var(--po-accent-muted-bg);
+  color: var(--po-accent);
+
+  &.session {
+    background: var(--po-success-bg);
+    color: var(--po-success);
+  }
+}
+
+/* ================================
+ * Scrollbars — tokenized (no generic gray)
+ * ================================ */
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--po-border-strong) transparent;
+}
+
+/* Webkit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--po-border-subtle);
+  border-radius: var(--po-radius-pill);
+  transition: background var(--po-duration-fast) var(--po-ease-out);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--po-border-strong);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ================================
+ * Custom Tooltips (po-tooltip) — solid surface, tokenized
+ * ================================ */
+.po-tooltip {
+  position: fixed;
+  z-index: var(--po-z-tooltip);
+  color: var(--po-text-primary);
+  padding: var(--po-space-2) var(--po-space-3);
+  border-radius: var(--po-radius-md);
+  font-family: var(--po-font-body);
+  font-size: var(--po-text-xs);
+  font-weight: var(--po-weight-medium);
+  line-height: var(--po-leading-body);
+  letter-spacing: 0.01em;
+  white-space: normal;
+  word-break: break-word;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(2px);
+  transition:
+    opacity var(--po-duration-fast) var(--po-ease-out),
+    transform var(--po-duration-fast) var(--po-ease-out);
+  max-width: 320px;
+
+  background: var(--po-bg-3);
+  border: 1px solid var(--po-border-strong);
+  box-shadow: 0 6px 16px rgb(0 0 0 / 0.35);
+}
+
+.po-tooltip-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ================================
+ * Bootstrap Tooltips — aligned with --po-* (no glass)
+ * ================================ */
+.tooltip {
+  --bs-tooltip-bg: var(--po-bg-3);
+  --bs-tooltip-color: var(--po-text-primary);
+  --bs-tooltip-opacity: 1;
+  --bs-tooltip-padding-x: var(--po-space-3);
+  --bs-tooltip-padding-y: var(--po-space-2);
+  --bs-tooltip-border-radius: var(--po-radius-md);
+  --bs-tooltip-font-size: var(--po-text-xs);
+
+  .tooltip-inner {
+    color: var(--po-text-primary);
+    font-weight: var(--po-weight-medium);
+    letter-spacing: 0.01em;
+    background: var(--po-bg-3);
+    border: 1px solid var(--po-border-strong);
+    border-radius: var(--po-radius-md);
+    box-shadow: 0 6px 16px rgb(0 0 0 / 0.35);
+  }
+
+  .tooltip-arrow::before {
+    border-top-color: var(--po-bg-3) !important;
+    border-bottom-color: var(--po-bg-3) !important;
+    border-left-color: var(--po-bg-3) !important;
+    border-right-color: var(--po-bg-3) !important;
+  }
+}
+
+/* ── Users list: presence pills (class-based, survives the DomSanitizer) ── */
+@keyframes po-users-online-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.55; transform: scale(0.82); }
+}
+
+.po-presence-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  line-height: 1;
+  white-space: nowrap;
+}
+.po-presence-pill__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.po-presence-pill--online {
+  color: var(--po-success);
+  background: var(--po-success-bg);
+  border-color: var(--po-success);
+}
+.po-presence-pill--online .po-presence-pill__dot {
+  background: var(--po-success);
+  box-shadow: 0 0 8px var(--po-success);
+  animation: po-users-online-pulse 1.4s ease-in-out infinite;
+}
+
+.po-presence-pill--banned {
+  color: var(--po-error);
+  background: var(--po-error-bg);
+}
+.po-presence-pill--banned .po-presence-pill__dot {
+  background: var(--po-error);
+}
+
+/* "ago" labels: dot + text, no pill */
+.po-presence-ago {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+.po-presence-ago__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+/* "Today" uses the same green family as online, but calmer:
+   text + green dot, no pill, no glow, no animation.
+   The rest of the scale fades into progressive gray. */
+.po-presence-ago--today                       { color: var(--po-success); font-weight: 600; }
+.po-presence-ago--today  .po-presence-ago__dot { background: var(--po-success); }
+.po-presence-ago--week                        { color: var(--po-text-secondary); }
+.po-presence-ago--week   .po-presence-ago__dot { background: var(--po-text-secondary); }
+.po-presence-ago--old                         { color: var(--po-text-secondary); opacity: 0.75; }
+.po-presence-ago--old    .po-presence-ago__dot { background: var(--po-text-secondary); opacity: 0.5; }
+.po-presence-ago--never                       { color: var(--po-text-secondary); opacity: 0.6; }
+.po-presence-ago--never  .po-presence-ago__dot { background: var(--po-text-secondary); opacity: 0.4; }
+
+/* ── Users list: cella identity (avatar img + flag + nome + @username) ── */
+.users-id-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.users-id-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+  line-height: 0;
+}
+.users-id-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid var(--po-border-subtle);
+  background: var(--po-bg-2);
+  display: block;
+}
+.users-id-dot {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--po-bg-1, var(--po-bg-2));
+  background: var(--po-text-secondary);
+}
+.users-id-dot--banned { background: var(--po-error); }
+.users-id-dot--online {
+  background: var(--po-success);
+  box-shadow: 0 0 0 3px var(--po-success-bg);
+}
+.users-id-dot--today  { background: var(--po-success); }
+.users-id-flag {
+  font-size: 1.15rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.users-id-flag-img {
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+.users-id-flag--empty {
+  color: var(--po-text-secondary);
+  opacity: 0.55;
+}
+.users-id-flag--empty i { font-size: 0.95rem; }
+.users-id-meta {
+  min-width: 0;
+  line-height: 1.2;
+  display: flex;
+  flex-direction: column;
+}
+.users-id-name {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--po-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+  letter-spacing: 0.01em;
+}
+.users-id-handle {
+  font-size: 0.72rem;
+  color: var(--po-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+.users-id-handle--username { color: var(--po-accent); }
+
+/* ── Modals: footer with the buttons ALWAYS visible ──────────────────────
+   Global rule (requested 8/23/2026): a modal taller than the window
+   scrolls in the body, never in the page — header and footer stay fixed. It applies
+   to every NgbModal without having to pass `scrollable: true` one by one.
+   Excluded: fullscreen modals (Git Explorer, DB/Code editor): they already take
+   100vh and manage the layout internally — the max-height + overflow:hidden
+   on their host would cut off the bottom part (e.g. commit buttons). */
+.modal-dialog:not(.modal-fullscreen) {
+  max-height: calc(100vh - 2 * var(--bs-modal-margin, 1.75rem));
+  .modal-content {
+    max-height: calc(100vh - 2 * var(--bs-modal-margin, 1.75rem));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .modal-header,
+  .modal-footer { flex: 0 0 auto; }
+  /* NgbModal mounts the component HOST (e.g. <app-xyz-modal>) as a child of
+     .modal-content: without this rule the flex chain breaks there and the
+     footer slides out of the viewport. Same for a <form> wrapper. */
+  .modal-content > *:not(.modal-header):not(.modal-body):not(.modal-footer),
+  .modal-content > * > form:has(> .modal-footer) {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+  /* Body "custom" (modal-body-custom & co.) scroll like .modal-body. */
+  .modal-content [class*="modal-body"] {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+  }
+}
+@media (max-width: 575.98px) {
+  .modal-dialog:not(.modal-fullscreen),
+  .modal-dialog:not(.modal-fullscreen) .modal-content { max-height: calc(100vh - 1rem); }
+}
+
+
+/* ── Sub-agent drag reorder: ghost "liquid glass" (session-view) ──
+   Appended to the body, moved only via transform in rAF. backdrop-filter on
+   a small area = negligible cost; no transition on transform
+   (it would follow the pointer with a lag). */
+.sa-drag-ghost {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 320px;
+  padding: 7px 12px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #eef0ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background:
+    radial-gradient(140% 120% at 15% 0%, rgba(255, 255, 255, 0.28), transparent 50%),
+    linear-gradient(135deg, rgba(129, 140, 248, 0.32), rgba(99, 102, 241, 0.14));
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.15),
+    0 12px 32px rgba(15, 17, 40, 0.45);
+  -webkit-backdrop-filter: blur(14px) saturate(170%);
+  backdrop-filter: blur(14px) saturate(170%);
+  opacity: 0;
+  scale: 0.9;
+  transition: opacity 0.16s ease, scale 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.sa-drag-ghost.in { opacity: 1; scale: 1; }
+.sa-drag-ghost.out { opacity: 0; scale: 0.94; }
+.sa-drag-ghost img { width: 14px; height: 14px; flex-shrink: 0; }
+.sa-drag-ghost span { overflow: hidden; text-overflow: ellipsis; }
+.sa-drag-ghost iconify-icon { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .sa-drag-ghost { transition: none; }
+}
+
+// WebKitGTK (Linux desktop app, class set by index.html): backdrop-filter
+// is the biggest compositing cost — ~90 uses across modals, toolbars and popovers,
+// each one resamples and blurs everything behind it on every frame. On Linux
+// it made the difference between a smooth and a stuttering UI (fb 2.1.2, 10/03/2026).
+// Translucent surfaces stay readable: the background color does not change.
+// Same on dual-GPU Intel Macs (po-lite-gfx class).
+html.po-webkitgtk *,
+html.po-webkitgtk *::before,
+html.po-webkitgtk *::after,
+html.po-lite-gfx *,
+html.po-lite-gfx *::before,
+html.po-lite-gfx *::after {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* ─── Right-to-left UI (Arabic) ───────────────────────────────────────────
+   The interface follows html[dir=rtl] (set from the UI language in main.ts);
+   terminals, code, paths and commands keep left-to-right, as in every RTL IDE. */
+[dir="rtl"] {
+  .xterm,
+  .monaco-editor,
+  .monaco-diff-editor,
+  pre,
+  code,
+  kbd,
+  samp,
+  .font-monospace,
+  input[type="url"],
+  input[type="email"] {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+}

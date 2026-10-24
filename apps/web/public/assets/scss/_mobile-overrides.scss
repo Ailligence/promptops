@@ -1,0 +1,336 @@
+// _mobile-overrides.scss
+// Mobile-only rules. All wrapped in media queries: no side effects on desktop.
+// Breakpoints: md=768, xs=480, xxs=360.
+
+@media (max-width: 768px) {
+  // ─── Body scroll-x lock ──────────────────────────────────────────
+  // Prevents single overflowing elements from causing horizontal scroll
+  // of the whole document. Each container must handle its own scroll-x.
+  html,
+  body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  // ─── Custom horizontal tabs → internal scroll-x ──────────────────
+  // .tabs-bar pattern (team-dashboard, project-detail, etc.): on mobile
+  // the tabs don't fit, we make them horizontally scrollable with
+  // touch momentum and a hidden scrollbar.
+  .tabs-bar,
+  .horizontal-tabs,
+  .members-subtabs {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .tabs-bar::-webkit-scrollbar,
+  .horizontal-tabs::-webkit-scrollbar,
+  .members-subtabs::-webkit-scrollbar {
+    display: none;
+  }
+  .tabs-bar > *,
+  .horizontal-tabs > *,
+  .members-subtabs > * {
+    flex-shrink: 0;
+  }
+
+  // ─── Session view split pane ─────────────────────────────────────
+  // On mobile the sidebar sits next to content that's too narrow. Force collapse
+  // to 48px (icon-only). `!important` beats Angular's inline [style.width].
+  app-session-sidebar {
+    width: 48px !important;
+    flex: 0 0 48px !important;
+  }
+  .sessions-layout {
+    overflow-x: hidden;
+  }
+
+  // ─── Task detail panel ───────────────────────────────────────────
+  // 820px panel → full viewport, internal grid stacked vertically.
+  app-task-detail-panel,
+  .task-detail-panel,
+  .detail-panel {
+    width: 100vw !important;
+    max-width: 100vw !important;
+  }
+
+  // ─── Sprint board ────────────────────────────────────────────────
+  // Horizontal columns with scroll → vertical stack.
+  app-sprint-board .board-columns,
+  .board-columns,
+  .sprint-board-columns {
+    flex-direction: column !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+    // The desktop board is height-constrained (Trello-style columns): on
+    // mobile it scrolls with the page again.
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+  }
+  app-sprint-board .board-column,
+  .board-column {
+    min-width: 100% !important;
+    max-width: 100% !important;
+    flex: 1 1 auto !important;
+    max-height: 70vh;
+  }
+
+  // ─── Prompt filters & filter rows ────────────────────────────────
+  .filters-row,
+  .prompt-filters,
+  .explore-filters {
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+  }
+  .filters-row > *,
+  .prompt-filters > *,
+  .explore-filters > * {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  // ─── Generic form rows (label+input inline) ──────────────────────
+  .form-row,
+  .form-inline-row {
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+  }
+
+  // ─── Topbar search when visible on md ─────────────────────────
+  .topbar-search-wrapper {
+    min-width: 0 !important;
+  }
+
+  // ─── Voice agent (microphone): hidden in the topbar on mobile ──────
+  // There isn't enough room in the topbar at 384px and voice
+  // interaction is less usable from a phone.
+  app-voice-agent {
+    display: none !important;
+  }
+
+  // ─── KPI / stat card grid ────────────────────────────────────────
+  .kpi-grid,
+  .overview-grid,
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  // ─── Docs view left nav ──────────────────────────────────────────
+  app-docs-view .docs-sidebar,
+  .docs-sidebar {
+    min-width: 0 !important;
+  }
+
+  // ─── Session header tabs ─────────────────────────────────────────
+  .session-tabs {
+    padding: 0.25rem !important;
+  }
+  .session-tabs .tab-item {
+    font-size: 0.72rem !important;
+    padding: 0.4rem 0.6rem !important;
+  }
+
+  // ─── Full-width modal on mobile ──────────────────────────────────
+  .modal-dialog:not(.modal-fullscreen-sm-down):not(.db-explorer-modal .modal-dialog) {
+    max-width: calc(100vw - 1rem) !important;
+    margin: 0.5rem !important;
+  }
+
+  // ─── Preview modal (project drive) ───────────────────────────────
+  .preview-modal,
+  app-project-drive .preview-modal {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    top: 0 !important;
+    left: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  // ─── Button groups: allow wrap ────────────────────────────────
+  .btn-group:not(.btn-group-vertical),
+  .btn-toolbar {
+    flex-wrap: wrap !important;
+    gap: 0.25rem !important;
+  }
+
+  // ─── Dropdown menu responsive ────────────────────────────────────
+  .dropdown-menu {
+    min-width: 0 !important;
+    max-width: calc(100vw - 1rem) !important;
+  }
+
+  // ─── Tabelle: force responsive scroll ────────────────────────────
+  .table:not(.table-responsive-none) {
+    font-size: 0.78rem;
+  }
+
+  // ─── Reduced page container padding (page body and top bar row) ──
+  .po-page:not(.po-page-fullscreen),
+  .po-topbar-bar {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  // ─── Reduced card padding ────────────────────────────────────────
+  .card-body {
+    padding: 1rem !important;
+  }
+
+  // ─── Action center config form ───────────────────────────────────
+  // Mode grid: 3 forced columns (even in compact) for readability.
+  app-action-center .mode-grid,
+  app-action-center .mode-grid.compact {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+  app-action-center .config-form {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  app-action-center select,
+  app-action-center .form-select {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+  app-action-center .mode-btn {
+    padding: 0.35rem 0.2rem !important;
+  }
+
+  // ─── Terminal dropdown ───────────────────────────────────────────
+  app-terminal-view .dropdown-menu {
+    min-width: 0 !important;
+  }
+
+  // ─── Referral info copy row ──────────────────────────────────────
+  .referral-info-row,
+  app-referral-info .info-row {
+    flex-wrap: wrap !important;
+    gap: 0.4rem !important;
+  }
+}
+
+// ─── Phone (≤480px) ────────────────────────────────────────────────
+@media (max-width: 480px) {
+  // Titles: clamp fallback
+  h1, .h1 { font-size: clamp(1.2rem, 5.5vw, 1.6rem) !important; }
+  h2, .h2 { font-size: clamp(1.05rem, 4.8vw, 1.35rem) !important; }
+  h3, .h3 { font-size: clamp(0.95rem, 4.2vw, 1.15rem) !important; }
+
+  // Explore/public hero
+  .explore-title,
+  .hero-title {
+    font-size: clamp(1.2rem, 6vw, 1.8rem) !important;
+    line-height: 1.25 !important;
+  }
+
+  // KPI grid single column
+  .kpi-grid,
+  .overview-grid,
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.5rem !important;
+  }
+
+  // Card padding
+  .card-body {
+    padding: 0.75rem !important;
+  }
+  .prompt-card {
+    padding: 0.75rem 1rem !important;
+  }
+
+  // Tighter pagination gap
+  .pagination,
+  .pagination-controls {
+    gap: 0.3rem !important;
+  }
+
+  // Scaled avatars
+  .avatar-sm { width: 24px !important; height: 24px !important; }
+  .avatar-md { width: 32px !important; height: 32px !important; }
+
+  // Button touch target
+  .btn {
+    min-height: 36px;
+  }
+
+  // Further page container padding
+  .po-page:not(.po-page-fullscreen),
+  .po-topbar-bar {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  // Input / select full-width
+  .form-control,
+  .form-select {
+    font-size: 0.875rem !important;
+  }
+
+  // CTA cards stack + reduced gap
+  .cta-card {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    padding: 1rem !important;
+  }
+
+  // Categories scroll: more aggressive scrollbar hiding
+  .categories-scroll {
+    padding-bottom: 0 !important;
+  }
+
+  // Docs content padding
+  app-docs-view .docs-content,
+  .docs-content {
+    padding: 0.75rem !important;
+  }
+
+  // Tabs
+  .nav-tabs .nav-link,
+  .nav-pills .nav-link {
+    font-size: 0.78rem !important;
+    padding: 0.45rem 0.7rem !important;
+  }
+
+  // Bottom-bar compression
+  app-bottom-bar {
+    font-size: 0.72rem !important;
+  }
+
+  // Session view sidebar forced collapse
+  app-session-sidebar .sidebar-inner {
+    font-size: 0.78rem !important;
+  }
+
+  // Smaller badges
+  .badge {
+    font-size: 0.62rem !important;
+    padding: 0.2em 0.45em !important;
+  }
+}
+
+// ─── Ultra-narrow (≤360px) ──────────────────────────────────────────
+@media (max-width: 360px) {
+  .po-page:not(.po-page-fullscreen),
+  .po-topbar-bar {
+    padding-left: 0.35rem !important;
+    padding-right: 0.35rem !important;
+  }
+  .card-body {
+    padding: 0.6rem !important;
+  }
+  h1, .h1 { font-size: 1.1rem !important; }
+  h2, .h2 { font-size: 1rem !important; }
+  .btn {
+    padding: 0.35rem 0.6rem !important;
+    font-size: 0.78rem !important;
+  }
+  .form-control,
+  .form-select {
+    font-size: 0.82rem !important;
+    padding: 0.4rem 0.55rem !important;
+  }
+}

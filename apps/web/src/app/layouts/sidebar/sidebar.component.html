@@ -1,0 +1,199 @@
+<div class="po-sidebar">
+  <app-logo-box />
+
+  <button class="po-sidebar-pin" type="button" (click)="changeSidebarSize()" [attr.aria-label]="'MENU.Pin sidebar' | translate">
+    <i class="ti ti-circle align-middle" aria-hidden="true"></i>
+  </button>
+
+  <button class="po-sidebar-close" (click)="closeFullSidebar()" type="button" [attr.aria-label]="'BUTTONS.Close' | translate">
+    <i class="ti ti-x" aria-hidden="true"></i>
+  </button>
+
+  <ngx-simplebar data-simplebar>
+    <ul class="po-nav">
+      @for (item of menuItems; track item.key;let first = $first) {
+      @if(item.isTitle){
+      <li class="po-nav-heading">{{ ('MENU.' + item.label) | translate }}</li>
+      }@else { @if (hasSubmenu(item)) {
+      <ng-container
+        *ngTemplateOutlet="
+          MenuItemWithChildren;
+          context: {
+            menu: item,
+            linkClassName: 'po-nav-link',
+            subMenuClassNames: 'po-nav-sub',
+            itemClassName: 'po-nav-item'
+          }
+        "
+      >
+      </ng-container>
+      }@else {
+      <ng-container
+        *ngTemplateOutlet="
+          MenuItem;
+          context: {
+            menu: item,
+            linkClassName: 'po-nav-link',
+            itemClassName: 'po-nav-item'
+          }
+        "
+      >
+      </ng-container>
+      } } }
+    </ul>
+
+    <!-- Quick Access Section -->
+    <ul class="po-nav quick-access-section">
+      <app-quick-access />
+    </ul>
+
+
+    <div class="clearfix"></div>
+  </ngx-simplebar>
+
+  <!-- Minimal: header relocated here — notifications above the user entry,
+       pinned to the bottom of the rail (the top header is hidden). -->
+  @if (uiStyle() === 'minimal') {
+    <div class="sidenav-minimal-footer">
+      <app-notification-center class="snf-notifications" [label]="'NOTIFICATIONS.Title' | translate"></app-notification-center>
+      <app-user-menu variant="sidebar" placement="top-start" class="snf-user"></app-user-menu>
+    </div>
+  }
+</div>
+
+<ng-template
+  #MenuItemWithChildren
+  let-menu="menu"
+  let-itemClassName="itemClassName"
+  let-linkClassName="linkClassName"
+  let-subMenuClassNames="subMenuClassNames"
+>
+  <li [class]="itemClassName" [class.active-group]="activeMenuItems.includes(menu.key)">
+    <a
+      [class]="linkClassName"
+      [ngClass]="{ active: activeMenuItems.includes(menu.key) }"
+      (click)="toggleMenuItem(menu, collapse)"
+      role="button"
+      tabindex="0"
+      (keydown.enter)="toggleMenuItem(menu, collapse)"
+      (keydown.space)="$event.preventDefault(); toggleMenuItem(menu, collapse)"
+      [attr.aria-label]="menuLabel(menu)"
+      [attr.aria-expanded]="!menu.collapsed"
+      [attr.aria-controls]="'submenu-' + menu.key"
+    >
+      @if (menu.icon) {
+      <span class="po-nav-icon" aria-hidden="true">
+        <i class="ti {{ menu.icon }}" aria-hidden="true"></i>
+      </span>
+      }
+      @if (menu.custom) {
+      <span class="po-nav-label">{{ ('MENU.' + menu.label) | translate }} </span>
+      } @else {
+      <span class="po-nav-label"> {{ menu.label }} </span>
+      }
+      @if (menu.badge) {
+      <span class="badge rounded-pill text-end bg-{{ menu.badge.variant }}">{{
+        menu.badge.text
+      }}</span>
+      }
+      <span class="po-nav-caret"></span>
+    </a>
+    <div
+      #collapse="ngbCollapse"
+      [(ngbCollapse)]="menu.collapsed"
+      class="collapse"
+      [id]="'submenu-' + menu.key"
+    >
+      <ul [class]="subMenuClassNames">
+        @for (child of menu.children; track child.key) { @if
+        (hasSubmenu(child)) {
+        <ng-container
+          *ngTemplateOutlet="
+            MenuItemWithChildren;
+            context: {
+              menu: child,
+              linkClassName: 'po-nav-link',
+              itemClassName: 'po-nav-item',
+              subMenuClassNames: 'po-nav-sub'
+            }
+          "
+        >
+        </ng-container>
+        } @else {
+        <ng-container
+          *ngTemplateOutlet="
+            MenuItem;
+            context: {
+              menu: child,
+              linkClassName: 'po-nav-link',
+              itemClassName: 'po-nav-item'
+            }
+          "
+        >
+        </ng-container>
+        } }
+      </ul>
+    </div>
+  </li>
+</ng-template>
+
+<ng-template
+  #MenuItem
+  let-menu="menu"
+  let-linkClassName="linkClassName"
+  let-itemClassName="itemClassName"
+>
+  <li
+    [class]="itemClassName"
+    [ngClass]="{ active: activeMenuItems.includes(menu.key) }"
+  >
+    <ng-container
+      *ngTemplateOutlet="
+        MenuItemLink;
+        context: { menu: menu, className: linkClassName }
+      "
+    >
+    </ng-container>
+  </li>
+</ng-template>
+
+<ng-template #MenuItemLink let-menu="menu" let-className="className">
+  <a
+    [routerLink]="menu.isDisabled ? null : menu.url"
+    [class]="className"
+    [ngClass]="{
+      active: activeMenuItems.includes(menu.key),
+      disabled: menu.isDisabled
+    }"
+    [appTooltip]="menu.isDisabled ? (('CLOUD.Locked tooltip') | translate) : ''"
+    (click)="menu.isDisabled && openCloudFeature(menu.key)"
+    [attr.aria-disabled]="menu.isDisabled || null"
+    [attr.aria-label]="menuLabel(menu)"
+    [attr.aria-current]="activeMenuItems[0] === menu.key ? 'page' : null"
+    [attr.data-menu-key]="menu.key"
+  >
+    @if (menu.icon) {
+    <span class="po-nav-icon" [class.from-plugin]="!!menu.fromPlugin" aria-hidden="true">
+      <i class="ti {{ menu.icon }}" aria-hidden="true"></i>
+      @if (menu.fromPlugin) {
+      <i class="ti ti-puzzle menu-plugin-corner" aria-hidden="true"></i>
+      }
+    </span>
+      @if (menu.custom){
+        <span class="po-nav-label">{{ ('MENU.' + menu.label) | translate }} </span>
+      } @else {
+        <span class="po-nav-label">{{ menu.label }} </span>
+      }
+    } @else {
+    {{ menu.label }}
+    } @if (menu.fromPlugin) {
+    <span class="menu-plugin-mark" [appTooltip]="'MENU.Added by plugin' | translate: { name: (menu.fromPlugin | translate) }" [attr.aria-label]="'MENU.Added by plugin' | translate: { name: (menu.fromPlugin | translate) }" role="img">
+      <i class="ti ti-puzzle" aria-hidden="true"></i>
+    </span>
+    } @else if (menu.badge) {
+    <span class="badge rounded-pill text-end bg-{{ menu.badge.variant }}">{{
+      menu.badge.text
+    }}</span>
+    }
+  </a>
+</ng-template>

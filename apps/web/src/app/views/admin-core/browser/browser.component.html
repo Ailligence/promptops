@@ -1,0 +1,247 @@
+<div class="browser-page">
+
+  <!-- ── Header: provider + prompt bar ─────────────────────────────── -->
+  <div class="bp-header">
+    <div class="bp-title-row">
+      <h2 class="bp-title"><i class="ti ti-world"></i> {{ 'BROWSER_PAGE.Title' | translate }}</h2>
+      <p class="bp-subtitle" [innerHTML]="'BROWSER_PAGE.Subtitle' | translate"></p>
+    </div>
+
+    @if (!svc.isDesktop()) {
+      <div class="alert alert-warning bp-alert">
+        <i class="ti ti-device-desktop-off"></i>
+        {{ 'BROWSER_PAGE.Desktop only' | translate }}
+      </div>
+    } @else {
+      <div class="bp-controls">
+        <!-- Provider chips -->
+        <div class="bp-providers" role="radiogroup" [attr.aria-label]="'SESSIONS.Provider' | translate">
+          @for (p of providers; track p.id) {
+            <button type="button" class="bp-chip" [class.active]="provider() === p.id"
+                    (click)="pickProvider(p.id)" [title]="p.hint | translate">
+              <iconify-icon [attr.icon]="p.icon" width="16"></iconify-icon>
+              {{ p.label }}
+            </button>
+          }
+        </div>
+
+        <!-- Launch command (editable) -->
+        <div class="bp-launch">
+          <span class="bp-launch-label">CLI</span>
+          <input class="bp-launch-input" type="text" [ngModel]="launchCmd()" (ngModelChange)="launchCmd.set($event)"
+                 spellcheck="false" [title]="'BROWSER_PAGE.Launch cmd tooltip' | translate" />
+          <button type="button" class="bp-mini" (click)="startCli()" [disabled]="!terminalId()"
+                  [title]="(cliStarted() ? 'BROWSER_PAGE.Restart cli' : 'BROWSER_PAGE.Start cli') | translate">
+            <i class="ti" [class.ti-player-play]="!cliStarted()" [class.ti-refresh]="cliStarted()"></i>
+            {{ (cliStarted() ? 'BROWSER_PAGE.Restart' : 'BROWSER_PAGE.Start') | translate }}
+          </button>
+          <button type="button" class="bp-mini" [class.bp-mini-warn]="probe() && !allOk()" (click)="toggleGuide()"
+                  [title]="'BROWSER_PAGE.Guide tooltip' | translate">
+            @if (probe() && !allOk()) { <i class="ti ti-alert-circle"></i> } @else { <i class="ti ti-help-circle"></i> }
+            {{ 'BROWSER_PAGE.Guide' | translate }}
+          </button>
+          <!-- Which Chrome the agent drives -->
+          <div class="bp-seg" role="radiogroup" aria-label="Chrome">
+            <button type="button" class="bp-seg-btn" [class.active]="!ownChrome()" (click)="useAgentChrome()"
+                    [title]="'BROWSER_PAGE.Agent chrome tooltip' | translate">
+              <i class="ti ti-device-desktop"></i> {{ 'BROWSER_PAGE.Agent chrome' | translate }}
+            </button>
+            <button type="button" class="bp-seg-btn" [class.active]="ownChrome()" (click)="useOwnChrome()"
+                    [title]="'BROWSER_PAGE.Own chrome tooltip' | translate">
+              <i class="ti ti-brand-chrome"></i> {{ 'BROWSER_PAGE.My chrome' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Setup guide: per-provider checklist with fixes ───────────── -->
+      @if (showGuide()) {
+        <div class="bp-guide">
+          <div class="bp-guide-head">
+            <span>
+              <iconify-icon [attr.icon]="providerDef().icon" width="16"></iconify-icon>
+              {{ 'BROWSER_PAGE.Provider setup' | translate: { provider: providerDef().label } }}
+              @if (allOk()) { <span class="bp-ok-pill"><i class="ti ti-check"></i> {{ 'BROWSER_PAGE.Ready' | translate }}</span> }
+            </span>
+            <span class="bp-guide-actions">
+              <button type="button" class="bp-mini" (click)="runProbe()" [disabled]="probing()" [title]="'BROWSER_PAGE.Recheck tooltip' | translate">
+                <i class="ti" [class.ti-refresh]="!probing()" [class.ti-loader-2]="probing()" [class.bp-spin]="probing()"></i> {{ 'BROWSER_PAGE.Recheck' | translate }}
+              </button>
+              <a href="#" class="bp-link" (click)="openLink($event, providerDef().docsUrl)"><i class="ti ti-book"></i> {{ 'BROWSER_PAGE.Docs' | translate }}</a>
+              <button type="button" class="bp-nav" (click)="guideOpen.set(false)" [title]="'BROWSER_PAGE.Hide' | translate" [attr.aria-label]="'BROWSER_PAGE.Hide' | translate"><i class="ti ti-x"></i></button>
+            </span>
+          </div>
+
+          <!-- 1. CLI -->
+          <details class="bp-step" [open]="!cliOk()">
+            <summary>
+              <span class="bp-step-status" [class.ok]="cliOk()" [class.ko]="probe() && !cliOk()">
+                <i class="ti" [class.ti-check]="cliOk()" [class.ti-x]="probe() && !cliOk()" [class.ti-loader-2]="!probe()"></i>
+              </span>
+              <span class="bp-step-title">{{ providerDef().guide.cli.title | translate }}</span>
+              <span class="bp-step-why">
+                @if (cliOk()) { {{ 'BROWSER_PAGE.Cli found' | translate: { cmd: probe()!.cliCommand } }} }
+                @else if (probe()) { {{ 'BROWSER_PAGE.Cli missing' | translate: { cmd: probe()!.cliCommand } }} }
+                @else { {{ 'BROWSER_PAGE.Checking' | translate }} }
+              </span>
+            </summary>
+            <div class="bp-step-body">
+              <p>{{ providerDef().guide.cli.text | translate }}</p>
+              <ng-container *ngTemplateOutlet="stepExtras; context: { step: providerDef().guide.cli }"></ng-container>
+            </div>
+          </details>
+
+          <!-- 2. Chrome -->
+          <details class="bp-step" [open]="!chromeOk()">
+            <summary>
+              <span class="bp-step-status" [class.ok]="chromeOk()" [class.ko]="status() && !chromeOk()">
+                <i class="ti" [class.ti-check]="chromeOk()" [class.ti-x]="status() && !chromeOk()" [class.ti-loader-2]="!status()"></i>
+              </span>
+              <span class="bp-step-title">{{ 'BROWSER_PAGE.Chrome step title' | translate: { port: svc.port } }}</span>
+              <span class="bp-step-why">
+                @if (ownChrome()) { {{ 'BROWSER_PAGE.Chrome not needed' | translate }} }
+                @else if (status()?.reachable) { {{ status()!.browser || ('BROWSER_PAGE.Connected' | translate) }} · {{ 'BROWSER_PAGE.Tabs count' | translate: { count: targets().length } }} }
+                @else if (status()) { {{ status()!.reason }} }
+                @else { {{ 'BROWSER_PAGE.Checking' | translate }} }
+              </span>
+            </summary>
+            <div class="bp-step-body">
+              <p [innerHTML]="'BROWSER_PAGE.Chrome step text' | translate: { port: svc.port }"></p>
+              @if (!chromeOk()) {
+                <button type="button" class="btn btn-primary btn-sm" (click)="launchChrome()" [disabled]="svc.launching() || (status() && !status()!.chromeInstalled)">
+                  @if (svc.launching()) { <i class="ti ti-loader-2 bp-spin"></i> {{ 'BROWSER_PAGE.Launching' | translate }} } @else { <i class="ti ti-rocket"></i> {{ 'BROWSER_PAGE.Launch chrome' | translate }} }
+                </button>
+                @if (status() && !status()!.chromeInstalled) {
+                  <p class="bp-step-hint">{{ 'BROWSER_PAGE.Chrome not installed' | translate }} <a href="#" class="bp-link" (click)="openLink($event, 'https://www.google.com/chrome/')">{{ 'BROWSER_PAGE.Download chrome' | translate }}</a>, {{ 'BROWSER_PAGE.Then launch profile' | translate }}</p>
+                }
+              }
+              @if (probe()?.profileDir; as dir) { <p class="bp-step-hint">{{ 'BROWSER_PAGE.Profile' | translate }} <code>{{ dir }}</code></p> }
+            </div>
+          </details>
+
+          <!-- 3. Browser integration (extension / MCP) -->
+          <details class="bp-step" [open]="!integrationOk()">
+            <summary>
+              <span class="bp-step-status" [class.ok]="integrationOk()" [class.ko]="probe() && !integrationOk()">
+                <i class="ti" [class.ti-check]="integrationOk()" [class.ti-x]="probe() && !integrationOk()" [class.ti-loader-2]="!probe()"></i>
+              </span>
+              <span class="bp-step-title">{{ providerDef().guide.integration.title | translate }}</span>
+              <span class="bp-step-why">
+                @if (!ownChrome() && probe()?.bundledMcpPath) { {{ 'BROWSER_PAGE.Bundled mcp' | translate: { port: svc.port } }} }
+                @else if (probe()?.extension) { {{ 'BROWSER_PAGE.Extension installed' | translate: { name: probe()!.extension!.name, version: probe()!.extension!.version } }} }
+                @else if (probe()?.mcpConfigured) { {{ 'BROWSER_PAGE.Mcp configured' | translate: { path: probe()!.mcpConfigPath } }} }
+                @else if (ownChrome() && probe()?.extensionElsewhere?.length) { {{ 'BROWSER_PAGE.Extension elsewhere' | translate: { name: probe()!.extensionElsewhere[0].extension.name, profile: probe()!.extensionElsewhere[0].name } }} }
+                @else if (probe()) {
+                  @if (providerDef().extensionName) { {{ 'BROWSER_PAGE.Extension missing' | translate: { name: providerDef().extensionName } }} }
+                  @else { {{ 'BROWSER_PAGE.No mcp' | translate: { path: probe()!.mcpConfigPath } }} }
+                }
+                @else { {{ 'BROWSER_PAGE.Checking' | translate }} }
+              </span>
+            </summary>
+            <div class="bp-step-body">
+              @if (ownChrome() && probe()?.extensionElsewhere?.length) {
+                <div class="bp-elsewhere">
+                  <p>
+                    <i class="ti ti-info-circle"></i>
+                    <span [innerHTML]="'BROWSER_PAGE.Elsewhere text' | translate: { name: esc(probe()!.extensionElsewhere[0].extension.name), profile: esc(probe()!.extensionElsewhere[0].name) }"></span>
+                  </p>
+                  <div class="bp-links">
+                    <button type="button" class="bp-mini bp-mini-accent" (click)="useAgentChrome()" [title]="'BROWSER_PAGE.Use agent chrome tooltip' | translate">
+                      <i class="ti ti-device-desktop"></i> {{ 'BROWSER_PAGE.Use agent chrome' | translate }}
+                    </button>
+                  </div>
+                </div>
+              }
+              <p>{{ providerDef().guide.integration.text | translate }}</p>
+              @if (providerDef().extensionName && chromeOk() && ownChrome()) {
+                <button type="button" class="bp-mini" (click)="openInMirror('https://chromewebstore.google.com/search/' + providerDef().extensionName)">
+                  <i class="ti ti-puzzle"></i> {{ 'BROWSER_PAGE.Open web store' | translate }}
+                </button>
+              }
+              <ng-container *ngTemplateOutlet="stepExtras; context: { step: providerDef().guide.integration }"></ng-container>
+              @if (probe()?.extensions?.length) {
+                <p class="bp-step-hint">{{ 'BROWSER_PAGE.Extensions list' | translate: { names: extensionNames() } }}</p>
+              }
+            </div>
+          </details>
+
+          <!-- 4. Launch -->
+          <details class="bp-step" [open]="false">
+            <summary>
+              <span class="bp-step-status" [class.ok]="cliStarted()"><i class="ti" [class.ti-check]="cliStarted()" [class.ti-player-play]="!cliStarted()"></i></span>
+              <span class="bp-step-title">{{ providerDef().guide.launch.title | translate }}</span>
+              <span class="bp-step-why">{{ (cliStarted() ? 'BROWSER_PAGE.Running in terminal' : 'BROWSER_PAGE.Starts automatically') | translate }}</span>
+            </summary>
+            <div class="bp-step-body">
+              <p>{{ providerDef().guide.launch.text | translate }}</p>
+              <ng-container *ngTemplateOutlet="stepExtras; context: { step: providerDef().guide.launch }"></ng-container>
+            </div>
+          </details>
+        </div>
+      }
+    }
+  </div>
+
+  <!-- Copyable command / snippet + links of a guide step -->
+  <ng-template #stepExtras let-step="step">
+    @if (step.cmd) {
+      <div class="bp-code"><code>{{ step.cmd }}</code>
+        <button type="button" class="bp-nav" (click)="copy(step.cmd)" [title]="'BROWSER_PAGE.Copy' | translate" [attr.aria-label]="'BROWSER_PAGE.Copy' | translate"><i class="ti" [class.ti-copy]="copied() !== step.cmd" [class.ti-check]="copied() === step.cmd"></i></button>
+      </div>
+    }
+    @if (step.snippet) {
+      <div class="bp-code bp-code-block"><pre>{{ step.snippet }}</pre>
+        <button type="button" class="bp-nav" (click)="copy(step.snippet)" [title]="'BROWSER_PAGE.Copy' | translate" [attr.aria-label]="'BROWSER_PAGE.Copy' | translate"><i class="ti" [class.ti-copy]="copied() !== step.snippet" [class.ti-check]="copied() === step.snippet"></i></button>
+      </div>
+    }
+    @if (step.links?.length) {
+      <div class="bp-links">
+        @for (l of step.links; track l.url) {
+          <a href="#" class="bp-link" (click)="openLink($event, l.url)"><i class="ti ti-external-link"></i> {{ l.label | translate }}</a>
+        }
+      </div>
+    }
+  </ng-template>
+
+  @if (svc.isDesktop()) {
+    <!-- ── Split: terminal 50% | Chrome mirror 50% ───────────────────── -->
+    <div class="bp-split">
+
+      <!-- Left: terminal -->
+      <section class="bp-pane bp-terminal">
+        <div class="bp-pane-head">
+          <span><i class="ti ti-terminal-2"></i> {{ 'BROWSER_PAGE.Provider terminal' | translate: { provider: providerDef().label } }}</span>
+          <span class="bp-head-right">
+            @if (connecting()) { <span class="bp-hint"><i class="ti ti-loader-2 bp-spin"></i> {{ 'BROWSER_PAGE.Connecting chrome' | translate }}</span> }
+            @else if (cliStarted() && ownChrome()) { <span class="bp-hint">{{ 'BROWSER_PAGE.Drives own chrome' | translate }}</span> }
+            @else if (cliStarted() && status()?.reachable) { <span class="bp-hint">{{ 'BROWSER_PAGE.Connected type here' | translate }}</span> }
+            <span class="bp-status-dot" [class.on]="cliStarted()" [title]="(cliStarted() ? 'BROWSER_PAGE.Cli started' : 'BROWSER_PAGE.Cli not started') | translate"></span>
+          </span>
+        </div>
+        <div class="bp-pane-body">
+          @if (terminalId(); as tid) {
+            <app-terminal-instance [terminalId]="tid"></app-terminal-instance>
+          }
+          @if (terminalError()) {
+            <div class="bp-empty"><i class="ti ti-alert-triangle"></i> {{ terminalError() }}</div>
+          } @else if (!terminalId() || cliBooting()) {
+            <!-- Same boot overlay as sessions, until the CLI is ready. -->
+            <app-terminal-boot-loader />
+          }
+        </div>
+      </section>
+
+      <!-- Right: Chrome mirror (shared with the per-agent Browser mode modal) -->
+      <section class="bp-pane bp-mirror">
+        <app-chrome-mirror [providerLabel]="providerDef().label" [providerId]="provider()" (openGuide)="guideOpen.set(true)"></app-chrome-mirror>
+      </section>
+    </div>
+
+    @if (error(); as err) {
+      <div class="alert alert-danger bp-alert bp-alert-bottom">
+        <i class="ti ti-alert-triangle"></i> {{ err }}
+        <button type="button" class="bp-mini" (click)="error.set(null)">{{ 'BROWSER_PAGE.Dismiss' | translate }}</button>
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,17 @@
+{
+  "git": {
+    "name": "shop-api",
+    "branch": "main",
+    "status": { "branch": "main", "files": [{ "status": "M", "path": "src/cart.ts" }] },
+    "log": [
+      { "shortHash": "a1b2c3d", "message": "Apply percentage coupons to the cart total", "relativeDate": "2 hours ago", "author": "Ada" },
+      { "shortHash": "e4f5a6b", "message": "Free shipping from 50 EUR", "relativeDate": "1 day ago", "author": "Ada" },
+      { "shortHash": "0c9d8e7", "message": "Fix rounding when a coupon and a gift card are combined", "relativeDate": "2 days ago", "author": "Bob" },
+      { "shortHash": "77aa12f", "message": "Bump version", "relativeDate": "2 days ago", "author": "ci" }
+    ],
+    "diff": "diff --git a/src/cart.ts b/src/cart.ts\n+export const FREE_SHIPPING_FROM = 50;\n"
+  },
+  "ai": [
+    { "match": "release notes", "text": "# Release 1.4.0\n\n## New\n\n- Percentage coupons are applied to the cart total.\n- Free shipping from 50 EUR.\n\n## Fixed\n\n- Totals no longer drift by one cent when a coupon and a gift card are combined.\n" }
+  ]
+}

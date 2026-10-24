@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "your-handle.my-button",
+  "name": "My button",
+  "version": "0.1.0",
+  "category": "agent",
+  "description": "A button in the toolbar of each agent terminal.",
+  "entry": "src/plugin.js",
+  "permissions": ["session:buttons"],
+  "contributes": {
+    "sessionButtons": [
+      { "id": "run", "title": "My button", "icon": "ti-player-play" }
+    ]
+  }
+}

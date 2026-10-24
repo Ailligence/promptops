@@ -1,0 +1,166 @@
+<header class="po-topbar">
+  <div class="container-fluid po-topbar-bar">
+    <div class="d-flex align-items-center gap-2">
+      <button class="po-sidebar-toggle px-2" (click)="toggleMobileMenu()">
+        <i class="ti ti-menu-deep fs-24"></i>
+      </button>
+
+      <button
+        class="refresh-system-btn"
+        type="button"
+        (click)="refreshSystem()"
+        [disabled]="refreshCountdown() > 0"
+        [ngbTooltip]="'TOPBAR.Refresh' | translate"
+        placement="bottom"
+        [attr.aria-label]="'TOPBAR.Refresh' | translate"
+      >
+        @if (refreshCountdown() > 0) {
+          <span class="refresh-countdown">{{ refreshCountdown() }}</span>
+        } @else {
+          <i class="ti ti-refresh fs-16"></i>
+        }
+      </button>
+
+      <!-- Global Search -->
+      <div class="topbar-search-wrapper d-none d-md-flex">
+        <div class="topbar-search-input">
+          <i class="ti ti-search fs-14"></i>
+          <input
+            #searchInput
+            type="text"
+            [(ngModel)]="searchQuery"
+            (input)="onSearchInput()"
+            (focus)="searchQuery.length >= 2 && (showSearchDropdown = true)"
+            [placeholder]="'TOPBAR.SearchPlaceholder' | translate"
+            autocomplete="off"
+          />
+          @if (searchQuery) {
+            <button class="search-clear-btn" type="button" (mousedown)="clearSearch(); $event.preventDefault()">
+              <i class="ti ti-x fs-12"></i>
+            </button>
+          }
+        </div>
+        @if (showSearchDropdown && searchQuery.length >= 2) {
+          <div class="topbar-search-dropdown">
+            @if (searchLoading) {
+              <div class="search-state-msg">
+                <i class="ti ti-loader-2 fs-16 topbar-spin"></i>
+                {{ 'TOPBAR.Searching' | translate }}
+              </div>
+            } @else if (searchResults.length === 0) {
+              <div class="search-state-msg">
+                <i class="ti ti-search-off fs-16"></i>
+                {{ 'TOPBAR.NoResults' | translate }}
+              </div>
+            } @else {
+              @for (group of searchGroups; track group.type) {
+                <div class="search-group-header">{{ group.label | translate }}</div>
+                @for (item of group.items; track item.id) {
+                  <a class="search-result-item" (mousedown)="navigateToResult(item); $event.preventDefault()">
+                    <i [class]="item.icon + ' fs-16'"></i>
+                    <div class="search-result-text">
+                      <span class="search-result-name">{{ item.name }}</span>
+                      @if (item.subtitle) {
+                        <small class="search-result-sub">{{ item.subtitle }}</small>
+                      }
+                    </div>
+                  </a>
+                }
+              }
+            }
+          </div>
+        }
+      </div>
+
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <!-- In minimal these move to the bottom bar (mic/mobile/switcher) and
+           sidebar (notifications/user); gated so a single instance exists. -->
+      @if (uiStyle() !== 'minimal') {
+        <!-- Voice Agent (mic) -->
+        <app-voice-agent></app-voice-agent>
+
+        <!-- Connect mobile: goes through the PromptOps relay (PromptOps Desktop only) -->
+        @if (isDesktop) {
+          <button
+            class="topbar-mobile-btn"
+            type="button"
+            (click)="openCloudFeature('remote')"
+            [ngbTooltip]="'CLOUD.Locked tooltip' | translate"
+            placement="bottom"
+          >
+            <i class="ti ti-device-mobile fs-22"></i>
+          </button>
+        }
+
+        <!-- Notification center: agent outcomes -->
+        <app-notification-center></app-notification-center>
+      }
+
+      <!-- Tutorial Button -->
+      <div class="po-topbar-slot d-none d-sm-flex">
+        <button
+          class="po-topbar-btn tutorial-start-btn"
+          type="button"
+          (click)="startTutorial()"
+          [title]="'TUTORIAL.start' | translate"
+        >
+          <i class="ti ti-player-play fs-18 me-1"></i>
+          <span class="tutorial-label">{{ 'TUTORIAL.start' | translate }}</span>
+        </button>
+      </div>
+
+      <!-- UI style switcher lives in the bottom bar (both classic and
+           minimal) — removed from the header. -->
+
+      @if (!isDesktop) {
+        <div class="po-topbar-slot d-none d-sm-flex">
+          <button
+            class="po-topbar-btn"
+            (click)="changeTheme()"
+            id="light-dark-mode"
+            type="button"
+          >
+            @if (color==="light") {
+            <i class="ti ti-moon fs-22"></i>
+            }@else{
+            <i class="ti ti-sun fs-22"></i>
+            }
+          </button>
+        </div>
+      }
+
+      <!-- User menu — moves to the sidebar (last entry) in minimal.
+           The .po-topbar-user wrapper keeps the classic chrome (bg, side borders,
+           min-height) that the extracted component would otherwise lose. -->
+      @if (uiStyle() !== 'minimal') {
+        <div class="po-topbar-slot po-topbar-user">
+          <app-user-menu variant="topbar" placement="bottom-end" />
+        </div>
+      }
+    </div>
+  </div>
+</header>
+
+<ng-template #content let-modal>
+  <div class="card mb-0 w-100">
+    <div class="px-3 py-2 d-flex flex-row align-items-center" id="top-search">
+      <i class="ti ti-search fs-22"></i>
+      <input
+        type="search"
+        class="form-control border-0"
+        id="search-modal-input"
+        [placeholder]="'COMMON.Search' | translate"
+      />
+      <button
+        type="button"
+        class="btn p-0"
+        data-bs-dismiss="modal"
+        [attr.aria-label]="'COMMON.Close' | translate"
+      >
+        [esc]
+      </button>
+    </div>
+  </div>
+</ng-template>

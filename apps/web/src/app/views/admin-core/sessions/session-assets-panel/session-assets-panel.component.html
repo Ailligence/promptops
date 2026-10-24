@@ -1,0 +1,438 @@
+<div
+  class="assets-panel"
+  [class.collapsed]="collapsed()"
+  [style.height]="collapsed() ? '36px' : panelHeight() + 'px'"
+>
+  <!-- Resize Handle -->
+  @if (!collapsed()) {
+    <div
+      class="assets-resize-handle"
+      (mousedown)="startResize($event)"
+    ></div>
+  }
+
+  <!-- Header -->
+  <div class="assets-header" (click)="togglePanel()">
+    <span class="assets-title">
+      <iconify-icon icon="solar:folder-bold-duotone" width="14"></iconify-icon>
+      {{ 'ASSETS.Assets' | translate }}
+      @if (assets().length > 0) {
+        <span class="badge bg-info ms-1">{{ assets().length }}</span>
+      }
+    </span>
+    <div class="assets-header-actions">
+      @if (!collapsed()) {
+        <button
+          class="btn-header-action"
+          (click)="openAssetsFolder(); $event.stopPropagation()"
+          [appTooltip]="'SESSIONS.TOOLTIPS.Open assets folder' | translate"
+          [attr.aria-label]="'SESSIONS.TOOLTIPS.Open assets folder' | translate"
+        >
+          <iconify-icon icon="solar:folder-open-bold" width="14"></iconify-icon>
+        </button>
+        <button
+          class="btn-header-action"
+          (click)="openFilePicker(); $event.stopPropagation()"
+          [appTooltip]="'SESSIONS.TOOLTIPS.Upload files' | translate"
+          [attr.aria-label]="'SESSIONS.TOOLTIPS.Upload files' | translate"
+        >
+          <iconify-icon icon="solar:upload-bold" width="14"></iconify-icon>
+        </button>
+        @if (assets().length > 0) {
+          <button
+            class="btn-header-action"
+            (click)="hasSelection() ? clearSelection() : selectAll(); $event.stopPropagation()"
+            [appTooltip]="(hasSelection() ? 'SESSIONS.TOOLTIPS.Deselect all' : 'SESSIONS.TOOLTIPS.Select all') | translate"
+            [attr.aria-label]="(hasSelection() ? 'SESSIONS.TOOLTIPS.Deselect all' : 'SESSIONS.TOOLTIPS.Select all') | translate"
+          >
+            <iconify-icon
+              [icon]="hasSelection() ? 'solar:check-square-bold' : 'solar:stop-bold'"
+              width="14"
+            ></iconify-icon>
+          </button>
+        }
+      }
+      <iconify-icon
+        [icon]="collapsed() ? 'solar:alt-arrow-up-bold' : 'solar:alt-arrow-down-bold'"
+        width="14"
+        style="color: var(--bs-secondary-color, #8391a2);"
+      ></iconify-icon>
+    </div>
+  </div>
+
+  @if (!collapsed()) {
+    <div class="assets-body">
+      @if (actionError(); as err) {
+        <div class="assets-error" role="alert">
+          <iconify-icon icon="solar:danger-triangle-linear" width="13"></iconify-icon>
+          <span class="assets-error-text">{{ err }}</span>
+          <button class="assets-error-close" (click)="actionError.set(null)" [attr.aria-label]="'COMMON.Close' | translate">
+            <iconify-icon icon="solar:close-circle-bold" width="13"></iconify-icon>
+          </button>
+        </div>
+      }
+      <!-- Hidden file input -->
+      <input
+        #fileInput
+        type="file"
+        multiple
+        style="display: none;"
+        (change)="onFileSelected($event)"
+      />
+
+      <!-- Uploading indicator -->
+      @if (uploading()) {
+        <div class="uploading-overlay">
+          <iconify-icon icon="solar:refresh-bold" width="16" class="spinner" style="color: #58a6ff;"></iconify-icon>
+          <span class="uploading-text">{{ 'ASSETS.Uploading' | translate }}</span>
+        </div>
+      }
+
+      <!-- Drop zone (shown when empty or always as compact) -->
+      @if (assets().length === 0) {
+        <div
+          class="drop-zone"
+          [class.drag-over]="dragOver()"
+          appFileDropZone
+          (fileDropOver)="dragOver.set($event)"
+          (fileDropped)="onDrop($event)"
+          (click)="openFilePicker()"
+        >
+          <div class="drop-zone-icon">
+            <iconify-icon icon="solar:cloud-upload-bold-duotone" width="32"></iconify-icon>
+          </div>
+          <p class="drop-zone-text">{{ 'ASSETS.Drop text' | translate }}</p>
+          <p class="drop-zone-hint">{{ 'ASSETS.Drop hint' | translate }}</p>
+        </div>
+      } @else {
+        <!-- Compact drop area + grid -->
+        <div
+          class="drop-zone"
+          [class.drag-over]="dragOver()"
+          appFileDropZone
+          (fileDropOver)="dragOver.set($event)"
+          (fileDropped)="onDrop($event)"
+          (click)="openFilePicker()"
+          style="padding: 0.4rem; margin-bottom: 0.5rem;"
+        >
+          <p class="drop-zone-text" style="margin: 0; font-size: 0.68rem;">
+            <iconify-icon icon="solar:add-circle-bold" width="13" style="vertical-align: -2px;"></iconify-icon>
+            {{ 'ASSETS.Drop compact' | translate }}
+          </p>
+        </div>
+
+        <div class="assets-grid">
+          @for (asset of assets(); track asset.name) {
+            <div
+              class="asset-card"
+              [class.selected]="selectedAssets().has(asset.name)"
+              [class.highlighted]="highlightedAssets().has(asset.name)"
+              [class.menu-open]="menuOpenAsset() === asset.name"
+              (click)="openPreview(asset)"
+            >
+              <!-- Selection checkbox -->
+              <div class="asset-checkbox">
+                <input
+                  type="checkbox"
+                  [checked]="selectedAssets().has(asset.name)"
+                  [attr.aria-label]="asset.name"
+                  (change)="toggleSelect(asset, $event)"
+                  (click)="$event.stopPropagation()"
+                />
+              </div>
+
+              <!-- Actions overlay: primary Copy Path + kebab for the rest -->
+              <div class="asset-actions" (click)="$event.stopPropagation()">
+                <button
+                  class="btn-asset-action"
+                  [class.copied]="copyOutcome('card:' + asset.name) === 'ok'"
+                  [class.copy-failed]="copyOutcome('card:' + asset.name) === 'ko'"
+                  (click)="copyRelativePath(asset, $event)"
+                  [attr.aria-label]="'ASSETS.Copy path' | translate"
+                  [appTooltip]="
+                    (copyOutcome('card:' + asset.name) === 'ok'
+                      ? 'ASSETS.Copied'
+                      : copyOutcome('card:' + asset.name) === 'ko'
+                        ? 'ASSETS.Copy failed'
+                        : 'ASSETS.Copy path'
+                    ) | translate
+                  "
+                >
+                  <iconify-icon
+                    [attr.icon]="
+                      copyOutcome('card:' + asset.name) === 'ok'
+                        ? 'solar:check-circle-bold'
+                        : copyOutcome('card:' + asset.name) === 'ko'
+                          ? 'solar:close-circle-bold'
+                          : 'solar:copy-bold'
+                    "
+                    width="10"
+                  ></iconify-icon>
+                </button>
+                <app-kebab-menu
+                  variant="overlay"
+                  [iconSize]="13"
+                  [items]="cardMenuItems()"
+                  [tooltip]="'ASSETS.More actions' | translate"
+                  [ariaLabel]="'ASSETS.More actions' | translate"
+                  (select)="onCardMenuSelect(asset, $event)"
+                  (openChange)="onCardMenuOpenChange(asset, $event)"
+                ></app-kebab-menu>
+              </div>
+
+              <!-- Preview area -->
+              <div class="asset-preview">
+                @if (asset.isImage && thumbnailCache().get(asset.name)) {
+                  <img
+                    [src]="thumbnailCache().get(asset.name)!"
+                    [alt]="asset.name"
+                  />
+                } @else {
+                  <iconify-icon
+                    [icon]="getFileIcon(asset)"
+                    width="28"
+                    class="asset-preview-icon"
+                  ></iconify-icon>
+                }
+              </div>
+
+              <!-- Info -->
+              <div class="asset-info">
+                @if (renamingAsset() === asset.name) {
+                  <input
+                    class="rename-input"
+                    [attr.aria-label]="'SESSIONS.TOOLTIPS.Rename' | translate"
+                    [value]="renameValue()"
+                    (input)="renameValue.set($any($event.target).value)"
+                    (keyup.enter)="confirmRename($event)"
+                    (keyup.escape)="cancelRename()"
+                    (blur)="confirmRename($event)"
+                    (click)="$event.stopPropagation()"
+                  />
+                } @else {
+                  <div class="asset-name" [appTooltip]="asset.name">{{ asset.name }}</div>
+                }
+                <div class="asset-meta">{{ formatSize(asset.size) }}</div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Multi-select Toolbar — appears on selection, hidden while composing -->
+    @if (hasSelection() && !composerOpen()) {
+      <div class="selection-bar">
+        <span class="selection-count">
+          {{ 'ASSETS.files selected' | translate: { count: selectedCount() } }}
+        </span>
+        <div class="selection-actions">
+          <button
+            class="sel-btn ai"
+            (click)="openComposer()"
+            [appTooltip]="'ASSETS.Ask AI hint' | translate"
+          >
+            <iconify-icon icon="solar:magic-stick-3-bold-duotone" width="13"></iconify-icon>
+            {{ 'ASSETS.Ask AI' | translate }}
+          </button>
+          <button
+            class="sel-btn"
+            [class.copied]="copyOutcome('selection') === 'ok'"
+            [class.copy-failed]="copyOutcome('selection') === 'ko'"
+            (click)="copySelectedPaths()"
+            [attr.aria-label]="'ASSETS.Copy paths' | translate"
+            [appTooltip]="
+              (copyOutcome('selection') === 'ok'
+                ? 'ASSETS.Copied'
+                : copyOutcome('selection') === 'ko'
+                  ? 'ASSETS.Copy failed'
+                  : 'ASSETS.Copy paths'
+              ) | translate
+            "
+          >
+            <iconify-icon
+              [attr.icon]="
+                copyOutcome('selection') === 'ok'
+                  ? 'solar:check-circle-bold'
+                  : copyOutcome('selection') === 'ko'
+                    ? 'solar:close-circle-bold'
+                    : 'solar:copy-bold'
+              "
+              width="13"
+            ></iconify-icon>
+          </button>
+          <button
+            class="sel-btn delete"
+            (click)="deleteSelected()"
+            [appTooltip]="'ASSETS.Delete selected' | translate"
+            [attr.aria-label]="'ASSETS.Delete selected' | translate"
+          >
+            <iconify-icon icon="solar:trash-bin-minimalistic-bold" width="13"></iconify-icon>
+          </button>
+        </div>
+        <button
+          class="sel-clear"
+          (click)="clearSelection()"
+          [appTooltip]="'ASSETS.Clear selection' | translate"
+          [attr.aria-label]="'ASSETS.Clear selection' | translate"
+        >
+          <iconify-icon icon="solar:close-circle-bold" width="15"></iconify-icon>
+        </button>
+      </div>
+    }
+
+    <!-- AI Composer — intent presets + editable prompt + enhance + destination -->
+    @if (composerOpen()) {
+      <div class="ai-composer">
+        <div class="composer-head">
+          <span class="composer-title">
+            <iconify-icon icon="solar:magic-stick-3-bold-duotone" width="14"></iconify-icon>
+            {{ 'ASSETS.Ask AI' | translate }}
+            <span class="composer-count">
+              · {{ 'ASSETS.files selected' | translate: { count: composerAssets().length } }}
+            </span>
+          </span>
+          <div class="composer-head-actions">
+            <button
+              class="composer-close"
+              [class.copied]="copyOutcome('composer') === 'ok'"
+              [class.copy-failed]="copyOutcome('composer') === 'ko'"
+              (click)="copyComposerPaths()"
+              [attr.aria-label]="'ASSETS.Copy paths' | translate"
+              [appTooltip]="
+                (copyOutcome('composer') === 'ok'
+                  ? 'ASSETS.Copied'
+                  : copyOutcome('composer') === 'ko'
+                    ? 'ASSETS.Copy failed'
+                    : 'ASSETS.Copy paths'
+                ) | translate
+              "
+            >
+              <iconify-icon
+                [attr.icon]="
+                  copyOutcome('composer') === 'ok'
+                    ? 'solar:check-circle-bold'
+                    : copyOutcome('composer') === 'ko'
+                      ? 'solar:close-circle-bold'
+                      : 'solar:copy-bold'
+                "
+                width="13"
+              ></iconify-icon>
+            </button>
+            <button
+              class="composer-close"
+              (click)="closeComposer()"
+              [appTooltip]="'ASSETS.Cancel' | translate"
+              [attr.aria-label]="'ASSETS.Cancel' | translate"
+            >
+              <iconify-icon icon="solar:close-circle-bold" width="14"></iconify-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Intent presets (ordered by relevance to the selected assets) -->
+        <div class="intent-chips">
+          @for (intent of orderedIntents(); track intent) {
+            <button
+              class="intent-chip"
+              [class.active]="activeIntent() === intent"
+              (click)="selectIntent(intent)"
+            >
+              <iconify-icon [icon]="intentIcon(intent)" width="13"></iconify-icon>
+              {{ intentLabel(intent) }}
+            </button>
+          }
+        </div>
+
+        <!-- Editable prompt preview -->
+        <textarea
+          class="prompt-textarea"
+          [value]="composerText()"
+          (input)="composerText.set($any($event.target).value)"
+          [placeholder]="'ASSETS.Write prompt' | translate"
+          [attr.aria-label]="'ASSETS.Write prompt' | translate"
+          [disabled]="enhancing()"
+        ></textarea>
+
+        <!-- Enhance + depth -->
+        <div class="composer-tools">
+          <button
+            class="composer-enhance"
+            (click)="enhanceComposer()"
+            [disabled]="enhancing()"
+            [appTooltip]="'ASSETS.Enhance hint' | translate"
+          >
+            <iconify-icon
+              [icon]="enhancing() ? 'solar:refresh-bold' : 'solar:magic-stick-3-bold'"
+              [class.spinner]="enhancing()"
+              width="13"
+            ></iconify-icon>
+            {{ 'ASSETS.Enhance' | translate }}
+          </button>
+          <div class="depth-seg" role="group">
+            @for (d of depths; track d) {
+              <button
+                class="depth-opt"
+                [class.active]="enhanceDepth() === d"
+                (click)="setDepth(d)"
+              >
+                {{ 'ASSETS.depth.' + d | translate }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Destination + send -->
+        <div class="composer-send">
+          <div class="dest-seg" role="group">
+            <button
+              class="dest-opt"
+              [class.active]="aiDestination() === 'session'"
+              (click)="aiDestination.set('session')"
+            >
+              <iconify-icon icon="solar:file-terminal-bold-duotone" width="12"></iconify-icon>
+              {{ 'ASSETS.Main session' | translate }}
+            </button>
+            <button
+              class="dest-opt"
+              [class.active]="aiDestination() === 'subagent'"
+              (click)="aiDestination.set('subagent')"
+            >
+              <iconify-icon icon="solar:cpu-bolt-bold-duotone" width="12"></iconify-icon>
+              {{ 'ASSETS.Sub-agent' | translate }}
+            </button>
+          </div>
+          <button
+            class="composer-send-btn"
+            [disabled]="!composerText().trim()"
+            (click)="sendDefault()"
+          >
+            <iconify-icon icon="solar:plain-bold" width="13"></iconify-icon>
+            {{ 'ASSETS.Send' | translate }}
+            <span class="kbd-hint">⌘⏎</span>
+          </button>
+          <button class="composer-cancel" (click)="closeComposer()">
+            {{ 'ASSETS.Cancel' | translate }}
+          </button>
+        </div>
+      </div>
+    }
+  }
+</div>
+
+<!-- Image Preview Overlay -->
+@if (previewAsset(); as preview) {
+  <div class="preview-overlay" (click)="closePreview()">
+    <div class="preview-content" role="dialog" aria-modal="true" [attr.aria-label]="preview.name"
+      (click)="$event.stopPropagation()" appEscClose (escClose)="closePreview()">
+      <button class="preview-close" (click)="closePreview()" [appTooltip]="'SESSIONS.TOOLTIPS.Close preview' | translate"
+        [attr.aria-label]="'SESSIONS.TOOLTIPS.Close preview' | translate">
+        <iconify-icon icon="solar:close-circle-bold" width="16"></iconify-icon>
+      </button>
+      @if (previewDataUrl()) {
+        <img [src]="previewDataUrl()" [alt]="preview.name" />
+      }
+      <div class="preview-filename">{{ preview.name }} ({{ formatSize(preview.size) }})</div>
+    </div>
+  </div>
+}

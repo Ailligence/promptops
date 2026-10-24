@@ -1,0 +1,52 @@
+// Scroll areas built with SimpleBar (the sidebar menu). The library ships
+// its own stylesheet (MIT); below are our adjustments.
+@import "simplebar-core/dist/simplebar";
+
+// SimpleBar sizes its inner boxes and sets their overflow inline from
+// script. We keep plain native scrolling with the native bar hidden, so the
+// box model is pinned here with !important.
+.simplebar-offset {
+  right: 0 !important;
+  bottom: 0 !important;
+}
+
+.simplebar-content-wrapper {
+  height: 100% !important;
+  overflow: auto !important;
+  scrollbar-width: none !important;
+}
+
+.simplebar-placeholder {
+  width: 100% !important;
+}
+
+// Thin thumb, 2px from the edge, in a soft gray. Scoped to [data-simplebar]
+// so it outranks the library rules for the same elements.
+[data-simplebar] .simplebar-scrollbar {
+  right: 2px;
+  width: 5px;
+
+  // Fades in at once on hover, no delay.
+  &::before {
+    left: 0;
+    right: 0;
+    background: #a2adb7;
+    transition: opacity 0.2s linear;
+  }
+
+  &.simplebar-visible::before {
+    transition-duration: 0s;
+  }
+}
+
+[data-simplebar] .simplebar-track.simplebar-horizontal .simplebar-scrollbar {
+  top: 2px;
+  bottom: auto;
+  height: 7px;
+
+  &::before {
+    height: 100%;
+    left: 2px;
+    right: 2px;
+  }
+}

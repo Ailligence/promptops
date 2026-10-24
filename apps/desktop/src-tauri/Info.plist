@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Without this key getUserMedia in the WKWebView gets killed by TCC
+         in the packaged app: the microphone permission is never requested. -->
+    <key>NSMicrophoneUsageDescription</key>
+    <string>PromptOps uses the microphone for voice commands and dictation to your AI agents.</string>
+    <!-- Used by the SFSpeechRecognizer fallback (native macOS engine). -->
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>PromptOps can transcribe voice commands with macOS speech recognition: on your Mac when the language supports it, otherwise through Apple's speech service.</string>
+</dict>
+</plist>

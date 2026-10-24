@@ -1,0 +1,40 @@
+{
+  "name": "@shellonback/promptops",
+  "version": "2.1.7",
+  "description": "Install and open PromptOps Desktop, the control room for your coding agents: Claude Code, Codex, Gemini CLI and other CLI agents side by side.",
+  "keywords": [
+    "ai",
+    "agents",
+    "claude-code",
+    "codex",
+    "gemini-cli",
+    "mcp",
+    "terminal",
+    "tauri"
+  ],
+  "homepage": "https://github.com/shellonback/promptops#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shellonback/promptops.git",
+    "directory": "apps/npm"
+  },
+  "bugs": "https://github.com/shellonback/promptops/issues",
+  "license": "Apache-2.0",
+  "author": "Shellonback S.r.l.",
+  "type": "module",
+  "bin": {
+    "promptops": "bin/promptops.mjs"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "assets",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
+}

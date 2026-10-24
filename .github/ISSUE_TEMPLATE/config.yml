@@ -4,8 +4,8 @@ contact_links:
     url: https://github.com/shellonback/promptops/security/advisories/new
     about: Report security issues privately, never in a public issue.
   - name: Documentation
-    url: https://www.promptoperations.ai/docs/
-    about: Sessions, sub-agents, providers, prompt library, Git, voice.
-  - name: PromptOps Cloud and enterprise
-    url: https://www.promptoperations.ai/enterprise/
-    about: Questions about cloud, team and enterprise features.
+    url: https://github.com/shellonback/promptops/tree/main/docs
+    about: Design notes and guides that ship with the code.
+  - name: PromptOps Desktop (hosted edition)
+    url: https://www.promptoperations.ai/
+    about: Teams, sync across devices and the mobile app live in the hosted edition.

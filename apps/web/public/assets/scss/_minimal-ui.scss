@@ -1,0 +1,1579 @@
+// =============================================================================
+//  Minimal UI — opt-in goodboy-grade skin layered on the --po-* tokens
+// -----------------------------------------------------------------------------
+//  Activated by html[data-po-ui="minimal"] (UiStyleService). Direction taken
+//  from goodboy (Cursor's calm · Linear's typographic discipline · Stripe's
+//  number-density): lifted desaturated dark surfaces on a 4-step elevation
+//  ramp (canvas < panel < rail/chip < floating) finished by soft shadows with
+//  a faint inner highlight; quiet borders that separate without shouting;
+//  soft-chroma semantic colors around the brand indigo accent (inherited,
+//  never overridden — the violet of the topbar refresh); native system type;
+//  scrollbars invisible until hover; calm motion. Same elements as Classic —
+//  only the surface changes.
+//
+//  Switch back to Classic removes the attribute — every rule here must stay
+//  scoped under [data-po-ui="minimal"] so the toggle is fully reversible.
+// =============================================================================
+
+// Registered once for the running-state conic ring; inert outside the minimal
+// scope — only .po-running-surface animates it.
+@property --po-spin-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+// Bootstrap contextual state → (po solid token, on-color token). Drives the
+// button variants and the subtle sets so the two can never drift apart.
+$po-minimal-states: (
+  "primary": (--po-accent, --po-accent-on),
+  "success": (--po-success, --po-success-on),
+  "danger": (--po-error, --po-error-on),
+  "warning": (--po-warning, --po-warning-on),
+  "info": (--po-info, --po-info-on),
+);
+
+html[data-po-ui="minimal"] {
+  // ── Token overrides (theme-agnostic) ──────────────────────────────────────
+  // goodboy radii: generous and soft, not tight.
+  --po-radius-md: 8px;
+  --po-radius-lg: 12px;
+  --po-radius-xl: 16px;
+
+  // Header is fully removed in minimal (its controls move to the sidebar
+  // footer and the bottom bar): zero the token so the fullscreen session
+  // column calc(100vh - --po-topbar-h - --po-bottombar-h) reclaims the space.
+  --po-topbar-h: 0px;
+
+  // goodboy motion: fast/normal/slow with an emphasized decel.
+  --po-duration-fast: 100ms;
+  --po-duration-base: 200ms;
+  --po-duration-slow: 350ms;
+  --po-ease-out: cubic-bezier(0.2, 0, 0, 1);
+
+  // Native system type — the Cursor-calm texture. Standard weights: the
+  // Geist variable-axis values (350/570/680) would round oddly on SF Pro.
+  --po-font-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --po-font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --po-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Cascadia Mono", monospace;
+  --po-weight-body: 400;
+  --po-weight-medium: 500;
+  --po-weight-semibold: 600;
+  --po-weight-bold: 700;
+
+  // Alpha tints derived from the live solids — follow the theme for free.
+  --po-accent-muted-bg: oklch(from var(--po-accent) l c h / 14%);
+  --po-success-bg: oklch(from var(--po-success) l c h / 14%);
+  --po-warning-bg: oklch(from var(--po-warning) l c h / 14%);
+  --po-error-bg: oklch(from var(--po-error) l c h / 14%);
+  --po-info-bg: oklch(from var(--po-info) l c h / 14%);
+
+  font-variant-numeric: tabular-nums;
+  font-family: var(--po-font-body);
+
+  // ── Bootstrap base vars re-anchored to the po tokens ──────────────────────
+  // The compiled bootstrap layer declares its surfaces/text/fonts as
+  // var(--#{$prefix}…); pointing those at the po tokens lets the theme blocks
+  // below drive card/modal/dropdown/input backgrounds, table borders and the
+  // text tiers in both themes from a single source.
+  --#{$prefix}body-bg: var(--po-bg-1);
+  --#{$prefix}body-color: var(--po-text-primary);
+  --#{$prefix}emphasis-color: var(--po-text-primary);
+  --#{$prefix}secondary-color: var(--po-text-secondary);
+  --#{$prefix}tertiary-color: var(--po-text-tertiary);
+  --#{$prefix}secondary-bg: var(--po-bg-2);
+  --#{$prefix}tertiary-bg: var(--po-bg-3);
+  --#{$prefix}border-color: var(--po-border-subtle);
+  --#{$prefix}border-color-translucent: var(--po-border-subtle);
+  --#{$prefix}primary: var(--po-accent);
+  --#{$prefix}secondary: var(--po-text-secondary);
+  --#{$prefix}success: var(--po-success);
+  --#{$prefix}warning: var(--po-warning);
+  --#{$prefix}danger: var(--po-error);
+  --#{$prefix}info: var(--po-info);
+  --#{$prefix}link-color: var(--po-accent);
+  --#{$prefix}link-hover-color: var(--po-accent-hover);
+  --#{$prefix}heading-color: var(--po-text-primary);
+  --#{$prefix}code-color: var(--po-text-secondary);
+  --#{$prefix}body-font-family: var(--po-font-body);
+  --#{$prefix}font-monospace: var(--po-font-mono);
+
+  // Subtle sets (alerts, badge-soft-*, btn-soft/ghost): tinted from the live
+  // state solid — goodboy chip texture, theme-aware by construction.
+  @each $state, $pair in $po-minimal-states {
+    --#{$prefix}#{$state}-bg-subtle: oklch(from var(#{nth($pair, 1)}) l c h / 12%);
+    --#{$prefix}#{$state}-border-subtle: oklch(from var(#{nth($pair, 1)}) l c h / 35%);
+    --#{$prefix}#{$state}-text-emphasis: var(#{nth($pair, 1)});
+  }
+  --#{$prefix}secondary-bg-subtle: oklch(from var(--po-text-secondary) l c h / 10%);
+  --#{$prefix}secondary-border-subtle: oklch(from var(--po-text-secondary) l c h / 30%);
+  --#{$prefix}secondary-text-emphasis: var(--po-text-secondary);
+
+  // Declarations stay above the nested rules: Sass now emits declarations
+  // that follow a nested rule as a separate, later block.
+  h1, h2, h3, h4, h5, h6,
+  .h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: var(--po-font-display);
+  }
+
+  // ── Elevation: the surface ramp + soft shadows carry the lift ─────────────
+  .card {
+    border: 1px solid var(--po-border-subtle);
+    border-radius: var(--po-radius-lg);
+    box-shadow: var(--po-shadow-sm);
+  }
+  .card > .card-body { padding: var(--po-space-3); }
+  .card > .card-header,
+  .card > .card-footer {
+    padding: var(--po-space-2) var(--po-space-3);
+    background: transparent;
+  }
+
+  .modal-content {
+    border: 1px solid var(--po-border-subtle);
+    border-radius: var(--po-radius-xl);
+    box-shadow: var(--po-shadow-lg);
+  }
+
+  // ── Modals: one single language for all of them (request 11/09/2026) ──────
+  // Same register as the Soft skill / Quick Actions panel, "one notch above":
+  // header and footer with a thin border and 12/16 padding, body 16px at 13px,
+  // title 16px/600, small tertiary uppercase labels, 34px controls on
+  // --po-bg-2. Applies to every NgbModal without touching the components; the few
+  // local overrides (title, inner boxes) stay valid through specificity.
+  .modal {
+    --#{$prefix}modal-padding: var(--po-space-4);
+    --#{$prefix}modal-header-padding: var(--po-space-3) var(--po-space-4);
+    --#{$prefix}modal-footer-gap: var(--po-space-2);
+    --#{$prefix}modal-border-color: var(--po-border-subtle);
+    --#{$prefix}modal-header-border-color: var(--po-border-subtle);
+    --#{$prefix}modal-footer-border-color: var(--po-border-subtle);
+    --#{$prefix}modal-border-radius: var(--po-radius-xl);
+    --#{$prefix}modal-title-line-height: 1.3;
+  }
+  .modal-header {
+    gap: var(--po-space-2);
+    .modal-title {
+      display: flex;
+      align-items: center;
+      gap: var(--po-space-2);
+      margin: 0;
+      font-size: var(--po-text-md);
+      font-weight: 600;
+      color: var(--po-text-primary);
+    }
+    .btn-close {
+      padding: var(--po-space-2);
+      font-size: 0.7rem;
+      opacity: 0.55;
+      &:hover { opacity: 1; }
+    }
+  }
+  .modal-body {
+    font-size: var(--po-text-base);
+    color: var(--po-text-primary);
+  }
+  .modal-footer {
+    padding: var(--po-space-3) var(--po-space-4);
+    .btn { min-height: 34px; padding: 6px var(--po-space-4); }
+  }
+  .modal {
+    .form-label {
+      margin-bottom: var(--po-space-1);
+      font-size: var(--po-text-xs);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--po-text-tertiary);
+    }
+    .form-text { font-size: var(--po-text-sm); color: var(--po-text-tertiary); }
+    .form-control:not(.form-control-sm),
+    .form-select:not(.form-select-sm) {
+      min-height: 34px;
+      padding: var(--po-space-1) 10px;
+      font-size: var(--po-text-base);
+      border-radius: var(--po-radius-md);
+      background-color: var(--po-bg-2);
+      border-color: var(--po-border-subtle);
+    }
+    textarea.form-control { line-height: 1.5; }
+    .form-control::placeholder { color: var(--po-text-tertiary); }
+    .form-check-label { font-size: var(--po-text-base); }
+    .alert {
+      padding: var(--po-space-2) var(--po-space-3);
+      border-radius: var(--po-radius-md);
+      font-size: var(--po-text-base);
+    }
+    hr { border-color: var(--po-border-subtle); opacity: 1; }
+  }
+
+  // "Hand-made" overlays (not NgbModal: TODO, notes, dev links, git setup /
+  // settings, branch merge, board columns…): same contract via `po-modal-*`
+  // hook classes added to the markup next to the local classes. Wins
+  // through specificity (html[attr] + class) over the components' colors/padding.
+  .po-modal-overlay,
+  .po-modal-backdrop {
+    background: oklch(from var(--po-bg-0) l c h / 55%);
+    backdrop-filter: blur(4px);
+  }
+  .po-modal {
+    background: var(--po-bg-1);
+    color: var(--po-text-primary);
+    border: 1px solid var(--po-border-subtle);
+    border-radius: var(--po-radius-xl);
+    box-shadow: var(--po-shadow-lg);
+  }
+  .po-modal-header {
+    display: flex;
+    align-items: center;
+    gap: var(--po-space-2);
+    padding: var(--po-space-3) var(--po-space-4);
+    border-bottom: 1px solid var(--po-border-subtle);
+    background: transparent;
+    font-size: var(--po-text-md);
+    font-weight: 600;
+    color: var(--po-text-primary);
+  }
+  .po-modal-title {
+    display: flex;
+    align-items: center;
+    gap: var(--po-space-2);
+    margin: 0;
+    font-size: var(--po-text-md);
+    font-weight: 600;
+    color: var(--po-text-primary);
+  }
+  .po-modal-close {
+    margin-inline-start: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: var(--po-radius-md);
+    background: transparent;
+    color: var(--po-text-secondary);
+    font-size: 1rem;
+    cursor: pointer;
+    &:hover { background: var(--po-bg-3); color: var(--po-text-primary); }
+  }
+  .po-modal-body {
+    padding: var(--po-space-4);
+    font-size: var(--po-text-base);
+    color: var(--po-text-primary);
+  }
+  .po-modal-footer {
+    display: flex;
+    align-items: center;
+    gap: var(--po-space-2);
+    padding: var(--po-space-3) var(--po-space-4);
+    border-top: 1px solid var(--po-border-subtle);
+    background: transparent;
+  }
+  .po-modal {
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+    select,
+    textarea {
+      min-height: 34px;
+      padding: var(--po-space-1) 10px;
+      font-family: inherit;
+      font-size: var(--po-text-base);
+      border: 1px solid var(--po-border-subtle);
+      border-radius: var(--po-radius-md);
+      background: var(--po-bg-2);
+      color: var(--po-text-primary);
+      &::placeholder { color: var(--po-text-tertiary); }
+      &:focus { outline: none; border-color: var(--po-accent); box-shadow: 0 0 0 3px var(--po-accent-muted-bg); }
+    }
+    textarea { padding: 9px 10px; line-height: 1.5; }
+  }
+
+  .dropdown-menu {
+    border: 1px solid var(--po-border-subtle);
+    border-radius: var(--po-radius-lg);
+    box-shadow: var(--po-shadow-md);
+    padding: var(--po-space-1);
+  }
+  .dropdown-item {
+    border-radius: var(--po-radius-md);
+    padding: var(--po-space-1) var(--po-space-2);
+    font-size: var(--po-text-base);
+  }
+
+  // ── Density: compress the default Bootstrap paddings ──────────────────────
+  .btn {
+    padding: var(--po-space-1) var(--po-space-3);
+    font-size: var(--po-text-base);
+    border-radius: var(--po-radius-md);
+  }
+  .btn-sm {
+    padding: 2px var(--po-space-2);
+    font-size: var(--po-text-sm);
+  }
+
+  .form-control,
+  .form-select {
+    padding: var(--po-space-1) var(--po-space-2);
+    font-size: var(--po-text-base);
+    border-radius: var(--po-radius-md);
+  }
+
+  .table > :not(caption) > * > * {
+    padding: var(--po-space-1) var(--po-space-2);
+  }
+
+  .list-group-item {
+    padding: var(--po-space-2) var(--po-space-3);
+  }
+
+  .badge {
+    border-radius: var(--po-radius-sm);
+    font-weight: var(--po-weight-semibold);
+  }
+
+  // ── Buttons: filled = soft-chroma solid, no border; outline = tinted ghost ─
+  // Hover steps mix toward the theme's text color, so the step lightens on
+  // dark and darkens on light without per-theme button rules.
+  @each $state, $pair in $po-minimal-states {
+    .btn-#{$state} {
+      --#{$prefix}btn-color: var(#{nth($pair, 2)});
+      --#{$prefix}btn-bg: var(#{nth($pair, 1)});
+      --#{$prefix}btn-border-color: transparent;
+      --#{$prefix}btn-hover-color: var(#{nth($pair, 2)});
+      --#{$prefix}btn-hover-bg: color-mix(in oklab, var(#{nth($pair, 1)}) 86%, var(--po-text-primary));
+      --#{$prefix}btn-hover-border-color: transparent;
+      --#{$prefix}btn-active-color: var(#{nth($pair, 2)});
+      --#{$prefix}btn-active-bg: color-mix(in oklab, var(#{nth($pair, 1)}) 76%, var(--po-text-primary));
+      --#{$prefix}btn-active-border-color: transparent;
+      --#{$prefix}btn-disabled-color: var(--po-text-tertiary);
+      --#{$prefix}btn-disabled-bg: var(--po-bg-3);
+      --#{$prefix}btn-disabled-border-color: transparent;
+      --#{$prefix}btn-focus-shadow-rgb: 128, 128, 128;
+    }
+    .btn-outline-#{$state} {
+      --#{$prefix}btn-color: var(#{nth($pair, 1)});
+      --#{$prefix}btn-bg: transparent;
+      --#{$prefix}btn-border-color: oklch(from var(#{nth($pair, 1)}) l c h / 40%);
+      --#{$prefix}btn-hover-color: var(#{nth($pair, 1)});
+      --#{$prefix}btn-hover-bg: oklch(from var(#{nth($pair, 1)}) l c h / 12%);
+      --#{$prefix}btn-hover-border-color: oklch(from var(#{nth($pair, 1)}) l c h / 55%);
+      --#{$prefix}btn-active-color: var(#{nth($pair, 1)});
+      --#{$prefix}btn-active-bg: oklch(from var(#{nth($pair, 1)}) l c h / 18%);
+      --#{$prefix}btn-active-border-color: oklch(from var(#{nth($pair, 1)}) l c h / 55%);
+      --#{$prefix}btn-disabled-color: var(--po-text-tertiary);
+      --#{$prefix}btn-disabled-bg: transparent;
+      --#{$prefix}btn-disabled-border-color: var(--po-border-subtle);
+      --#{$prefix}btn-focus-shadow-rgb: 128, 128, 128;
+    }
+  }
+
+  // Quiet buttons: a surface step, not a color.
+  .btn-secondary,
+  .btn-light,
+  .btn-dark {
+    --#{$prefix}btn-color: var(--po-text-primary);
+    --#{$prefix}btn-bg: var(--po-bg-3);
+    --#{$prefix}btn-border-color: var(--po-border-subtle);
+    --#{$prefix}btn-hover-color: var(--po-text-primary);
+    --#{$prefix}btn-hover-bg: var(--po-bg-4);
+    --#{$prefix}btn-hover-border-color: var(--po-border-strong);
+    --#{$prefix}btn-active-color: var(--po-text-primary);
+    --#{$prefix}btn-active-bg: var(--po-bg-4);
+    --#{$prefix}btn-active-border-color: var(--po-border-strong);
+    --#{$prefix}btn-disabled-color: var(--po-text-tertiary);
+    --#{$prefix}btn-disabled-bg: var(--po-bg-2);
+    --#{$prefix}btn-disabled-border-color: var(--po-border-subtle);
+    --#{$prefix}btn-focus-shadow-rgb: 128, 128, 128;
+  }
+  .btn-outline-secondary,
+  .btn-outline-light,
+  .btn-outline-dark,
+  .btn-outline-white {
+    --#{$prefix}btn-color: var(--po-text-secondary);
+    --#{$prefix}btn-bg: transparent;
+    --#{$prefix}btn-border-color: var(--po-border-strong);
+    --#{$prefix}btn-hover-color: var(--po-text-primary);
+    --#{$prefix}btn-hover-bg: var(--po-bg-4);
+    --#{$prefix}btn-hover-border-color: var(--po-border-strong);
+    --#{$prefix}btn-active-color: var(--po-text-primary);
+    --#{$prefix}btn-active-bg: var(--po-bg-4);
+    --#{$prefix}btn-active-border-color: var(--po-border-strong);
+    --#{$prefix}btn-disabled-color: var(--po-text-tertiary);
+    --#{$prefix}btn-disabled-bg: transparent;
+    --#{$prefix}btn-disabled-border-color: var(--po-border-subtle);
+    --#{$prefix}btn-focus-shadow-rgb: 128, 128, 128;
+  }
+
+  // ── Controls with compiled $component-active-bg (= indigo) literals ───────
+  .form-check-input:checked {
+    background-color: var(--po-accent);
+    border-color: var(--po-accent);
+  }
+  .form-control:focus,
+  .form-select:focus {
+    border-color: var(--po-accent);
+    box-shadow: 0 0 0 3px var(--po-accent-muted-bg);
+  }
+  .nav-pills {
+    --#{$prefix}nav-pills-link-active-bg: var(--po-accent);
+    --#{$prefix}nav-pills-link-active-color: var(--po-accent-on);
+  }
+  .progress {
+    --#{$prefix}progress-bar-bg: var(--po-accent);
+  }
+  .pagination {
+    --#{$prefix}pagination-color: var(--po-text-secondary);
+    --#{$prefix}pagination-hover-color: var(--po-text-primary);
+    --#{$prefix}pagination-focus-color: var(--po-text-primary);
+    --#{$prefix}pagination-active-color: var(--po-accent-on);
+    --#{$prefix}pagination-active-bg: var(--po-accent);
+    --#{$prefix}pagination-active-border-color: var(--po-accent);
+  }
+  .text-purple { color: var(--po-accent) !important; }
+
+  // ── Declutter: secondary surfaces hidden in this skin only ────────────────
+  // Git panel (below sub-agents), quick agents/actions in the action center,
+  // shortcut-hints bar. Display-only: the components stay alive and Classic
+  // keeps everything. The assets panel and the session-sidebar sub-agent rows
+  // stay visible by explicit request.
+  app-session-git-panel,
+  .action-center .acc-panel-quick-agents,
+  .action-center .acc-panel-actions,
+  .sa-shortcut-bar {
+    display: none !important;
+  }
+
+  // Topbar: tutorial / pro-request / pro-days buttons are noise here.
+  .tutorial-start-btn,
+  .pro-request-btn,
+  .pro-days-badge {
+    display: none !important;
+  }
+
+  // Sidenav stays a closed rail: hide the pin so it cannot be kept open
+  // (UiStyleService forces data-sidenav-size="sm-hover" while minimal is on).
+  .po-sidebar-pin {
+    display: none !important;
+  }
+
+  // ── Scrollbars: invisible until the surface is engaged (goodboy) ──────────
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+  *::-webkit-scrollbar { width: 6px; height: 6px; background: transparent; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: var(--po-radius-pill);
+    transition: background-color var(--po-duration-base) var(--po-ease-out);
+  }
+  *:hover::-webkit-scrollbar-thumb,
+  *:focus-within::-webkit-scrollbar-thumb {
+    background: oklch(from var(--po-border-strong) l c h / 50%);
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: oklch(from var(--po-border-strong) l c h / 85%);
+  }
+  *::-webkit-scrollbar-corner { background: transparent; }
+  *:hover {
+    scrollbar-color: oklch(from var(--po-border-strong) l c h / 50%) transparent;
+  }
+
+  // ── Sessions control room: compact grade (goodboy sidebar density) ────────
+  // Global rules reach the component DOM (emulated encapsulation), so the
+  // session components keep their own classic styles untouched.
+  .session-sidebar {
+    .sidebar-header { padding: var(--po-space-2) var(--po-space-3); }
+    .sidebar-title {
+      font-size: var(--po-text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--po-text-tertiary);
+    }
+    .workspace-header { padding: var(--po-space-1) var(--po-space-2); }
+    .session-item {
+      padding: var(--po-space-1) var(--po-space-2);
+      margin: 0 var(--po-space-1);
+      border-radius: var(--po-radius-md);
+      gap: var(--po-space-2);
+    }
+    .session-item.nested { padding-left: var(--po-space-5); }
+    // Match the classic size (0.8rem) — base was slightly larger.
+    .session-name { font-size: 0.8rem; }
+    // Indented as a child of its session (classic uses 2.5rem) — keep the
+    // nesting so the hierarchy reads, just at minimal density.
+    .sub-agent-item {
+      padding: 2px var(--po-space-2) 2px var(--po-space-6);
+      border-radius: var(--po-radius-md);
+    }
+    .sub-agent-title { font-size: var(--po-text-sm); }
+  }
+
+  // Session sidebar, calm grade: signals keep their hue but lose the glow,
+  // pulse and gradient texture — state lives in the surface, quietly.
+  .session-sidebar {
+    .status-running,
+    .status-waiting_input,
+    .status-error { box-shadow: none; }
+    .aa-indicator,
+    .eco-indicator {
+      filter: none !important;
+      animation: none !important;
+    }
+    .collapsed-aa-dot {
+      box-shadow: none;
+      animation: none;
+    }
+    .pending-badge {
+      background: var(--po-warning);
+      color: var(--po-warning-on);
+      box-shadow: none;
+      animation: none;
+    }
+  }
+
+  // Bottom bar: the token-efficiency section reads exactly like the other
+  // cells (Support, Updates…) — one quiet cell, no internal separators, no
+  // uppercase eyebrows. SAVED and the percentages keep their green (the
+  // component's !important rule wins by design): the one data signal here.
+  .bottom-bar .token-section {
+    .tc {
+      border-left: none;
+      padding: 0 var(--po-space-2);
+    }
+    .tc:first-child { padding-left: var(--po-space-3); }
+    .tc.title,
+    .tl {
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: var(--po-text-xs);
+    }
+    .tc.title {
+      color: var(--po-text-secondary);
+      font-weight: var(--po-weight-medium);
+    }
+    .tv {
+      color: var(--po-text-secondary);
+      font-weight: var(--po-weight-medium);
+    }
+    // Optimization chips: quiet, not accent-tinted.
+    .chip {
+      background: var(--po-bg-4);
+      color: var(--po-text-secondary);
+    }
+  }
+
+  // Commands (amber) and Eco (green) cells join the same quiet grammar as
+  // Support/Updates — state still reads from the ON/count words, not hue.
+  .bottom-bar .cmd-scan-btn,
+  .bottom-bar .eco-btn {
+    color: var(--po-text-secondary);
+  }
+  .bottom-bar .cmd-scan-btn:hover,
+  .bottom-bar .eco-btn:hover {
+    background: var(--po-bg-2);
+    color: var(--po-text-primary);
+  }
+  .bottom-bar .cmd-count { background: var(--po-bg-4); }
+  .bottom-bar .eco-btn.active {
+    background: transparent;
+    color: var(--po-text-primary);
+  }
+  .bottom-bar .eco-badge {
+    background: var(--po-bg-4);
+    color: var(--po-text-secondary);
+  }
+
+  .sub-agent-bar { font-size: var(--po-text-sm); }
+  .active-card {
+    border: 1px solid var(--po-border-subtle);
+    border-radius: var(--po-radius-md);
+    box-shadow: none;
+  }
+
+  // ── Sub-agent bar & panel: super-minimal grade ────────────────────────────
+  // Count/suggestion pills, indigo slot glow, pink check-with-provider chrome
+  // and per-category badges all collapse to the neutral tier; semantic status
+  // text and the destructive terminate affordance survive.
+  .sub-agent-bar {
+    .active-count,
+    .suggestion-badge {
+      background: var(--po-bg-4);
+      color: var(--po-text-secondary);
+    }
+    .btn-resume-bar:hover {
+      background: var(--po-bg-3);
+      color: var(--po-text-primary);
+    }
+  }
+
+  .sub-agent-content {
+    .active-card:hover,
+    .active-card.selected {
+      border-color: var(--po-border-strong);
+    }
+    .active-card.selected { background: var(--po-bg-1); }
+    .active-card.voice-focus {
+      border-color: var(--po-accent) !important;
+      box-shadow: none;
+    }
+
+    // Slot number: quiet chip; the active one sits flat on the accent.
+    .slot-badge {
+      background: var(--po-bg-4);
+      color: var(--po-text-secondary);
+    }
+    .slot-badge.active {
+      background: var(--po-accent);
+      color: var(--po-accent-on);
+      box-shadow: none;
+    }
+
+    // Attention: warning hue stays, pulse and glow go.
+    .attention-badge { animation: none; }
+    .attention-dot {
+      box-shadow: none;
+      animation: none;
+    }
+
+    // Check-with-provider: pink chrome → neutral ghost; badge flat accent.
+    .btn-check {
+      border-color: var(--po-border-subtle);
+      background: transparent;
+      color: var(--po-text-secondary);
+      animation: none;
+    }
+    .btn-check:hover {
+      border-color: var(--po-border-strong);
+      background: var(--po-bg-3);
+      color: var(--po-text-primary);
+    }
+    .check-badge {
+      background: var(--po-accent);
+      color: var(--po-accent-on);
+    }
+
+    // Suggestions: one quiet card grammar — categories say their word in
+    // gray, the incentive line drops out, activate is a neutral ghost.
+    .suggestion-card:hover { border-color: var(--po-border-strong); }
+    .category-badge {
+      background: var(--po-bg-4);
+      color: var(--po-text-secondary);
+    }
+    .suggestion-incentive { display: none; }
+    .btn-activate {
+      border-color: var(--po-border-subtle);
+      background: transparent;
+      color: var(--po-text-secondary);
+    }
+    .btn-activate:hover {
+      border-color: var(--po-border-strong);
+      background: var(--po-bg-3);
+      color: var(--po-text-primary);
+    }
+  }
+
+  // ── Header removed: controls relocated to sidebar footer + bottom bar ─────
+  // The whole top header is hidden in minimal. Its mic / mobile / interface
+  // controls render in the bottom bar, notifications + user in the sidebar
+  // footer — each gated by uiStyle so only one instance exists.
+  .po-topbar { display: none !important; }
+
+  // Sidebar becomes a full-height column with a pinned footer. The logo /
+  // helper buttons keep their place, the scroll area flexes, the footer
+  // (notifications + user) sits at the very bottom, above the bottom bar.
+  .po-sidebar {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: var(--po-bottombar-h);
+  }
+  .po-sidebar [data-simplebar] {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+  }
+  // The logo height is normally tied to --po-topbar-h, which is 0 here —
+  // give it its own height so it isn't clipped without the header.
+  .po-sidebar .po-brand {
+    height: 48px;
+    min-height: 48px;
+  }
+
+  .sidenav-minimal-footer {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--po-space-1);
+    border-top: 1px solid var(--po-border-subtle);
+  }
+  // Notifications row matches a real sidebar menu entry: same padding, same
+  // 20px icon box / 15px glyph as .po-nav-link > .po-nav-icon, icon left.
+  .sidenav-minimal-footer .snf-notifications .po-topbar-slot { width: 100%; }
+  .sidenav-minimal-footer .snf-notifications .po-topbar-btn {
+    // The .po-topbar-btn border/background reset is scoped under .po-topbar,
+    // so out here the native <button> chrome leaks through — reset it to a
+    // flat sidebar row.
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    gap: 12px;
+    padding: 7px 12px;
+    border-radius: var(--po-radius-md);
+    color: var(--po-text-secondary);
+    font-size: 0.8125rem;
+    cursor: pointer;
+  }
+  .sidenav-minimal-footer .snf-notifications .po-topbar-btn i.ti-bell {
+    width: 20px;
+    height: 20px;
+    font-size: 15px;
+    line-height: 20px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  // Label sits next to the bell like a menu entry's text.
+  .sidenav-minimal-footer .snf-notifications .nc-toggle-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sidenav-minimal-footer .snf-notifications .po-topbar-btn:hover,
+  .sidenav-minimal-footer .snf-user .um-toggle:hover {
+    background: var(--po-bg-3);
+    color: var(--po-text-primary);
+  }
+  .sidenav-minimal-footer .snf-user { width: 100%; }
+  .sidenav-minimal-footer .snf-user .um-sidebar { width: 100%; }
+  .sidenav-minimal-footer .um-toggle { border-radius: var(--po-radius-md); }
+  // Slightly larger, well-centered user avatar. The !important beats the
+  // Bootstrap `me-lg-2` utility (margin-right .5rem !important) that would
+  // otherwise shove the avatar off-center; the flex gap handles the spacing
+  // from the name when the rail is open.
+  .sidenav-minimal-footer .snf-user .um-toggle img {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    margin: 0 !important;
+  }
+  // Chevron pushed to the right edge when the rail is open.
+  .sidenav-minimal-footer .um-toggle .ti-chevron-down { margin-inline-start: auto; }
+
+  // Collapsed rail (70px): center the footer glyphs and drop the name/email
+  // + chevron, exactly like the menu rows do when the sidebar isn't hovered.
+  &[data-sidenav-size="sm-hover"] .po-sidebar:not(:hover) {
+    .sidenav-minimal-footer .um-toggle,
+    .sidenav-minimal-footer .snf-notifications .po-topbar-btn {
+      justify-content: center;
+      gap: 0;
+      padding-left: 0;
+      padding-right: 0;
+    }
+    .sidenav-minimal-footer .um-identity,
+    .sidenav-minimal-footer .snf-notifications .nc-toggle-label,
+    .sidenav-minimal-footer .um-toggle .ti-chevron-down { display: none; }
+
+    // Bell badge: with the label gone the button is a 70px centered cell, so
+    // the corner-anchored badge floats far from the glyph — pin it to the
+    // bell's top-right corner instead.
+    .sidenav-minimal-footer .snf-notifications .nc-badge {
+      top: 0;
+      right: 50%;
+      margin-right: -18px;
+    }
+
+    // Menu unread counts: _sidenav.scss hides every .badge on the collapsed
+    // rail, so an arriving notification is invisible until hover. Re-show the
+    // numeric danger counts as a compact dot pinned to the icon corner
+    // (text badges like BETA/NEW stay hidden — they'd be noise as dots).
+    .po-nav-item .po-nav-link {
+      position: relative;
+
+      .badge.bg-danger {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 3px;
+        right: 50%;
+        margin-right: -18px;
+        min-width: 15px;
+        height: 15px;
+        padding: 0 4px;
+        border-radius: 8px;
+        font-size: 9px;
+        line-height: 1;
+        box-shadow: 0 0 0 2px var(--po-bg-2);
+      }
+    }
+  }
+
+  // ── Bottom bar: relocated header controls (mic / mobile / interface) ──────
+  // Match the EN / Support / Updates cells exactly: same icon size, same
+  // gray, same hover, same 1px left separator. EN/Support are <a> while these
+  // are <button>, so the native button chrome (bg + border) must be reset —
+  // keep only the cell's left separator.
+  .bottom-bar .bb-icon {
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    border: 0;
+    border-left: 1px solid var(--po-border-subtle);
+  }
+  .bottom-bar .bb-icon i { font-size: 0.85rem; }
+  .bottom-bar .bb-ui-switch { display: inline-flex; align-items: center; height: 100%; }
+  // The mobile presence dot, scaled to the bar.
+  .bottom-bar .bb-icon { position: relative; }
+  .bottom-bar .bb-icon .mobile-dot {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 6px;
+    height: 6px;
+    border-radius: var(--po-radius-pill);
+  }
+  .bottom-bar .bb-icon .mobile-dot.live { background: var(--po-success); }
+  .bottom-bar .bb-icon .mobile-dot.idle { background: var(--po-text-tertiary); }
+
+  // Voice agent: render only its mic as a plain cell — drop the pink accent,
+  // the help "?" bubble and the shortcut chip, and adopt the cell hover.
+  .bottom-bar .bb-voice {
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+    border-left: 1px solid var(--po-border-subtle);
+  }
+  .bottom-bar .bb-voice .voice-help,
+  .bottom-bar .bb-voice .shortcut-chip { display: none !important; }
+  .bottom-bar .bb-voice .voice-btn {
+    width: auto;
+    height: 100%;
+    padding: 0 var(--po-space-3);
+    border-radius: 0;
+    color: var(--po-text-secondary) !important;
+  }
+  .bottom-bar .bb-voice .voice-btn iconify-icon { width: 14px; height: 14px; }
+  .bottom-bar .bb-voice .voice-btn:hover:not(:disabled) {
+    background: var(--po-bg-2) !important;
+    color: var(--po-text-primary) !important;
+  }
+  // Active states stay legible but on the accent, not pink.
+  .bottom-bar .bb-voice .voice-fab.listening .voice-btn {
+    background: var(--po-accent-muted-bg) !important;
+    color: var(--po-accent) !important;
+  }
+
+  // Session header: flatter and tighter — canvas surface, 1px separation.
+  .session-header-bar { background: var(--po-bg-1); }
+  .session-header-bar .header-top {
+    padding: var(--po-space-1) var(--po-space-3);
+    gap: var(--po-space-2);
+  }
+
+  // ── Session header: both toolbars speak one neutral icon language ────────
+  // Row 1 (git/ssh/db/docker/editor/note/edit/destroy) and row 2 (terminal/
+  // focus/layout) collapse to quiet 26px icon ghosts. font-size: 0 swallows
+  // the bare text labels sitting next to the icons (the iconify svg is
+  // attr-sized, so it survives); tooltips already carry the words. The
+  // !important on color/border outranks the inline git/ssh tints.
+  .session-header-bar {
+    .header-top,
+    .header-tabs-row { background: var(--po-bg-1); }
+
+    // Compact-mode toggle (the little down-arrow + its menu) is removed in
+    // minimal — the toolbar is already icon-only here.
+    .toolbar-settings { display: none !important; }
+
+    .history-badge,
+    .db-badge,
+    .docker-badge,
+    .editor-badge,
+    .icon-btn,
+    .tab-add-btn,
+    .terminals-toggle-btn,
+    .focus-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 26px;
+      min-width: 26px;
+      padding: 0 var(--po-space-1);
+      gap: 0;
+      font-size: 0;
+      line-height: 0;
+      background: transparent;
+      border: 1px solid transparent !important;
+      border-radius: var(--po-radius-md);
+      color: var(--po-text-secondary) !important;
+      transition:
+        background-color var(--po-duration-fast) var(--po-ease-out),
+        color var(--po-duration-fast) var(--po-ease-out);
+    }
+    .history-badge:hover,
+    .db-badge:hover,
+    .docker-badge:hover,
+    .editor-badge:hover,
+    .icon-btn:hover,
+    .tab-add-btn:hover,
+    .terminals-toggle-btn:hover,
+    .focus-toggle-btn:hover {
+      background: var(--po-bg-3);
+      color: var(--po-text-primary) !important;
+    }
+    .focus-toggle-btn.active {
+      background: var(--po-bg-4);
+      color: var(--po-text-primary) !important;
+    }
+    .icon-btn-danger:hover { color: var(--po-error) !important; }
+
+    // Icon-only: chrome labels and kbd hints disappear.
+    .terminals-label,
+    .focus-label,
+    .focus-kbd { display: none !important; }
+
+    // Git badge keeps its 3-color change counters (modified / added /
+    // deleted) next to the icon — widen the badge and restore their size,
+    // overriding the icon-ghost font-size: 0 above.
+    .history-badge.git-badge {
+      width: auto;
+      gap: var(--po-space-1) !important;
+      padding: 0 var(--po-space-2);
+    }
+    .history-badge.git-badge .git-counts-inline { font-size: var(--po-text-xs); }
+    .history-badge.git-badge .gc { font-size: var(--po-text-xs); }
+    .history-badge.git-badge .gc iconify-icon { font-size: 10px; }
+    .history-badge.git-badge .gc-modified { color: var(--po-warning) !important; }
+    .history-badge.git-badge .gc-added { color: var(--po-success) !important; }
+    .history-badge.git-badge .gc-deleted { color: var(--po-error) !important; }
+
+    // Layout switch: same grammar — the two state icons stay, text goes,
+    // and the emerald track/labels are re-anchored to neutral + accent.
+    .layout-mode-toggle .lmt-label {
+      font-size: 0;
+      line-height: 0;
+      color: var(--po-text-tertiary) !important;
+    }
+    .layout-mode-toggle .lmt-label.active { color: var(--po-text-primary) !important; }
+    .layout-mode-toggle .lmt-switch { background: var(--po-bg-4); }
+    .layout-mode-toggle .lmt-switch.code { background: var(--po-accent); }
+  }
+
+  // Workspace tabs: compact rail; a running tab carries the signal itself.
+  .workspace-tab {
+    height: 28px;
+    padding: 0 var(--po-space-2);
+    font-size: var(--po-text-sm);
+  }
+  .workspace-tab:has(.tab-status-dot.status-running) {
+    box-shadow: inset 0 -2px 0 0 var(--po-success);
+  }
+
+  // Action center: compact grade like the session sidebar.
+  .action-center .action-header { padding: var(--po-space-2) var(--po-space-3); }
+  .action-center .action-title {
+    font-size: var(--po-text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--po-text-tertiary);
+  }
+
+  // ── Assets & Usage panels: same neutral grammar as the header toolbars ────
+  // Chrome loses its tints (blue assets header, green/purple prompt buttons,
+  // green usage badges, colored accordion top-borders); data signals keep
+  // their semantics (quota warn/crit, delete affordance).
+  app-session-assets-panel {
+    border-top: 1px solid var(--po-border-subtle) !important;
+
+    // Header aligned like the other section headers: same vertical padding,
+    // contents centered. The title's line-height is normalized so the text
+    // box doesn't sit taller than the icon and look off-center.
+    .assets-header {
+      background: transparent;
+      align-items: center;
+      padding: var(--po-space-2) var(--po-space-3);
+    }
+    .assets-header:hover { background: var(--po-bg-3); }
+    .assets-title {
+      align-items: center;
+      line-height: 1;
+      color: var(--po-text-tertiary) !important;
+      font-size: var(--po-text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    // The icon keeps its own box (width=14) — don't shrink it to the text
+    // size, just recolor it and drop the inline baseline.
+    .assets-title iconify-icon {
+      color: var(--po-text-tertiary) !important;
+      display: block;
+      flex-shrink: 0;
+    }
+    .assets-title .badge {
+      background: var(--po-bg-4) !important;
+      color: var(--po-text-secondary) !important;
+      font-size: var(--po-text-xs);
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .btn-header-action:hover { background: var(--po-bg-3); }
+    .ai-action-btn {
+      background: transparent !important;
+      border-color: var(--po-border-subtle) !important;
+      color: var(--po-text-secondary) !important;
+    }
+    .ai-action-btn:hover:not(:disabled) {
+      background: var(--po-bg-3) !important;
+      border-color: var(--po-border-strong) !important;
+      color: var(--po-text-primary) !important;
+    }
+    .btn-prompt-send,
+    .btn-prompt-subagent {
+      background: transparent !important;
+      border-color: var(--po-border-subtle) !important;
+      color: var(--po-text-secondary) !important;
+    }
+    .btn-prompt-send:hover:not(:disabled),
+    .btn-prompt-subagent:hover:not(:disabled) {
+      background: var(--po-bg-3) !important;
+      border-color: var(--po-border-strong) !important;
+      color: var(--po-text-primary) !important;
+    }
+  }
+
+  .action-center {
+    // NEW badges trimmed in minimal — only Worker keeps its NEW
+    // (.worker-chip-new); auto-approve and AI Squad drop it.
+    .badge-new,
+    .intent-cta-badge { display: none !important; }
+
+    .accordion-panel {
+      border-top: 1px solid var(--po-border-subtle) !important;
+    }
+    .acc-header,
+    .acc-panel-usage .acc-header { background: transparent; }
+    .acc-header:hover,
+    .acc-panel-usage .acc-header:hover { background: var(--po-bg-3); }
+    .acc-title { color: var(--po-text-tertiary) !important; }
+    // Neutral count/token badges; quota warn/crit keep their semantics.
+    .usage-badge:not(.usage-badge-warn):not(.usage-badge-crit) {
+      background: var(--po-bg-4);
+      color: var(--po-text-secondary);
+    }
+
+    // Sub-agent cards: active = quiet accent tint instead of the indigo→
+    // purple gradient; attention/status keep their hue, lose pulse and glow.
+    .agent-card.active {
+      background: var(--po-accent-muted-bg);
+      border-color: var(--po-accent);
+    }
+    .agent-attention-badge { animation: none; }
+    .btn-agent-aa.aa-on {
+      box-shadow: none;
+      animation: none;
+    }
+
+    // Auto-approve: armed state reads as a flat error chip, not a glow.
+    .btn-auto-approve.on {
+      background: var(--po-error);
+      color: var(--po-error-on);
+      box-shadow: none;
+    }
+    .btn-auto-approve.on:hover {
+      background: color-mix(in oklab, var(--po-error) 86%, var(--po-text-primary));
+    }
+    .aa-status-bar.active { animation: none; }
+    .aa-status-bar.thinking { background: var(--po-accent-muted-bg); }
+    .aa-status-dot { animation: none; }
+
+    // NEW badge: flat accent, no gradient.
+    .badge-new {
+      background: var(--po-accent);
+      color: var(--po-accent-on);
+    }
+
+    // Composer toolbar: enhance amber, voice pink, resume/account indigo all
+    // collapse to one neutral icon language; active states sit on the accent.
+    .tool-btn { color: var(--po-text-secondary); }
+    .tool-btn:hover:not(:disabled) {
+      background: var(--po-bg-3);
+      color: var(--po-text-primary);
+    }
+    .tool-btn.enhance-btn.active,
+    .tool-btn.voice-btn.voice-listening,
+    .tool-btn.account-btn.account-btn-active {
+      background: var(--po-accent-muted-bg);
+      color: var(--po-accent);
+    }
+
+    // Spawn config chips: active on the accent, not purple.
+    .icon-chip.active {
+      border-color: var(--po-accent);
+      background: var(--po-accent-muted-bg);
+      color: var(--po-accent);
+    }
+    .icon-chip:hover {
+      border-color: var(--po-border-strong);
+      background: var(--po-bg-3);
+      color: var(--po-text-primary);
+    }
+    .icon-chip-badge,
+    .inject-badge {
+      background: var(--po-accent);
+      color: var(--po-accent-on);
+    }
+
+    // Spawn composer: the purple/amber/pink chrome collapses to one accent
+    // language — mode buttons, config toggles, focus rings, enhance & voice.
+    .mode-btn:hover { border-color: var(--po-border-strong); }
+    .mode-btn.active {
+      border-color: var(--po-accent);
+      background: var(--po-accent-muted-bg);
+      box-shadow: none;
+    }
+    .mode-btn.active .mode-label { color: var(--po-accent); }
+    .mode-btn.active .mode-hint { color: var(--po-text-secondary); }
+
+    .custom-config-toggle:hover {
+      border-color: var(--po-border-strong);
+      color: var(--po-text-primary);
+    }
+    .custom-config-toggle.active {
+      border-color: var(--po-accent);
+      color: var(--po-accent);
+      background: var(--po-accent-muted-bg);
+    }
+    .inject-toggle { border-color: var(--po-border-subtle); }
+    .inject-toggle:hover {
+      border-color: var(--po-border-strong);
+      color: var(--po-text-primary);
+    }
+    .inject-toggle.active {
+      border-color: var(--po-accent);
+      color: var(--po-accent);
+      background: var(--po-accent-muted-bg);
+    }
+
+    .custom-config-panel { border-color: var(--po-border-subtle); }
+    .config-select:focus { border-color: var(--po-accent); }
+
+    .spawn-composer:focus-within,
+    .spawn-composer.composer-voice-listening,
+    .spawn-composer.composer-enhancing {
+      border-color: var(--po-accent);
+      box-shadow: 0 0 0 3px var(--po-accent-muted-bg);
+    }
+
+    .meta-chip:hover {
+      background: var(--po-bg-3);
+      border-color: var(--po-border-strong);
+    }
+    .meta-chip.provider-chip iconify-icon,
+    .meta-chip.type-chip iconify-icon { color: var(--po-text-secondary); }
+
+    .enhance-spinner {
+      border-color: var(--po-accent-muted-bg);
+      border-top-color: var(--po-accent);
+    }
+    .enhance-depth-popover { border-color: var(--po-border-strong); }
+    .enhance-depth-option iconify-icon { color: var(--po-text-secondary); }
+    .enhance-depth-option:hover { background: var(--po-bg-3); }
+
+    .composer-help-btn.active {
+      color: var(--po-accent);
+      background: var(--po-accent-muted-bg);
+    }
+    .composer-help-popover { border-color: var(--po-border-strong); }
+    .composer-help-item:hover { background: var(--po-bg-3); }
+
+    .voice-inline-feedback.voice-fb-listening { color: var(--po-accent); }
+
+    // Slightly taller spawn input for a roomier compose area.
+    .composer-input { min-height: 92px; }
+
+    // Spawn: flat accent, no gradient, no glow.
+    .btn-spawn-primary {
+      background: var(--po-accent);
+      color: var(--po-accent-on);
+      box-shadow: none;
+    }
+    .btn-spawn-primary:hover:not(:disabled) {
+      background: var(--po-accent-hover);
+      box-shadow: none;
+    }
+
+    // Usage chrome leftovers: retry button and loading skeleton go neutral.
+    .usage-retry-btn {
+      background: transparent;
+      border-color: var(--po-border-subtle);
+      color: var(--po-text-secondary);
+    }
+    .skel-bar-pulse { background: var(--po-bg-4); }
+  }
+
+  // ── The element is the signal: running state lives on the surface ─────────
+  // .po-running-surface (only the focused & running session row — never
+  // sub-agents) gets goodboy's calm "spinner": a conic gradient tracing the
+  // perimeter, clipped to a 1px ring by the mask trick so it never bleeds
+  // into the body.
+  .po-running-surface { position: relative; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .po-running-surface::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: conic-gradient(
+        from var(--po-spin-angle),
+        transparent 0deg,
+        var(--po-success) 40deg,
+        transparent 110deg,
+        transparent 360deg
+      );
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      animation: po-spin-border 3.6s linear infinite;
+      pointer-events: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .po-running-surface { border-color: var(--po-success) !important; }
+  }
+}
+
+@keyframes po-spin-border {
+  to { --po-spin-angle: 360deg; }
+}
+
+// ── Dark theme (default) ────────────────────────────────────────────────────
+// goodboy's lifted desaturated darks: a brighter, calmer canvas (L 25% vs the
+// classic 17%) with a monotonic 4-step elevation ramp above it. Borders are
+// quiet (L 32/40%), never white. Accent teal, semantics at soft chroma.
+html[data-po-ui="minimal"][data-bs-theme="dark"],
+html[data-po-ui="minimal"]:not([data-bs-theme="light"]) {
+  --po-bg-0: oklch(22% 0.006 255);
+  --po-bg-1: oklch(25% 0.006 255);
+  --po-bg-2: oklch(29% 0.008 255);
+  --po-bg-3: oklch(33% 0.01 255);
+  --po-bg-4: oklch(37% 0.011 255);
+
+  --po-border-subtle: oklch(32% 0.01 255);
+  --po-border-strong: oklch(40% 0.012 255);
+
+  --po-text-primary:   oklch(91% 0.006 90);
+  // WCAG contrast (UX audit 10/2026, target AA 4.5:1 for normal text),
+  // computed oklch → sRGB on bg-0 / bg-1 / bg-2 / bg-3 / bg-4:
+  //   secondary #b1b8c1 → 8.66 / 8.00 / 7.05 / 6.11 / 5.21
+  //   tertiary  #9da2a9 → 6.73 / 6.22 / 5.49 / 4.75 / 4.05 (bg-4 = hover/highlighted
+  //   row only). Previously L60% #7b8187 → 4.39 / 4.06 / 3.58 / 3.10 / 2.64.
+  --po-text-secondary: oklch(78% 0.015 255);
+  --po-text-tertiary:  oklch(71% 0.012 255);
+
+  // Accent: NOT overridden — the brand indigo (violet, ≈ #6366F1) inherits
+  // untouched from _tokens.scss, same as the topbar global refresh.
+
+  --po-success: oklch(69% 0.13 148);
+  --po-warning: oklch(76% 0.13 78);
+  // L69%: 4.7:1 as text on bg-2; error buttons carry dark text (6.6:1) instead
+  // of light text on L63% (3.3:1).
+  --po-error:   oklch(69% 0.16 22);
+  --po-info:    oklch(69% 0.11 238);
+  --po-success-on: oklch(15% 0 0);
+  --po-warning-on: oklch(15% 0 0);
+  --po-error-on:   oklch(15% 0 0);
+  --po-info-on:    oklch(15% 0 0);
+
+  // goodboy dark shadows: subtle drop + faint inner highlight for the lift.
+  --po-shadow-sm: 0 1px 2px 0 oklch(0 0 0 / 0.28), inset 0 1px 0 0 oklch(1 0 0 / 0.03);
+  --po-shadow-md: 0 6px 16px -4px oklch(0 0 0 / 0.44), 0 2px 4px -1px oklch(0 0 0 / 0.3), inset 0 1px 0 0 oklch(1 0 0 / 0.04);
+  --po-shadow-lg: 0 18px 40px -10px oklch(0 0 0 / 0.52), 0 6px 12px -4px oklch(0 0 0 / 0.38), inset 0 1px 0 0 oklch(1 0 0 / 0.05);
+
+  // rgb triplets feed the compiled text-*/bg-* utilities and link colors —
+  // they cannot chain to oklch vars, so they carry literal equivalents.
+  --#{$prefix}primary-rgb: 99, 102, 241;
+  --#{$prefix}secondary-rgb: 184, 188, 200;
+  --#{$prefix}success-rgb: 68, 176, 110;
+  --#{$prefix}danger-rgb: 238, 109, 109;
+  --#{$prefix}warning-rgb: 221, 171, 71;
+  --#{$prefix}info-rgb: 106, 163, 232;
+  --#{$prefix}body-color-rgb: 233, 230, 222;
+  --#{$prefix}body-bg-rgb: 43, 46, 53;
+  --#{$prefix}link-color-rgb: 99, 102, 241;
+  --#{$prefix}link-hover-color-rgb: 126, 130, 245;
+  --#{$prefix}light: var(--po-bg-3);
+  --#{$prefix}light-rgb: 67, 70, 79;
+  --#{$prefix}dark: var(--po-text-primary);
+  --#{$prefix}dark-rgb: 233, 230, 222;
+
+  // Checked glyphs: indigo fill → bootstrap's default white glyphs are right.
+}
+
+// ── Light theme (web fallback) — goodboy light mapping ──────────────────────
+// Mirrored elevation model: brighter L = more elevated. Semantics tuned for
+// AA on light backgrounds, accent stays teal with a near-white label.
+html[data-po-ui="minimal"][data-bs-theme="light"] {
+  --po-bg-0: oklch(89% 0.006 250);
+  --po-bg-1: oklch(91.5% 0.006 250);
+  --po-bg-2: oklch(94% 0.005 250);
+  --po-bg-3: oklch(98.5% 0.003 250);
+  --po-bg-4: oklch(96% 0.004 250);
+
+  --po-border-subtle: oklch(87% 0.005 250);
+  --po-border-strong: oklch(82% 0.006 250);
+
+  --po-text-primary:   oklch(21% 0.005 250);
+  // WCAG contrast (UX audit 10/2026, target AA 4.5:1), on bg-0 / bg-1 / bg-2 /
+  // bg-3 / bg-4 (here bg-0 is the darkest, L89%):
+  //   secondary #45484b → 6.62 / 7.16 / 7.72 / 8.82 / 8.20 (previously L44%: 5.58 min)
+  //   tertiary  #5b5e61 → 4.70 / 5.08 / 5.48 / 6.26 / 5.82
+  //   (previously L58% #787b7e → 3.08 / 3.33 / 3.59 / 4.10 / 3.81).
+  --po-text-secondary: oklch(40% 0.006 250);
+  --po-text-tertiary:  oklch(48% 0.006 250);
+
+  // Accent: NOT overridden — the light-mode brand indigo (≈ #4F46E5)
+  // inherits untouched from _tokens.scss.
+
+  --po-success: oklch(46% 0.14 148);
+  --po-warning: oklch(50% 0.15 55);  // 4.5:1 as text on bg-0, 6.1:1 under white text
+  --po-error:   oklch(50% 0.19 22);
+  --po-info:    oklch(48% 0.14 238);
+  --po-success-on: oklch(99% 0 0);
+  --po-warning-on: oklch(99% 0 0);
+  --po-error-on:   oklch(99% 0 0);
+  --po-info-on:    oklch(99% 0 0);
+
+  // goodboy light shadows: softer, multi-layered.
+  --po-shadow-sm: 0 1px 2px 0 oklch(0 0 0 / 0.06), 0 1px 3px 0 oklch(0 0 0 / 0.08);
+  --po-shadow-md: 0 4px 12px -2px oklch(0 0 0 / 0.1), 0 2px 4px -1px oklch(0 0 0 / 0.08);
+  --po-shadow-lg: 0 16px 36px -8px oklch(0 0 0 / 0.14), 0 6px 12px -4px oklch(0 0 0 / 0.1);
+
+  --#{$prefix}primary-rgb: 79, 70, 229;
+  --#{$prefix}secondary-rgb: 93, 96, 102;
+  --#{$prefix}success-rgb: 17, 122, 64;
+  --#{$prefix}danger-rgb: 192, 58, 43;
+  --#{$prefix}warning-rgb: 161, 68, 0;
+  --#{$prefix}info-rgb: 47, 108, 196;
+  --#{$prefix}body-color-rgb: 29, 31, 35;
+  --#{$prefix}body-bg-rgb: 226, 228, 233;
+  --#{$prefix}link-color-rgb: 79, 70, 229;
+  --#{$prefix}link-hover-color-rgb: 67, 56, 202;
+  --#{$prefix}light: var(--po-bg-2);
+  --#{$prefix}light-rgb: 238, 239, 243;
+  --#{$prefix}dark: var(--po-text-primary);
+  --#{$prefix}dark-rgb: 29, 31, 35;
+
+  // Checked glyphs: indigo fill → bootstrap's default white glyphs are right.
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  Liquid Glass rail (Revolut RUI-flavored)
+// ---------------------------------------------------------------------------
+//  The sidenav stops being an opaque panel and becomes a pane of glass: a
+//  translucent tint over a blurred + saturated backdrop, a specular hairline
+//  along its edges, and rows that read as frosted pills. Behavior is
+//  untouched — minimal keeps data-sidenav-size="sm-hover", so the rail is a
+//  70px rail that expands on hover *over* the content, which is exactly what
+//  makes the blur read as real glass.
+//  Everything is scoped under [data-po-ui="minimal"]: Classic stays flat.
+// ═══════════════════════════════════════════════════════════════════════════
+html[data-po-ui="minimal"] {
+  // Dark-first glass tokens (light overridden below).
+  --po-glass-blur: 28px;
+  --po-glass-saturate: 175%;
+  --po-glass-tint: oklch(from var(--po-bg-1) l c h / 55%);
+  --po-glass-edge: oklch(100% 0 0 / 12%);
+  --po-glass-edge-soft: oklch(100% 0 0 / 6%);
+  --po-glass-specular: oklch(100% 0 0 / 9%);
+  --po-glass-row-hover: oklch(100% 0 0 / 7%);
+  --po-glass-row-active: oklch(100% 0 0 / 13%);
+  --po-glass-icon: oklch(100% 0 0 / 5%);
+  --po-glass-shadow: 0 8px 40px -10px oklch(0 0 0 / 55%);
+
+  &[data-bs-theme="light"] {
+    --po-glass-tint: oklch(from var(--po-bg-0) l c h / 62%);
+    --po-glass-edge: oklch(0 0 0 / 9%);
+    --po-glass-edge-soft: oklch(0 0 0 / 5%);
+    --po-glass-specular: oklch(100% 0 0 / 65%);
+    --po-glass-row-hover: oklch(100% 0 0 / 70%);
+    --po-glass-row-active: oklch(100% 0 0 / 92%);
+    --po-glass-icon: oklch(100% 0 0 / 55%);
+    --po-glass-shadow: 0 8px 32px -10px oklch(0 0 0 / 18%);
+  }
+
+  // ── The pane ──────────────────────────────────────────────────────────────
+  .po-sidebar {
+    background: var(--po-glass-tint);
+    backdrop-filter: blur(var(--po-glass-blur)) saturate(var(--po-glass-saturate));
+    -webkit-backdrop-filter: blur(var(--po-glass-blur)) saturate(var(--po-glass-saturate));
+    border-inline-end: 1px solid var(--po-glass-edge);
+    box-shadow:
+      var(--po-glass-shadow),
+      inset 0 1px 0 var(--po-glass-specular),
+      inset -1px 0 0 var(--po-glass-edge-soft);
+    isolation: isolate;
+
+    // Specular sheen: a light source at the top-left of the pane, fading out.
+    // Sits under the content (z-index 0 vs. the children's stacking).
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, var(--po-glass-specular) 0%, transparent 18%),
+        linear-gradient(105deg, oklch(100% 0 0 / 4%) 0%, transparent 42%);
+      z-index: -1;
+    }
+
+    // Inner separators become glass edges, not solid borders.
+    .po-brand,
+    .sidenav-minimal-footer,
+    .quick-access-section {
+      border-color: var(--po-glass-edge-soft) !important;
+      background: transparent;
+    }
+  }
+
+  // Expanded (hover) state: the pane lifts off the content underneath.
+  &[data-sidenav-size="sm-hover"] .po-sidebar:hover {
+    box-shadow:
+      0 16px 60px -12px oklch(0 0 0 / 60%),
+      inset 0 1px 0 var(--po-glass-specular),
+      inset -1px 0 0 var(--po-glass-edge-soft);
+  }
+  &[data-bs-theme="light"][data-sidenav-size="sm-hover"] .po-sidebar:hover {
+    box-shadow:
+      0 16px 48px -14px oklch(0 0 0 / 22%),
+      inset 0 1px 0 var(--po-glass-specular),
+      inset -1px 0 0 var(--po-glass-edge-soft);
+  }
+
+  // ── Rows: frosted pills ───────────────────────────────────────────────────
+  .po-nav .po-nav-item .po-nav-link {
+    border-radius: var(--po-radius-lg);
+    border: 1px solid transparent;
+    background: transparent;
+    transition:
+      background var(--po-duration-fast) var(--po-ease-out),
+      border-color var(--po-duration-fast) var(--po-ease-out),
+      box-shadow var(--po-duration-fast) var(--po-ease-out),
+      color var(--po-duration-fast) var(--po-ease-out);
+
+    &:hover,
+    &:focus {
+      background: var(--po-glass-row-hover);
+      border-color: var(--po-glass-edge-soft);
+      box-shadow: inset 0 1px 0 var(--po-glass-specular);
+    }
+
+    // Icon in its own little glass tile, Revolut-style.
+    .po-nav-icon {
+      width: 26px !important;
+      height: 26px !important;
+      border-radius: 7px;
+      background: var(--po-glass-icon);
+      border: 1px solid transparent;
+      box-shadow: inset 0 1px 0 var(--po-glass-edge-soft);
+      transition:
+        background var(--po-duration-fast) var(--po-ease-out),
+        border-color var(--po-duration-fast) var(--po-ease-out);
+    }
+    &:hover .po-nav-icon {
+      background: var(--po-glass-row-hover);
+      border-color: var(--po-glass-edge-soft);
+    }
+  }
+
+  // Active row: brighter glass + accent-lit icon tile. The accent stays the
+  // only brand hue; the left accent bar of Classic is replaced by the tile.
+  .po-nav .po-nav-item.active .po-nav-link.active {
+    background: var(--po-glass-row-active) !important;
+    border-color: var(--po-glass-edge) !important;
+    border-inline-start: 1px solid var(--po-glass-edge) !important;
+    padding-inline-start: 12px !important;
+    box-shadow:
+      inset 0 1px 0 var(--po-glass-specular),
+      0 1px 3px -1px oklch(0 0 0 / 25%);
+
+    .po-nav-icon {
+      background: oklch(from var(--po-accent) l c h / 18%);
+      border-color: oklch(from var(--po-accent) l c h / 32%);
+    }
+  }
+
+  // Collapsed rail: the group holding the active page lights up like an active
+  // row (its children are shown as icons right below it).
+  &[data-sidenav-size="sm-hover"] .po-sidebar:not(:hover) .po-nav-item.active-group > .po-nav-link {
+    background: var(--po-glass-row-active);
+    border-color: var(--po-glass-edge);
+    box-shadow: inset 0 1px 0 var(--po-glass-specular);
+
+    .po-nav-icon {
+      background: oklch(from var(--po-accent) l c h / 18%);
+      border-color: oklch(from var(--po-accent) l c h / 32%);
+    }
+  }
+
+  // Sub-menu items follow the same grammar, one step quieter.
+  .po-nav .po-nav-sub .po-nav-item .po-nav-link:hover {
+    background: var(--po-glass-row-hover);
+  }
+
+  // Flyout sub-menus (collapsed rail) are glass panes too.
+  &[data-sidenav-size="sm-hover"] .po-sidebar .po-nav-sub {
+    background-color: var(--po-glass-tint) !important;
+    backdrop-filter: blur(var(--po-glass-blur)) saturate(var(--po-glass-saturate));
+    -webkit-backdrop-filter: blur(var(--po-glass-blur)) saturate(var(--po-glass-saturate));
+    border-color: var(--po-glass-edge) !important;
+  }
+
+  // ── Footer rows (notifications + user) share the pill treatment ───────────
+  .sidenav-minimal-footer .snf-notifications .po-topbar-btn,
+  .sidenav-minimal-footer .snf-user .um-toggle {
+    border-radius: var(--po-radius-lg);
+    border: 1px solid transparent;
+  }
+  .sidenav-minimal-footer .snf-notifications .po-topbar-btn:hover,
+  .sidenav-minimal-footer .snf-user .um-toggle:hover {
+    background: var(--po-glass-row-hover);
+    border-color: var(--po-glass-edge-soft);
+    box-shadow: inset 0 1px 0 var(--po-glass-specular);
+  }
+
+  // ── Fallbacks ─────────────────────────────────────────────────────────────
+  // No backdrop-filter (or the user asked for less transparency): fall back to
+  // the opaque surfaces, keeping the pill geometry.
+  @supports not (backdrop-filter: blur(1px)) {
+    .po-sidebar,
+    &[data-sidenav-size="sm-hover"] .po-sidebar .po-nav-sub {
+      background: var(--po-bg-1) !important;
+    }
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  html[data-po-ui="minimal"] {
+    .po-sidebar,
+    &[data-sidenav-size="sm-hover"] .po-sidebar .po-nav-sub {
+      background: var(--po-bg-1) !important;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+  }
+}

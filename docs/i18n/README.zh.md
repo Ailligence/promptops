@@ -26,7 +26,7 @@
 </p>
 
 <p align="center">
-  <sub>开源版的源代码即将发布到本仓库，无需账号、无需登录，也不依赖 PromptOps 服务器。PromptOps Desktop 是开箱即用的应用，包含 Teams、同步和移动应用。<a href="../../PRIVACY.md">哪些数据会离开你的电脑 →</a></sub>
+  <sub>本仓库包含 PromptOps Desktop 的发布版本和开源版：无需账号、无需登录、无需 PromptOps 服务器，<a href="../../README.md#open-source-edition--build-it-yourself">由你自行编译</a>。PromptOps Desktop 是开箱即用的应用，包含 Teams、同步和移动应用。<a href="../../PRIVACY.md">哪些数据会离开你的电脑 →</a></sub>
 </p>
 
 ## 快速开始
@@ -170,7 +170,7 @@ PromptOps 使用你已付费的账号启动官方 CLI。没有代理，不转售
 
 ### 开源版
 
-无需账号，无需服务器：所有内容都留在你的电脑上。其源代码即将发布到本仓库，并附带在 macOS、Windows 和 Linux 上自行构建的命令。为仓库点 [Star](https://github.com/shellonback/promptops)，第一时间获知发布消息。
+无需账号，也无需服务器：一切都留在你的电脑上。代码就在本仓库中；此版本不提供预编译的二进制文件：在 macOS、Windows 和 Linux 上编译的命令见[英文 README](../../README.md#open-source-edition--build-it-yourself)。
 
 ---
 

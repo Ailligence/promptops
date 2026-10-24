@@ -1,0 +1,84 @@
+// App frame: the fixed sidebar on the left, the sticky top bar and the
+// routed page next to them.
+//
+//   .po-shell           whole app (main-layout)
+//   ├─ .po-sidebar      navigation rail, see _sidebar.scss
+//   ├─ .po-topbar       see _topbar.scss
+//   └─ .po-main         column that holds the routed page
+//      └─ .po-page      page body (also .container-fluid)
+//
+// How much room the sidebar takes depends on html[data-sidenav-size]; the
+// top bar and the main column both read it from --po-sidebar-offset.
+
+:root {
+  --po-sidebar-w: 260px;
+  --po-sidebar-w-compact: 160px;
+  --po-sidebar-w-rail: 70px;
+  --po-sidebar-offset: var(--po-sidebar-w);
+  // Height of the classic top bar. Unlike --po-topbar-h, the minimal skin
+  // does not zero it, so the page and brand row keep their classic metrics.
+  --po-frame-bar-h: 50px;
+  --po-frame-transition: all 0.25s ease-in-out;
+}
+
+html[data-sidenav-size=compact] {
+  --po-sidebar-offset: var(--po-sidebar-w-compact);
+}
+html[data-sidenav-size=condensed],
+html[data-sidenav-size=sm-hover] {
+  --po-sidebar-offset: var(--po-sidebar-w-rail);
+}
+// Mobile drawer and "hidden": the sidebar floats over the page.
+html[data-sidenav-size=full],
+html[data-sidenav-size=fullscreen] {
+  --po-sidebar-offset: 0px;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+.po-shell {
+  width: 100%;
+  height: 100%;
+}
+
+.po-main {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - var(--po-frame-bar-h));
+  margin-inline-start: var(--po-sidebar-offset);
+  padding: 0 0.75rem;
+  background: transparent;
+  transition: var(--po-frame-transition);
+}
+
+// The condensed rail lets flyout menus hang below the fold, so the page
+// keeps enough height for them to stay reachable.
+html[data-sidenav-size=condensed] .po-main {
+  min-height: 1800px;
+}
+
+@media print {
+  .po-sidebar,
+  .po-topbar {
+    display: none !important;
+  }
+
+  body,
+  .po-main,
+  .card-body {
+    margin: 0;
+    padding: 0;
+  }
+
+  .card {
+    box-shadow: none;
+  }
+}

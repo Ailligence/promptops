@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>PromptOps</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="assets/logos/promptops-full.png">
+  <style>
+    #splash-screen {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      background: #FAFAFA;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+      transform: translate(-50%, -50%);
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      z-index: 9999;
+      opacity: 1;
+      transition: all 15s linear;
+      overflow: hidden;
+    }
+
+    #splash-screen.remove {
+      animation: fadeout 0.7s forwards;
+      z-index: 0;
+    }
+
+    @keyframes fadeout {
+      to {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+
+    .splash-wordmark {
+      display: flex;
+      align-items: baseline;
+      font-family: "Geist", "Inter", system-ui, sans-serif;
+      font-weight: 700;
+      font-size: 2.6rem;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+    .splash-wordmark .prompt { color: #1a1a1a; }
+    .splash-wordmark .ops {
+      background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #A855F7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .splash-powered {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: "Geist", "Inter", system-ui, sans-serif;
+      font-size: 0.7rem;
+      color: #9ca3af;
+    }
+    .splash-powered img { height: 14px; opacity: 0.6; }
+  </style>
+</head>
+
+<body>
+  <script src="boot/graphics-flags.js"></script>
+  <app-root></app-root>
+  <div id="splash-screen">
+    <span class="splash-wordmark">
+      <span class="prompt">Prompt</span><span class="ops">Ops</span>
+    </span>
+    <span class="splash-powered">
+      powered by
+      <img src="assets/logos/shellonback-logo.png" alt="Shellonback" />
+    </span>
+  </div>
+  <script src="boot/splash.js"></script>
+</body>
+
+</html>

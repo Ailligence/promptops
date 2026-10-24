@@ -1,0 +1,44 @@
+// PromptOps stylesheet.
+//
+// Bootstrap 5 provides the components; everything else here is ours:
+//   _settings     values Bootstrap is built from
+//   _palette      dark mode values Bootstrap does not switch by itself
+//   _tokens       design tokens (--po-*) shared with component styles
+//   _minimal-ui   opt-in skin, html[data-po-ui="minimal"]
+//   shell/        app frame: sidebar, top bar, page column
+//   ui/           element defaults, Bootstrap adjustments, helper classes
+//   _a11y         focus ring and reduced motion
+//   _mobile-overrides  phone and tablet fixes
+
+@import "bootstrap/scss/functions";
+@import "settings";
+@import "bootstrap/scss/variables";
+
+// Unset, so Bootstrap writes no color for headings and popover titles: they
+// inherit from their container.
+$headings-color: null;
+$popover-header-color: null;
+
+@import "palette";
+
+// Tokens come before Bootstrap so its custom properties can point at them.
+@import "tokens";
+
+@import "bootstrap/scss/bootstrap";
+
+// The minimal skin loads after Bootstrap so its density rules win.
+@import "minimal-ui";
+
+@import "shell/frame";
+@import "shell/topbar";
+@import "shell/sidebar";
+
+@import "ui/elements";
+@import "ui/bootstrap";
+@import "ui/helpers";
+@import "ui/simplebar";
+
+// Last: the focus ring must beat Bootstrap's reboot, and the mobile rules
+// (all inside media queries) must beat the desktop ones.
+@import "a11y";
+@import "mobile-overrides";

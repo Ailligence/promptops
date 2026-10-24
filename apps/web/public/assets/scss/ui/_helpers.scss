@@ -1,0 +1,42 @@
+// Small helper classes used in markup across the app.
+
+// Dropdown toggle without Bootstrap's caret.
+.po-no-caret::after {
+  display: none;
+}
+
+// Square icon-only button, sized like a regular button.
+.po-btn-square {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(1rem + 1.5em + 2px);
+  height: calc(1rem + 1.5em + 2px);
+  padding: 0;
+
+  &.btn-sm {
+    width: calc(0.6rem + 1.5em + 2px);
+    height: calc(0.6rem + 1.5em + 2px);
+  }
+
+  :is(i, svg, img) {
+    vertical-align: middle;
+  }
+}
+
+// Text-only button in the secondary color, tinted on hover.
+.po-btn-ghost {
+  --#{$prefix}btn-color: var(--#{$prefix}secondary);
+  --#{$prefix}btn-bg: transparent;
+  --#{$prefix}btn-border-color: transparent;
+  --#{$prefix}btn-hover-color: var(--#{$prefix}secondary);
+  --#{$prefix}btn-hover-bg: var(--#{$prefix}secondary-bg-subtle);
+  --#{$prefix}btn-hover-border-color: var(--#{$prefix}secondary-bg-subtle);
+  --#{$prefix}btn-active-color: var(--#{$prefix}secondary);
+  --#{$prefix}btn-active-bg: var(--#{$prefix}secondary-bg-subtle);
+  --#{$prefix}btn-active-border-color: var(--#{$prefix}secondary-bg-subtle);
+  --#{$prefix}btn-disabled-color: var(--#{$prefix}secondary-bg-subtle);
+  --#{$prefix}btn-disabled-bg: var(--#{$prefix}secondary-bg-subtle);
+  --#{$prefix}btn-disabled-border-color: var(--#{$prefix}secondary-bg-subtle);
+}

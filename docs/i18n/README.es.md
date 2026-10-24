@@ -113,6 +113,21 @@ Teams necesita un servidor, así que está en [PromptOps Desktop](https://www.pr
 
 </td>
 </tr>
+<tr>
+<td width="50%" valign="middle">
+
+### PromptOps Remote <sub><kbd>PromptOps Desktop</kbd></sub>
+
+**Tus sesiones, también desde el móvil.** Con la app PromptOps Remote ves en tiempo real las sesiones y agentes del escritorio, respondes cuando un agente espera tu input y, si lo permites, escribes o dictas prompts desde el móvil. Se vincula con el QR del escritorio, sin abrir puertos.
+
+<a href="https://apps.apple.com/app/id6766861427"><img src="https://img.shields.io/badge/App%20Store-iOS-0D96F6?style=for-the-badge&amp;logo=apple&amp;logoColor=white" alt="Download on the App Store" /></a>
+<a href="https://github.com/shellonback/promptops/releases/latest/download/promptops-remote.apk"><img src="https://img.shields.io/badge/Android-APK-3DDC84?style=for-the-badge&amp;logo=android&amp;logoColor=white" alt="Download the Android APK" /></a>
+
+</td>
+<td width="50%" align="center">
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="../../docs/assets/readme/remote.jpg"><img src="../../docs/assets/readme/remote.gif" alt="PromptOps Remote on a phone: live sessions, an agent waiting for input, prompts from the phone" width="240" /></picture>
+</td>
+</tr>
 </table>
 
 **Y además:**

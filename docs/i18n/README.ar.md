@@ -113,6 +113,21 @@
 
 </td>
 </tr>
+<tr>
+<td width="50%" valign="middle">
+
+### PromptOps Remote <sub><kbd>PromptOps Desktop</kbd></sub>
+
+**جلساتك من هاتفك أيضًا.** مع تطبيق PromptOps Remote ترى جلسات سطح المكتب والوكلاء مباشرةً، وتردّ عندما ينتظر وكيل إدخالك، ويمكنك إن سمحت كتابة الأوامر أو إملاؤها من الهاتف. يتم الاقتران عبر رمز QR على سطح المكتب دون فتح أي منافذ.
+
+<a href="https://apps.apple.com/app/id6766861427"><img src="https://img.shields.io/badge/App%20Store-iOS-0D96F6?style=for-the-badge&amp;logo=apple&amp;logoColor=white" alt="Download on the App Store" /></a>
+<a href="https://github.com/shellonback/promptops/releases/latest/download/promptops-remote.apk"><img src="https://img.shields.io/badge/Android-APK-3DDC84?style=for-the-badge&amp;logo=android&amp;logoColor=white" alt="Download the Android APK" /></a>
+
+</td>
+<td width="50%" align="center">
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="../../docs/assets/readme/remote.jpg"><img src="../../docs/assets/readme/remote.gif" alt="PromptOps Remote on a phone: live sessions, an agent waiting for input, prompts from the phone" width="240" /></picture>
+</td>
+</tr>
 </table>
 
 **وأيضًا ضمن الحزمة:**

@@ -113,6 +113,21 @@ Teams 需要服务器，因此只在托管版 [PromptOps Desktop](https://www.pr
 
 </td>
 </tr>
+<tr>
+<td width="50%" valign="middle">
+
+### PromptOps Remote <sub><kbd>PromptOps Desktop</kbd></sub>
+
+**在手机上也能掌控会话。** 通过 PromptOps Remote 应用，你可以实时查看桌面端的会话和代理，在代理等待输入时及时回复；如果你允许，还能在手机上输入或语音口述提示词。用桌面端的二维码配对，无需开放端口。
+
+<a href="https://apps.apple.com/app/id6766861427"><img src="https://img.shields.io/badge/App%20Store-iOS-0D96F6?style=for-the-badge&amp;logo=apple&amp;logoColor=white" alt="Download on the App Store" /></a>
+<a href="https://github.com/shellonback/promptops/releases/latest/download/promptops-remote.apk"><img src="https://img.shields.io/badge/Android-APK-3DDC84?style=for-the-badge&amp;logo=android&amp;logoColor=white" alt="Download the Android APK" /></a>
+
+</td>
+<td width="50%" align="center">
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="../../docs/assets/readme/remote.jpg"><img src="../../docs/assets/readme/remote.gif" alt="PromptOps Remote on a phone: live sessions, an agent waiting for input, prompts from the phone" width="240" /></picture>
+</td>
+</tr>
 </table>
 
 **此外还包括：**

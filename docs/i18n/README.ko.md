@@ -113,6 +113,21 @@ Teams는 서버가 필요하므로 호스팅 에디션인 [PromptOps Desktop](ht
 
 </td>
 </tr>
+<tr>
+<td width="50%" valign="middle">
+
+### PromptOps Remote <sub><kbd>PromptOps Desktop</kbd></sub>
+
+**세션을 휴대폰에서도.** PromptOps Remote 앱으로 데스크톱의 세션과 에이전트를 실시간으로 보고, 에이전트가 입력을 기다리면 답하고, 허용하면 휴대폰에서 프롬프트를 입력하거나 받아쓰기할 수 있습니다. 데스크톱 QR로 페어링하며 포트를 열 필요가 없습니다.
+
+<a href="https://apps.apple.com/app/id6766861427"><img src="https://img.shields.io/badge/App%20Store-iOS-0D96F6?style=for-the-badge&amp;logo=apple&amp;logoColor=white" alt="Download on the App Store" /></a>
+<a href="https://github.com/shellonback/promptops/releases/latest/download/promptops-remote.apk"><img src="https://img.shields.io/badge/Android-APK-3DDC84?style=for-the-badge&amp;logo=android&amp;logoColor=white" alt="Download the Android APK" /></a>
+
+</td>
+<td width="50%" align="center">
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="../../docs/assets/readme/remote.jpg"><img src="../../docs/assets/readme/remote.gif" alt="PromptOps Remote on a phone: live sessions, an agent waiting for input, prompts from the phone" width="240" /></picture>
+</td>
+</tr>
 </table>
 
 **그 밖의 기능:**

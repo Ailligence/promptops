@@ -7,6 +7,11 @@
   <img src="https://img.shields.io/badge/license-Apache--2.0-4F41FA?style=flat" alt="License: Apache-2.0" />
   <a href="https://github.com/shellonback/promptops/releases"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fshellonback%2Fpromptops%2Fbadges%2Fdownloads.json" alt="Downloads" /></a>
   <img src="https://img.shields.io/badge/macOS%20%7C%20Windows%20%7C%20Linux-4F41FA?style=flat-square" alt="Supported platforms: macOS, Windows, and Linux" />
+  <a href="https://t.me/promptoperations"><img src="https://img.shields.io/badge/Telegram-promptoperations-26A5E4?style=flat&amp;logo=telegram&amp;logoColor=white" alt="Telegram channel" /></a>
+</p>
+
+<p align="center">
+  <b>English</b> · <a href="docs/i18n/README.it.md">Italiano</a> · <a href="docs/i18n/README.fr.md">Français</a> · <a href="docs/i18n/README.es.md">Español</a> · <a href="docs/i18n/README.de.md">Deutsch</a> · <a href="docs/i18n/README.pt.md">Português</a> · <a href="docs/i18n/README.zh.md">中文</a> · <a href="docs/i18n/README.ja.md">日本語</a> · <a href="docs/i18n/README.ru.md">Русский</a> · <a href="docs/i18n/README.ar.md">العربية</a> · <a href="docs/i18n/README.hi.md">हिन्दी</a> · <a href="docs/i18n/README.pl.md">Polski</a> · <a href="docs/i18n/README.nl.md">Nederlands</a> · <a href="docs/i18n/README.sv.md">Svenska</a> · <a href="docs/i18n/README.ko.md">한국어</a>
 </p>
 
 <p align="center">
@@ -47,15 +52,15 @@ Ask your lead agent to split the work: through the built-in MCP server it opens 
 </td>
 </tr>
 <tr>
+<td width="50%">
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/readme/right-agent.jpg"><img src="docs/assets/readme/right-agent.gif" alt="Spawning sub-agents with different providers and models" width="100%" /></picture>
+</td>
 <td width="50%" valign="middle">
 
 ### The Right Agent for Every Task
 
 Pick the provider, model and effort per sub-agent: Claude on the refactor, Gemini on the bundle analysis, Codex on the review — all in one session. Working modes (Sprint, Architect, Detective, Paranoid…) map to each CLI's native flags.
 
-</td>
-<td width="50%">
-  <picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/readme/right-agent.jpg"><img src="docs/assets/readme/right-agent.gif" alt="Spawning sub-agents with different providers and models" width="100%" /></picture>
 </td>
 </tr>
 <tr>
@@ -71,6 +76,9 @@ When Claude suggests a command, hit play next to it: it runs in the terminal and
 </td>
 </tr>
 <tr>
+<td width="50%">
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/readme/floor-plan.jpg"><img src="docs/assets/readme/floor-plan.gif" alt="Floor Plan showing agents grouped by client" width="100%" /></picture>
+</td>
 <td width="50%" valign="middle">
 
 ### Floor Plan
@@ -78,11 +86,23 @@ When Claude suggests a command, hit play next to it: it runs in the terminal and
 Every client, every session, one floor. Desks light up when an agent finishes or needs you, and the floor stays at your side, in 3D or 2D, while you work.
 
 </td>
+</tr>
+<tr>
+<td width="50%" valign="middle">
+
+### Token Efficiency Engine
+
+When a sub-agent prompt is just a command, PromptOps offers to run it straight in the terminal: faster, and no tokens spent. Every session shows its real token usage, cache hits and cost, read from the agent's own transcript.
+
+</td>
 <td width="50%">
-  <picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/readme/floor-plan.jpg"><img src="docs/assets/readme/floor-plan.gif" alt="Floor Plan showing agents grouped by client" width="100%" /></picture>
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/readme/token-efficiency.jpg"><img src="docs/assets/readme/token-efficiency.gif" alt="PromptOps suggests running a command directly in the terminal instead of spending tokens" width="100%" /></picture>
 </td>
 </tr>
 <tr>
+<td width="50%">
+  <a href="https://www.promptoperations.ai/"><picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/readme/teams.jpg"><img src="docs/assets/readme/teams.gif" alt="Teams in PromptOps Desktop: virtual office, chat and boards" width="100%" /></picture></a>
+</td>
 <td width="50%" valign="middle">
 
 ### Teams <sub><kbd>PromptOps Desktop</kbd></sub>
@@ -91,9 +111,6 @@ Your team right next to your agents: a virtual office, chat, project boards and 
 
 Teams needs a server, so it lives in [PromptOps Desktop](https://www.promptoperations.ai/), the hosted edition. In the open-source edition it shows a lock and runs no code.
 
-</td>
-<td width="50%">
-  <a href="https://www.promptoperations.ai/"><picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/readme/teams.jpg"><img src="docs/assets/readme/teams.gif" alt="Teams in PromptOps Desktop: virtual office, chat and boards" width="100%" /></picture></a>
 </td>
 </tr>
 </table>
@@ -160,6 +177,7 @@ No account and no server: everything stays on your computer. Its source code is 
 ## Community &amp; Support
 
 - **Feedback &amp; ideas:** Missing something? [Open an issue](https://github.com/shellonback/promptops/issues).
+- **Telegram:** releases, experiments and early access on [t.me/promptoperations](https://t.me/promptoperations).
 - **Privacy:** The open-source edition has no telemetry, no analytics and no update checks. PromptOps Desktop needs an account and talks to PromptOps servers. [PRIVACY.md](PRIVACY.md) explains what each edition sends and where.
 - **Security:** Report vulnerabilities privately, as described in [SECURITY.md](SECURITY.md).
 - **Open source and hosted:** what lives here and what needs PromptOps Desktop, and who decides: [GOVERNANCE.md](GOVERNANCE.md).
@@ -174,6 +192,10 @@ Want to contribute? See [CONTRIBUTING.md](CONTRIBUTING.md). Commits are signed o
 <a href="https://github.com/shellonback/promptops/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=shellonback/promptops" alt="PromptOps contributors" />
 </a>
+
+## Languages
+
+PromptOps speaks 15 languages: English, Italiano, Français, Español, Deutsch, Português, 中文, 日本語, Русский, العربية, हिन्दी, Polski, Nederlands, Svenska and 한국어. Switch from the bottom bar.
 
 ## License
 

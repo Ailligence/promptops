@@ -1615,7 +1615,7 @@ impl SessionManager {
     /// PTYs) WITHOUT deleting the stored records (just persisted by the caller).
     pub fn destroy_all_local(&self) {
         let mut guard = self.state.lock();
-        for (_, session) in guard.sessions.iter_mut() {
+        for session in guard.sessions.values_mut() {
             if let Some(pty) = session.pty.take() {
                 kill_pty(pty);
             }

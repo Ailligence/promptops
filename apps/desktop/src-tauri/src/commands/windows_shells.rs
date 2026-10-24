@@ -190,8 +190,10 @@ fn list_wsl_distros() -> Vec<String> {
     }
     let text = if out.contains(&0u8) {
         let utf16: Vec<u16> = out
-            .chunks_exact(2)
-            .map(|c| u16::from_le_bytes([c[0], c[1]]))
+            .as_chunks::<2>()
+            .0
+            .iter()
+            .map(|c| u16::from_le_bytes(*c))
             .collect();
         String::from_utf16_lossy(&utf16)
     } else {

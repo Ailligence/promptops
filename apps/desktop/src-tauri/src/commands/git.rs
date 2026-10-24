@@ -4479,10 +4479,14 @@ mod hostile_input_tests {
             split_command_line("git log --format='%s $(x)' -n 2").unwrap(),
             vec!["git", "log", "--format=%s $(x)", "-n", "2"]
         );
-        assert_eq!(
-            split_command_line(r#"git commit -m "fix: \"quoted\" msg""#).unwrap(),
-            vec!["git", "commit", "-m", "fix: \"quoted\" msg"]
-        );
+        // Backslash escapes are a POSIX shell rule: on Windows a backslash is
+        // literal (paths), so this case only holds elsewhere.
+        if !is_windows() {
+            assert_eq!(
+                split_command_line(r#"git commit -m "fix: \"quoted\" msg""#).unwrap(),
+                vec!["git", "commit", "-m", "fix: \"quoted\" msg"]
+            );
+        }
         for bad in [
             "git status; touch PWNED",
             "git status && rm -rf x",

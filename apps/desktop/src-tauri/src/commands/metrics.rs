@@ -1100,10 +1100,8 @@ impl TokenTracker {
         let mut body = &buf[..=last_nl];
         if resume.is_none() && start > 0 {
             // Tail: the first line is almost certainly cut.
-            match body.iter().position(|b| *b == b'\n') {
-                Some(i) => body = &body[i + 1..],
-                None => return None,
-            }
+            let i = body.iter().position(|b| *b == b'\n')?;
+            body = &body[i + 1..];
         }
 
         // message.id → usage (streamed lines of the same message repeat the usage: the last one wins).

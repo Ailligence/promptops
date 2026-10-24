@@ -405,8 +405,8 @@ fn read_wav_16k_mono(path: &std::path::Path) -> Option<Vec<f32>> {
     }
     let data = data?;
     let mut samples = Vec::with_capacity(data.len() / 2);
-    for pair in data.chunks_exact(2) {
-        let v = i16::from_le_bytes([pair[0], pair[1]]);
+    for pair in data.as_chunks::<2>().0 {
+        let v = i16::from_le_bytes(*pair);
         samples.push(v as f32 / 32768.0);
     }
     Some(samples)

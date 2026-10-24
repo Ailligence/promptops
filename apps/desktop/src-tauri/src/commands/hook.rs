@@ -2652,11 +2652,12 @@ mod home_side_effect_tests {
                 if path.starts_with(skip) {
                     continue;
                 }
+                // Same keys on every OS: Windows paths use backslashes.
                 let key = path
                     .strip_prefix(root)
                     .unwrap()
                     .to_string_lossy()
-                    .into_owned();
+                    .replace('\\', "/");
                 if path.is_dir() {
                     out.insert(key, None);
                     stack.push(path);

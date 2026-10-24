@@ -339,7 +339,9 @@ mod tests {
         use std::sync::atomic::{AtomicUsize, Ordering};
         use std::time::Duration;
         let calls = std::sync::Arc::new(AtomicUsize::new(0));
-        let t = super::Trailing::new(Duration::from_millis(80));
+        // Wide margins: CI runners (macOS above all) oversleep, and a burst
+        // that outlasts the window would legitimately produce two calls.
+        let t = super::Trailing::new(Duration::from_millis(500));
         for _ in 0..5 {
             let c = calls.clone();
             t.trigger(move || {
@@ -347,7 +349,7 @@ mod tests {
             });
             std::thread::sleep(Duration::from_millis(10));
         }
-        std::thread::sleep(Duration::from_millis(200));
+        std::thread::sleep(Duration::from_millis(1000));
         assert_eq!(calls.load(Ordering::SeqCst), 1);
         // A change right after the previous emit gets its own emit (the old
         // leading-edge debounce dropped it for the whole window).
@@ -355,7 +357,7 @@ mod tests {
         t.trigger(move || {
             c.fetch_add(1, Ordering::SeqCst);
         });
-        std::thread::sleep(Duration::from_millis(200));
+        std::thread::sleep(Duration::from_millis(1000));
         assert_eq!(calls.load(Ordering::SeqCst), 2);
     }
 

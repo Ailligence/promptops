@@ -1,0 +1,64 @@
+name: Download count
+
+# Sums the downloads of every release asset in this repository and writes the
+# total to downloads.json on the badges branch, read by the README badge.
+# The shields.io GitHub downloads badge only counts the first page of releases.
+# Every 5 minutes (the shortest GitHub schedule) and on every new release;
+# shields.io and the GitHub image proxy cache the badge for 5 minutes too.
+
+on:
+  release:
+    types: [published]
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: download-count
+  cancel-in-progress: false
+
+jobs:
+  count:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+    steps:
+      - name: Sum release downloads
+        id: sum
+        run: |
+          set -euo pipefail
+          total=$(gh api --paginate "repos/$REPO/releases?per_page=100" \
+            --jq '.[].assets[].download_count' | awk '{s += $1} END {print s + 0}')
+          message=$(awk -v n="$total" 'BEGIN {
+            if (n >= 1000000) printf "%.1fM", n / 1000000
+            else if (n >= 1000) printf "%.1fk", n / 1000
+            else printf "%d", n }' | sed 's/\.0\([kM]\)$/\1/')
+          echo "total=$total" >> "$GITHUB_OUTPUT"
+          echo "message=$message" >> "$GITHUB_OUTPUT"
+          echo "Downloads: $total ($message)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Write downloads.json on the badges branch
+        env:
+          TOTAL: ${{ steps.sum.outputs.total }}
+          MESSAGE: ${{ steps.sum.outputs.message }}
+        run: |
+          set -euo pipefail
+          json=$(jq -cn --arg m "$MESSAGE" --argjson t "$TOTAL" \
+            '{schemaVersion: 1, label: "downloads", message: $m, color: "4F41FA", cacheSeconds: 300, total: $t}')
+          current=$(gh api "repos/$REPO/contents/downloads.json?ref=badges" 2>/dev/null || echo '{}')
+          sha=$(jq -r '.sha // empty' <<< "$current")
+          old=$(jq -r '.content // empty' <<< "$current" | base64 -d 2>/dev/null || true)
+          if [ "$old" = "$json" ]; then
+            echo "Unchanged"; exit 0
+          fi
+          args=(-X PUT "repos/$REPO/contents/downloads.json"
+            -f message="chore: update download count to $TOTAL"
+            -f branch=badges
+            -f content="$(printf '%s' "$json" | base64 -w0)")
+          [ -n "$sha" ] && args+=(-f sha="$sha")
+          gh api "${args[@]}" > /dev/null

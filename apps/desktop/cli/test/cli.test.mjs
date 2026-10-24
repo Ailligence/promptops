@@ -226,6 +226,11 @@ test('shell and git tools do not hand the model API key to their children', asyn
   const cwd = await temp(t);
   process.env.PROMPTOPS_LLM_API_KEY = 'leak-check';
   t.after(() => { delete process.env.PROMPTOPS_LLM_API_KEY; });
-  const out = await executeTool('run_command', { command: 'echo "[$PROMPTOPS_LLM_API_KEY]"' }, { cwd });
-  assert.equal(out.trim(), '[]');
+  // exec runs cmd.exe on Windows (%VAR%, and an unset variable stays literal)
+  // and /bin/sh elsewhere ($VAR, empty when unset).
+  const win = process.platform === 'win32';
+  const probe = win ? 'echo [%PROMPTOPS_LLM_API_KEY%]' : 'echo "[$PROMPTOPS_LLM_API_KEY]"';
+  const out = await executeTool('run_command', { command: probe }, { cwd });
+  assert.equal(out.trim(), win ? '[%PROMPTOPS_LLM_API_KEY%]' : '[]');
+  assert.ok(!out.includes('leak-check'));
 });

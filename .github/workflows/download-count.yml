@@ -1,7 +1,13 @@
 name: Download count
 
-# Sums the downloads of every release asset in this repository and writes the
-# total to downloads.json on the badges branch, read by the README badge.
+# Sums the downloads of the installers (.dmg, .exe, .msi, .AppImage, .deb,
+# .rpm) across every release in this repository and writes the total to
+# downloads.json on the badges branch, read by the README badge. Update
+# metadata (latest*.yml/json, .blockmap), update packages (.zip, .tar.gz) and
+# signatures are left out: the app fetches them by itself.
+# On Windows and Linux the updater downloads the same .exe or .AppImage as a
+# new install, so those counts can include some automatic updates. On macOS
+# updates use .zip or .tar.gz, so every .dmg download is a person.
 # The shields.io GitHub downloads badge only counts the first page of releases.
 # Every 5 minutes (the shortest GitHub schedule) and on every new release;
 # shields.io and the GitHub image proxy cache the badge for 5 minutes too.
@@ -33,7 +39,7 @@ jobs:
         run: |
           set -euo pipefail
           total=$(gh api --paginate "repos/$REPO/releases?per_page=100" \
-            --jq '.[].assets[].download_count' | awk '{s += $1} END {print s + 0}')
+            --jq '.[].assets[] | select(.name | test("\\.(dmg|exe|msi|AppImage|deb|rpm)$")) | .download_count' | awk '{s += $1} END {print s + 0}')
           message=$(awk -v n="$total" 'BEGIN {
             if (n >= 1000000) printf "%.1fM", n / 1000000
             else if (n >= 1000) printf "%.1fk", n / 1000

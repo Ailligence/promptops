@@ -58,12 +58,36 @@ export function signatureMatchesVersion(trustedComment, version) {
   return signed === null || signed === version;
 }
 
-/** Compares dotted versions numerically: -1, 0 or 1. */
+/** Compares release versions, including prereleases: -1, 0 or 1. */
 export function compareVersions(a, b) {
-  const pa = String(a).split(/[.-]/).map((n) => Number.parseInt(n, 10) || 0);
-  const pb = String(b).split(/[.-]/).map((n) => Number.parseInt(n, 10) || 0);
-  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
-    if ((pa[i] || 0) !== (pb[i] || 0)) return (pa[i] || 0) < (pb[i] || 0) ? -1 : 1;
+  const parse = (version) => {
+    const value = String(version).split('+', 1)[0];
+    const dash = value.indexOf('-');
+    return {
+      core: (dash < 0 ? value : value.slice(0, dash)).split('.').map(Number),
+      pre: dash < 0 ? null : value.slice(dash + 1).split('.'),
+    };
+  };
+  const left = parse(a);
+  const right = parse(b);
+  for (let i = 0; i < Math.max(left.core.length, right.core.length); i++) {
+    const x = left.core[i] || 0;
+    const y = right.core[i] || 0;
+    if (x !== y) return x < y ? -1 : 1;
+  }
+  if (left.pre === null || right.pre === null) {
+    return left.pre === right.pre ? 0 : left.pre === null ? 1 : -1;
+  }
+  for (let i = 0; i < Math.max(left.pre.length, right.pre.length); i++) {
+    if (left.pre[i] === undefined) return -1;
+    if (right.pre[i] === undefined) return 1;
+    const x = left.pre[i];
+    const y = right.pre[i];
+    const xNumeric = /^\d+$/.test(x);
+    const yNumeric = /^\d+$/.test(y);
+    if (xNumeric !== yNumeric) return xNumeric ? -1 : 1;
+    const order = xNumeric ? Number(x) - Number(y) : x === y ? 0 : x < y ? -1 : 1;
+    if (order !== 0) return order < 0 ? -1 : 1;
   }
   return 0;
 }

@@ -42,10 +42,15 @@ test('the release tag and installer name follow the package version', () => {
   assert.equal(assetName('2.1.7', 'freebsd', 'x64'), null);
 });
 
-test('versions compare numerically', () => {
+test('versions compare numerically and order prereleases before stable releases', () => {
   assert.equal(compareVersions('2.1.10', '2.1.9'), 1);
   assert.equal(compareVersions('2.1.7', '2.1.7'), 0);
   assert.equal(compareVersions('2.0.13', '2.1.0'), -1);
+  assert.equal(compareVersions('2.1.7-beta.2', '2.1.7'), -1);
+  assert.equal(compareVersions('2.1.7', '2.1.7-rc.1'), 1);
+  assert.equal(compareVersions('2.1.7-beta.10', '2.1.7-beta.2'), 1);
+  assert.equal(compareVersions('2.1.7-rc.1', '2.1.7-beta.10'), 1);
+  assert.equal(compareVersions('2.1.7-beta.1', '2.1.7-beta.1+build.2'), 0);
 });
 
 test('the embedded release key parses', () => {

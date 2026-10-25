@@ -42,6 +42,30 @@
 <tr>
 <td width="50%" valign="middle">
 
+### Git, con una IA que lo arregla
+
+Grafo de ramas, staging y commits en cada sesión. La IA escribe el mensaje de commit a partir de tu diff y, cuando un pull o un push falla, AI Resolver guarda un punto de respaldo, hace el merge, resuelve los conflictos y vuelve a hacer push. Nunca un reset, nunca un force-push.
+
+</td>
+<td width="50%">
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="../../docs/assets/readme/git-ai.jpg"><img src="../../docs/assets/readme/git-ai.gif" alt="La IA escribe un mensaje de commit y luego AI Resolver arregla un push rechazado" width="100%" /></picture>
+</td>
+</tr>
+<tr>
+<td width="50%">
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="../../docs/assets/readme/database-nl.jpg"><img src="../../docs/assets/readme/database-nl.gif" alt="Una pregunta en lenguaje natural en el explorador de bases de datos se convierte en una consulta SQL de solo lectura con sus resultados" width="100%" /></picture>
+</td>
+<td width="50%" valign="middle">
+
+### Pregunta a tu base de datos en lenguaje natural
+
+PromptOps encuentra la base de datos de tu proyecto (MySQL, PostgreSQL, SQLite, MongoDB) y se conecta. Pregunta *"muéstrame todos los media del modelo CompanyProfile"*: tu agente escribe una consulta de solo lectura, la ejecuta y te muestra las filas.
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="middle">
+
 ### Agentes que dirigen agentes
 
 Pídele a tu agente lead que reparta el trabajo: a través del servidor MCP integrado abre un agente por cada parte, recoge sus informes y mueve el trabajo a una nueva sesión. Las acciones arriesgadas siguen requiriendo tu aprobación.
@@ -135,7 +159,7 @@ Teams necesita un servidor, así que está en [PromptOps Desktop](https://www.pr
 - **Session Vault** — Sesiones, prompts, notas y ajustes cifrados registro a registro con AES-256-GCM, con la clave en el llavero de tu sistema operativo.
 - **Biblioteca de prompts** — Prompts versionados con variables, categorías y etiquetas, a un clic de cualquier agente.
 - **Plugins que creas en local** — Un host de plugins en sandbox y Plugin Studio: genera la estructura de un plugin en una carpeta, deja que un agente lo escriba y recárgalo en caliente. Compártelo con una pull request al catálogo oficial.
-- **Herramientas de desarrollo integradas** — Explorador de Git y mensajes de commit generados por IA, explorador de bases de datos, editor de código, paneles de Docker y puertos, terminales SSH.
+- **Herramientas de desarrollo integradas** — Editor de código, paneles de Docker y puertos, terminales SSH.
 - **Límites de los providers, resueltos** — Cuando un agente alcanza el límite de su plan, PromptOps muestra qué otras CLI instaladas pueden tomar el relevo y cambia con un clic.
 - **Prompts de voz en tu dispositivo** — Transcripción local con Whisper; tu propia clave de Groq u OpenAI solo como alternativa, si añades una.
 - **Uso y velocidad** — Uso de tokens por sesión y una prueba de velocidad comparativa de los modelos a los que tienes acceso.

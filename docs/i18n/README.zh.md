@@ -42,6 +42,30 @@
 <tr>
 <td width="50%" valign="middle">
 
+### Git，由 AI 帮你修好
+
+分支图、暂存和提交，都在每个会话里。AI 根据你的 diff 写提交信息；pull 或 push 失败时，AI Resolver 会先保存一个备份点，再合并、解决冲突并重新推送。绝不 reset，绝不 force-push。
+
+</td>
+<td width="50%">
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="../../docs/assets/readme/git-ai.jpg"><img src="../../docs/assets/readme/git-ai.gif" alt="AI 生成提交信息，随后 AI Resolver 修复被拒绝的 push" width="100%" /></picture>
+</td>
+</tr>
+<tr>
+<td width="50%">
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="../../docs/assets/readme/database-nl.jpg"><img src="../../docs/assets/readme/database-nl.gif" alt="在数据库浏览器中用自然语言提问，生成只读 SQL 查询并显示结果" width="100%" /></picture>
+</td>
+<td width="50%" valign="middle">
+
+### 用自然语言查询数据库
+
+PromptOps 会找到项目使用的数据库（MySQL、PostgreSQL、SQLite、MongoDB）并连接。问一句 *“显示 CompanyProfile 模型的所有 media”*：你的智能体会写出只读查询，执行它并展示结果行。
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="middle">
+
 ### 智能体调度智能体
 
 让主智能体拆分任务：它通过内置的 MCP 服务器为每个部分打开一个智能体，汇总它们的报告，并把工作迁移到新会话。高风险操作始终需要你的批准。
@@ -135,7 +159,7 @@ Teams 需要服务器，因此只在托管版 [PromptOps Desktop](https://www.pr
 - **Session Vault** — 会话、提示词、笔记和设置逐条使用 AES-256-GCM 加密，密钥保存在操作系统钥匙串中。
 - **提示词库** — 带版本管理的提示词，支持变量、分类和标签，任何智能体一键可用。
 - **本地构建插件** — 沙箱化的插件宿主和 Plugin Studio：在文件夹中生成插件脚手架，让智能体来编写，实时重新加载。通过向官方目录提交 pull request 来分享它。
-- **内置开发工具** — Git 浏览器与 AI 提交信息、数据库浏览器、代码编辑器、Docker 和端口面板、SSH 终端。
+- **内置开发工具** — 代码编辑器、Docker 和端口面板、SSH 终端。
 - **自动应对提供商限额** — 当某个智能体达到套餐限额时，PromptOps 会列出其他可以接手的已安装 CLI，一键切换。
 - **本地语音提示** — 本地 Whisper 转写；仅在你添加了自己的 Groq 或 OpenAI 密钥时，才将其作为备用方案。
 - **用量与速度** — 每个会话的 token 用量，以及对你可用模型的并排速度测试。

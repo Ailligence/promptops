@@ -42,6 +42,30 @@
 <tr>
 <td width="50%" valign="middle">
 
+### Git z AI, która go naprawia
+
+Graf gałęzi, staging i commity w każdej sesji. AI pisze komunikat commita na podstawie diffa, a gdy pull lub push się nie powiedzie, AI Resolver zapisuje punkt kopii zapasowej, robi merge, rozwiązuje konflikty i ponawia push. Nigdy reset, nigdy force-push.
+
+</td>
+<td width="50%">
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="../../docs/assets/readme/git-ai.jpg"><img src="../../docs/assets/readme/git-ai.gif" alt="AI pisze komunikat commita, a potem AI Resolver naprawia odrzucony push" width="100%" /></picture>
+</td>
+</tr>
+<tr>
+<td width="50%">
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="../../docs/assets/readme/database-nl.jpg"><img src="../../docs/assets/readme/database-nl.gif" alt="Pytanie w języku naturalnym w eksploratorze baz danych zamienia się w zapytanie SQL tylko do odczytu i jego wyniki" width="100%" /></picture>
+</td>
+<td width="50%" valign="middle">
+
+### Pytaj bazę danych w języku naturalnym
+
+PromptOps znajduje bazę danych Twojego projektu (MySQL, PostgreSQL, SQLite, MongoDB) i łączy się z nią. Zapytaj *„pokaż wszystkie media modelu CompanyProfile”*: Twój agent pisze zapytanie tylko do odczytu, uruchamia je i pokazuje wiersze.
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="middle">
+
 ### Agenci, którzy zarządzają agentami
 
 Poproś agenta głównego o podział pracy: przez wbudowany serwer MCP otwiera jednego agenta na każdą część, zbiera ich raporty i przenosi pracę do nowej sesji. Ryzykowne działania zawsze czekają na Twoją zgodę.
@@ -135,7 +159,7 @@ Teams wymaga serwera, dlatego jest dostępne w [PromptOps Desktop](https://www.p
 - **Session Vault** — Sesje, prompty, notatki i ustawienia szyfrowane rekord po rekordzie algorytmem AES-256-GCM, z kluczem w pęku kluczy systemu operacyjnego.
 - **Biblioteka promptów** — Wersjonowane prompty ze zmiennymi, kategoriami i tagami, o jedno kliknięcie od każdego agenta.
 - **Pluginy budowane lokalnie** — Odizolowany host pluginów i Plugin Studio: utwórz szkielet pluginu w folderze, pozwól agentowi go napisać i przeładuj na żywo. Udostępnij go przez pull request do oficjalnego katalogu.
-- **Wbudowane narzędzia deweloperskie** — Eksplorator Git i komunikaty commitów generowane przez AI, eksplorator baz danych, edytor kodu, panele Docker i portów, terminale SSH.
+- **Wbudowane narzędzia deweloperskie** — Edytor kodu, panele Docker i portów, terminale SSH.
 - **Limity dostawców pod kontrolą** — Gdy agent osiągnie limit swojego planu, PromptOps pokazuje, które inne zainstalowane CLI mogą przejąć pracę, i przełącza jednym kliknięciem.
 - **Prompty głosowe na Twoim urządzeniu** — Lokalna transkrypcja Whisper; Twój własny klucz Groq lub OpenAI tylko jako zapas, jeśli go dodasz.
 - **Zużycie i szybkość** — Zużycie tokenów na sesję i porównawczy test szybkości modeli, do których masz dostęp.

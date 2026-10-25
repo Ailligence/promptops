@@ -42,6 +42,30 @@
 <tr>
 <td width="50%" valign="middle">
 
+### AI가 고쳐 주는 Git
+
+브랜치 그래프, 스테이징, 커밋을 모든 세션에서. AI가 diff를 보고 커밋 메시지를 쓰고, pull이나 push가 실패하면 AI Resolver가 백업 지점을 저장한 뒤 병합하고 충돌을 해결해 다시 push합니다. reset도 force-push도 절대 하지 않습니다.
+
+</td>
+<td width="50%">
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="../../docs/assets/readme/git-ai.jpg"><img src="../../docs/assets/readme/git-ai.gif" alt="AI가 커밋 메시지를 쓰고, AI Resolver가 거부된 push를 고칩니다" width="100%" /></picture>
+</td>
+</tr>
+<tr>
+<td width="50%">
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="../../docs/assets/readme/database-nl.jpg"><img src="../../docs/assets/readme/database-nl.gif" alt="데이터베이스 탐색기에서 자연어 질문이 읽기 전용 SQL 쿼리와 결과로 바뀝니다" width="100%" /></picture>
+</td>
+<td width="50%" valign="middle">
+
+### 자연어로 데이터베이스에 질문하기
+
+PromptOps가 프로젝트의 데이터베이스(MySQL, PostgreSQL, SQLite, MongoDB)를 찾아 연결합니다. *"CompanyProfile 모델의 media를 모두 보여 줘"*라고 물으면 에이전트가 읽기 전용 쿼리를 작성하고 실행해 결과 행을 보여 줍니다.
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="middle">
+
 ### 에이전트를 실행하는 에이전트
 
 리드 에이전트에게 작업 분담을 맡기세요. 내장 MCP 서버를 통해 파트마다 에이전트를 하나씩 열고, 보고서를 모으고, 작업을 새 세션으로 옮깁니다. 위험한 작업은 항상 사용자의 승인을 거칩니다.
@@ -135,7 +159,7 @@ Teams는 서버가 필요하므로 호스팅 에디션인 [PromptOps Desktop](ht
 - **Session Vault** — 세션, 프롬프트, 메모, 설정을 레코드 단위로 AES-256-GCM 암호화하고, 키는 OS 키체인에 보관합니다.
 - **프롬프트 라이브러리** — 변수, 카테고리, 태그를 지원하는 버전 관리 프롬프트를 어떤 에이전트에서든 클릭 한 번으로.
 - **로컬에서 만드는 플러그인** — 샌드박스 플러그인 호스트와 Plugin Studio: 폴더에 플러그인 뼈대를 만들고, 에이전트가 작성하게 한 뒤, 실시간으로 다시 로드하세요. 공식 카탈로그에 pull request를 보내 공유할 수 있습니다.
-- **내장 개발 도구** — Git 탐색기와 AI 커밋 메시지, 데이터베이스 탐색기, 코드 편집기, Docker 및 포트 패널, SSH 터미널.
+- **내장 개발 도구** — 코드 편집기, Docker 및 포트 패널, SSH 터미널.
 - **프로바이더 한도도 문제없이** — 에이전트가 요금제 한도에 도달하면, 이어받을 수 있는 설치된 CLI를 PromptOps가 보여주고 클릭 한 번으로 전환합니다.
 - **기기에서 처리하는 음성 프롬프트** — 로컬 Whisper 전사. 직접 추가한 경우에만 Groq 또는 OpenAI 키를 대체 수단으로 사용합니다.
 - **사용량과 속도** — 세션별 토큰 사용량과, 사용 가능한 모델들의 속도를 나란히 비교하는 테스트.

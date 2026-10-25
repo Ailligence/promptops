@@ -42,6 +42,30 @@
 <tr>
 <td width="50%" valign="middle">
 
+### Git、直すのは AI
+
+ブランチグラフ、ステージング、コミットをすべてのセッションで。AI が diff からコミットメッセージを書き、pull や push が失敗したときは AI Resolver がバックアップポイントを保存してからマージし、コンフリクトを解決して push し直します。reset も force-push も一切しません。
+
+</td>
+<td width="50%">
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="../../docs/assets/readme/git-ai.jpg"><img src="../../docs/assets/readme/git-ai.gif" alt="AI がコミットメッセージを書き、続いて AI Resolver が拒否された push を修復" width="100%" /></picture>
+</td>
+</tr>
+<tr>
+<td width="50%">
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="../../docs/assets/readme/database-nl.jpg"><img src="../../docs/assets/readme/database-nl.gif" alt="データベースエクスプローラーでの自然言語の質問が、読み取り専用の SQL クエリとその結果になる" width="100%" /></picture>
+</td>
+<td width="50%" valign="middle">
+
+### データベースに自然言語で質問
+
+PromptOps はプロジェクトのデータベース（MySQL、PostgreSQL、SQLite、MongoDB）を見つけて接続します。*「CompanyProfile モデルの media をすべて表示して」* と聞けば、エージェントが読み取り専用のクエリを書いて実行し、結果の行を表示します。
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="middle">
+
 ### エージェントがエージェントを動かす
 
 リードエージェントに作業の分担を頼みましょう。内蔵の MCP サーバーを通じて担当ごとにエージェントを開き、レポートを集め、作業を新しいセッションへ移します。リスクのある操作は、常にあなたの承認待ちになります。
@@ -135,7 +159,7 @@ Teams にはサーバーが必要なため、ホスト版の [PromptOps Desktop]
 - **Session Vault** — セッション、プロンプト、メモ、設定をレコード単位で AES-256-GCM により暗号化。鍵は OS のキーチェーンに保存されます。
 - **プロンプトライブラリ** — 変数、カテゴリ、タグに対応したバージョン管理付きプロンプトを、どのエージェントからでもワンクリックで。
 - **ローカルで作るプラグイン** — サンドボックス化されたプラグインホストと Plugin Studio：フォルダにプラグインの雛形を作り、エージェントに書かせて、ライブでリロード。公式カタログへの pull request で共有できます。
-- **内蔵の開発ツール** — Git エクスプローラーと AI によるコミットメッセージ、データベースエクスプローラー、コードエディタ、Docker とポートのパネル、SSH ターミナル。
+- **内蔵の開発ツール** — コードエディタ、Docker とポートのパネル、SSH ターミナル。
 - **プロバイダーの上限にも対応** — エージェントがプランの上限に達すると、引き継げるインストール済みの CLI を PromptOps が表示し、ワンクリックで切り替えます。
 - **デバイス上で動く音声プロンプト** — ローカルの Whisper で文字起こし。Groq や OpenAI のキーは、ご自身で追加した場合にのみフォールバックとして使います。
 - **使用量と速度** — セッションごとのトークン使用量と、利用可能なモデルの速度を並べて比較するテスト。

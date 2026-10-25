@@ -42,6 +42,30 @@
 <tr>
 <td width="50%" valign="middle">
 
+### Git, With an AI That Fixes It
+
+Branch graph, staging and commits in every session. The AI writes the commit message from your diff, and when a pull or push fails, AI Resolver saves a backup point, merges, resolves the conflicts and pushes again. Never a reset, never a force-push.
+
+</td>
+<td width="50%">
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/readme/git-ai.jpg"><img src="docs/assets/readme/git-ai.gif" alt="AI writes a commit message, then AI Resolver fixes a rejected push" width="100%" /></picture>
+</td>
+</tr>
+<tr>
+<td width="50%">
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/readme/database-nl.jpg"><img src="docs/assets/readme/database-nl.gif" alt="A plain-language question in the database explorer turns into a read-only SQL query and its results" width="100%" /></picture>
+</td>
+<td width="50%" valign="middle">
+
+### Ask Your Database in Plain Language
+
+PromptOps finds the database your project uses (MySQL, PostgreSQL, SQLite, MongoDB) and connects to it. Ask *"show me all media of the CompanyProfile model"*: your agent writes a read-only query, runs it and shows you the rows.
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="middle">
+
 ### Agents That Run Agents
 
 Ask your lead agent to split the work: through the built-in MCP server it opens one agent per part, collects their reports and moves work to a new session. Risky actions stay behind your approval.
@@ -137,7 +161,7 @@ Teams needs a server, so it lives in [PromptOps Desktop](https://www.promptopera
 - **Session Vault** — Sessions, prompts, notes and settings encrypted record by record with AES-256-GCM, key in your OS keychain. Passphrase-encrypted backups to move to another computer or recover lost data. [Format and threat model →](docs/session-vault.md)
 - **Prompt library** — Versioned prompts with variables, categories, tags and stars, one click away from any agent.
 - **Plugins you build locally** — A sandboxed plugin host and Plugin Studio: scaffold a plugin in a folder, let an agent write it, reload it live. Share it with a pull request to the official catalog. [Plugin guide →](docs/plugins/plugin-guidelines.md)
-- **Built-in dev tools** — Git explorer and AI commit messages, database explorer, code editor, Docker and ports panels, SSH terminals.
+- **Built-in dev tools** — Code editor, Docker and ports panels, SSH terminals.
 - **Provider limits, handled** — When an agent hits its plan limit, PromptOps shows which other installed CLIs can take over and switches with one click.
 - **Voice prompts on your device** — Local Whisper transcription; your own Groq key only as a fallback, if you save one in Settings.
 - **Usage and speed** — Token usage per session and a side-by-side speed test of the models you have access to.

@@ -42,6 +42,30 @@
 <tr>
 <td width="50%" valign="middle">
 
+### Git, met een AI die het repareert
+
+Branchgrafiek, staging en commits in elke sessie. De AI schrijft het commitbericht op basis van je diff, en als een pull of push mislukt, maakt AI Resolver een back-uppunt, merget, lost de conflicten op en pusht opnieuw. Nooit een reset, nooit een force-push.
+
+</td>
+<td width="50%">
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="../../docs/assets/readme/git-ai.jpg"><img src="../../docs/assets/readme/git-ai.gif" alt="De AI schrijft een commitbericht, daarna repareert AI Resolver een geweigerde push" width="100%" /></picture>
+</td>
+</tr>
+<tr>
+<td width="50%">
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="../../docs/assets/readme/database-nl.jpg"><img src="../../docs/assets/readme/database-nl.gif" alt="Een vraag in gewone taal in de databaseverkenner wordt een alleen-lezen SQL-query met de resultaten" width="100%" /></picture>
+</td>
+<td width="50%" valign="middle">
+
+### Vraag je database in gewone taal
+
+PromptOps vindt de database van je project (MySQL, PostgreSQL, SQLite, MongoDB) en maakt verbinding. Vraag *"toon alle media van het model CompanyProfile"*: je agent schrijft een alleen-lezen query, voert die uit en toont de rijen.
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="middle">
+
 ### Agents die agents aansturen
 
 Laat je lead-agent het werk opsplitsen: via de ingebouwde MCP-server opent hij één agent per onderdeel, verzamelt hun rapporten en verplaatst werk naar een nieuwe sessie. Riskante acties blijven afhankelijk van jouw goedkeuring.
@@ -135,7 +159,7 @@ Teams heeft een server nodig en zit daarom in [PromptOps Desktop](https://www.pr
 - **Session Vault** — Sessies, prompts, notities en instellingen, record voor record versleuteld met AES-256-GCM, met de sleutel in de sleutelhanger van je besturingssysteem.
 - **Promptbibliotheek** — Prompts met versiebeheer, variabelen, categorieën en tags, met één klik beschikbaar in elke agent.
 - **Plugins die je lokaal bouwt** — Een plugin-host in een sandbox en Plugin Studio: zet een plugin op in een map, laat een agent hem schrijven en herlaad hem live. Deel hem via een pull request met de officiële catalogus.
-- **Ingebouwde dev-tools** — Git-verkenner en AI-commitberichten, databaseverkenner, code-editor, panelen voor Docker en poorten, SSH-terminals.
+- **Ingebouwde dev-tools** — Code-editor, panelen voor Docker en poorten, SSH-terminals.
 - **Providerlimieten, opgelost** — Bereikt een agent de limiet van zijn abonnement, dan toont PromptOps welke andere geïnstalleerde CLI's het kunnen overnemen en schakelt met één klik over.
 - **Spraakprompts op je eigen apparaat** — Lokale transcriptie met Whisper; je eigen Groq- of OpenAI-sleutel alleen als terugvaloptie, als je er een toevoegt.
 - **Gebruik en snelheid** — Tokengebruik per sessie en een snelheidstest naast elkaar van de modellen waartoe je toegang hebt.

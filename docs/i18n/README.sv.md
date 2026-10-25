@@ -42,6 +42,30 @@
 <tr>
 <td width="50%" valign="middle">
 
+### Git, med en AI som fixar det
+
+Grenträd, staging och commits i varje session. AI:n skriver commit-meddelandet utifrån din diff, och när en pull eller push misslyckas sparar AI Resolver en återställningspunkt, mergar, löser konflikterna och pushar igen. Aldrig en reset, aldrig en force-push.
+
+</td>
+<td width="50%">
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="../../docs/assets/readme/git-ai.jpg"><img src="../../docs/assets/readme/git-ai.gif" alt="AI:n skriver ett commit-meddelande, sedan fixar AI Resolver en avvisad push" width="100%" /></picture>
+</td>
+</tr>
+<tr>
+<td width="50%">
+  <picture><source media="(prefers-reduced-motion: reduce)" srcset="../../docs/assets/readme/database-nl.jpg"><img src="../../docs/assets/readme/database-nl.gif" alt="En fråga på vanligt språk i databasutforskaren blir en skrivskyddad SQL-fråga med resultat" width="100%" /></picture>
+</td>
+<td width="50%" valign="middle">
+
+### Fråga din databas på vanligt språk
+
+PromptOps hittar databasen som ditt projekt använder (MySQL, PostgreSQL, SQLite, MongoDB) och ansluter till den. Fråga *”visa all media för modellen CompanyProfile”*: din agent skriver en skrivskyddad fråga, kör den och visar raderna.
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="middle">
+
 ### Agenter som styr agenter
 
 Be huvudagenten dela upp arbetet: via den inbyggda MCP-servern öppnar den en agent per del, samlar in deras rapporter och flyttar arbete till en ny session. Riskabla åtgärder kräver alltid ditt godkännande.
@@ -135,7 +159,7 @@ Teams kräver en server och finns därför i [PromptOps Desktop](https://www.pro
 - **Session Vault** — Sessioner, promptar, anteckningar och inställningar krypteras post för post med AES-256-GCM, med nyckeln i operativsystemets nyckelring.
 - **Promptbibliotek** — Versionerade promptar med variabler, kategorier och taggar, ett klick bort från vilken agent som helst.
 - **Plugins som du bygger lokalt** — En sandlådad plugin-värd och Plugin Studio: skapa ett plugin i en mapp, låt en agent skriva det och ladda om det live. Dela det med en pull request till den officiella katalogen.
-- **Inbyggda utvecklarverktyg** — Git-utforskare och AI-genererade commit-meddelanden, databasutforskare, kodredigerare, paneler för Docker och portar, SSH-terminaler.
+- **Inbyggda utvecklarverktyg** — Kodredigerare, paneler för Docker och portar, SSH-terminaler.
 - **Leverantörsgränser, hanterade** — När en agent når gränsen i sin plan visar PromptOps vilka andra installerade CLI:er som kan ta över och byter med ett klick.
 - **Röstpromptar på din enhet** — Lokal transkribering med Whisper; din egen Groq- eller OpenAI-nyckel används bara som reserv, om du lägger till en.
 - **Användning och hastighet** — Tokenanvändning per session och ett hastighetstest sida vid sida av de modeller du har tillgång till.

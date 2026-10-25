@@ -826,8 +826,10 @@ fn kill_agent_chrome(profile: &std::path::Path) -> bool {
     let mut killed = false;
     for p in sys.processes().values() {
         let cmd = p.cmd();
-        let is_browser =
-            cmd.iter().any(|a| a.to_string_lossy() == marker) && !cmd.iter().any(|a| a.to_string_lossy().starts_with("--type="));
+        let is_browser = cmd.iter().any(|a| a.to_string_lossy() == marker)
+            && !cmd
+                .iter()
+                .any(|a| a.to_string_lossy().starts_with("--type="));
         if is_browser {
             killed |= p.kill();
         }

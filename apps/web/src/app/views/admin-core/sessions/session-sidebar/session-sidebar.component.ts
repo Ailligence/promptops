@@ -138,6 +138,7 @@ const NO_SUB_AGENTS: SubAgent[] = [];
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 0.4rem;
       padding: 0.65rem 0.75rem;
       border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
@@ -147,6 +148,12 @@ const NO_SUB_AGENTS: SubAgent[] = [];
       align-items: center;
       gap: 0.4rem;
       min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    /* The title gives way, not the switcher: its dropdown hangs below, so no overflow clip here. */
+    .sidebar-header-left app-session-profile-switcher {
+      flex-shrink: 0;
     }
 
     .sidebar-title {
@@ -156,12 +163,17 @@ const NO_SUB_AGENTS: SubAgent[] = [];
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: var(--po-text-secondary);
+      min-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
 
     .sidebar-header-actions {
       display: flex;
       align-items: center;
       gap: 0.35rem;
+      flex-shrink: 0;
     }
 
     .btn-new-session {

@@ -125,11 +125,11 @@ interface TooltipPosition { top: string; left: string; transformOrigin: string; 
 
     .sg-spotlight {
       position: fixed; border-radius: 10px; pointer-events: none; z-index: 99981;
-      box-shadow: 0 0 0 3px rgba(99,102,241,0.65), 0 0 26px 6px rgba(99,102,241,0.28);
+      box-shadow: 0 0 0 3px oklch(from var(--po-accent) l c h / 65%), 0 0 26px 6px oklch(from var(--po-accent) l c h / 28%);
       transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
     }
     .sg-spotlight.hero {
-      box-shadow: 0 0 0 3px rgba(168,85,247,0.85), 0 0 34px 8px rgba(168,85,247,0.4);
+      box-shadow: 0 0 0 3px oklch(from var(--po-accent) l c h / 85%), 0 0 34px 8px oklch(from var(--po-accent) l c h / 40%);
       animation: sgPulse 1.8s ease-in-out infinite;
     }
     @keyframes sgPulse {
@@ -178,7 +178,7 @@ interface TooltipPosition { top: string; left: string; transformOrigin: string; 
     .sg-cta {
       width: 100%; border: none; cursor: pointer; margin-bottom: 14px;
       padding: 11px 16px; border-radius: 10px; font-size: 0.9rem; font-weight: 700; color: #fff;
-      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      background: linear-gradient(135deg, var(--po-accent) 0%, #a855f7 100%);
       box-shadow: 0 6px 18px rgba(124,58,237,0.4);
       transition: transform 0.12s, box-shadow 0.15s;
     }

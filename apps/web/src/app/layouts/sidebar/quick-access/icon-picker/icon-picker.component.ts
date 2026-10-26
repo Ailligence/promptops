@@ -121,7 +121,7 @@ const QUICK_ACCESS_ICONS: { name: string; label: string }[] = [
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(20px) saturate(180%);
       -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border: 1px solid rgba(79, 70, 229, 0.15);
+      border: 1px solid oklch(from var(--po-accent) l c h / 15%);
       border-radius: 12px;
       box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
       padding: 12px;
@@ -130,7 +130,7 @@ const QUICK_ACCESS_ICONS: { name: string; label: string }[] = [
 
     [data-bs-theme="dark"] .icon-picker-popover {
       background: rgba(30, 41, 59, 0.95);
-      border-color: rgba(99, 102, 241, 0.2);
+      border-color: oklch(from var(--po-accent) l c h / 20%);
     }
 
     @keyframes iconPickerIn {
@@ -141,17 +141,17 @@ const QUICK_ACCESS_ICONS: { name: string; label: string }[] = [
     .icon-picker-search {
       width: 100%;
       padding: 8px 12px;
-      border: 1px solid rgba(79, 70, 229, 0.2);
+      border: 1px solid oklch(from var(--po-accent) l c h / 20%);
       border-radius: 8px;
       font-size: 0.8rem;
-      background: rgba(79, 70, 229, 0.05);
+      background: oklch(from var(--po-accent) l c h / 5%);
       color: inherit;
       outline: none;
       margin-bottom: 10px;
       transition: border-color 0.2s;
 
       &:focus {
-        border-color: rgba(79, 70, 229, 0.5);
+        border-color: oklch(from var(--po-accent) l c h / 50%);
       }
     }
 
@@ -172,22 +172,22 @@ const QUICK_ACCESS_ICONS: { name: string; label: string }[] = [
       border: 1px solid transparent;
       border-radius: 8px;
       background: transparent;
-      color: rgba(79, 70, 229, 0.7);
+      color: oklch(from var(--po-accent) l c h / 70%);
       cursor: pointer;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       font-size: 1.1rem;
 
       &:hover {
-        background: rgba(79, 70, 229, 0.1);
-        color: rgba(79, 70, 229, 1);
+        background: oklch(from var(--po-accent) l c h / 10%);
+        color: oklch(from var(--po-accent) l c h / 100%);
         transform: scale(1.1);
       }
 
       &.selected {
-        background: rgba(79, 70, 229, 0.2);
-        border-color: rgba(79, 70, 229, 0.4);
-        color: rgba(79, 70, 229, 1);
-        box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+        background: oklch(from var(--po-accent) l c h / 20%);
+        border-color: oklch(from var(--po-accent) l c h / 40%);
+        color: oklch(from var(--po-accent) l c h / 100%);
+        box-shadow: 0 2px 8px oklch(from var(--po-accent) l c h / 20%);
       }
     }
   `,

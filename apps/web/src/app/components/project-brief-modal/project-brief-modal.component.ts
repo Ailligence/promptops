@@ -315,7 +315,7 @@ function readBriefCache(): Record<string, CachedAiBrief> {
       font-size: 0.72rem;
       color: rgba(100, 116, 139, 0.6);
       padding: 0.35rem 0.5rem;
-      background: rgba(99, 102, 241, 0.04);
+      background: oklch(from var(--po-accent) l c h / 4%);
       border-radius: 6px;
       word-break: break-all;
     }
@@ -325,8 +325,8 @@ function readBriefCache(): Record<string, CachedAiBrief> {
       font-weight: 600;
       padding: 0.15rem 0.5rem;
       border-radius: 999px;
-      background: rgba(99, 102, 241, 0.08);
-      color: #6366f1;
+      background: oklch(from var(--po-accent) l c h / 8%);
+      color: var(--po-accent);
     }
     .brief-badge.badge-lang { background: rgba(139, 92, 246, 0.08); color: #8b5cf6; }
     .brief-loading, .brief-empty, .brief-error {
@@ -349,7 +349,7 @@ function readBriefCache(): Record<string, CachedAiBrief> {
       gap: 0.5rem;
     }
     :host-context([data-bs-theme="dark"]) .brief-section {
-      border-color: rgba(99, 102, 241, 0.12);
+      border-color: oklch(from var(--po-accent) l c h / 12%);
     }
     .brief-section-title {
       display: flex;
@@ -370,7 +370,7 @@ function readBriefCache(): Record<string, CachedAiBrief> {
       align-items: center;
       gap: 0.3rem;
       padding: 0.25rem 0.6rem;
-      background: #6366f1;
+      background: var(--po-accent);
       color: #fff;
       border: none;
       border-radius: 8px;
@@ -386,7 +386,7 @@ function readBriefCache(): Record<string, CachedAiBrief> {
       font-size: 0.8rem;
       line-height: 1.5;
       padding: 0.5rem 0.6rem;
-      background: rgba(99, 102, 241, 0.04);
+      background: oklch(from var(--po-accent) l c h / 4%);
       border-radius: 8px;
     }
     .brief-hint { font-size: 0.72rem; color: rgba(100, 116, 139, 0.55); }
@@ -394,7 +394,7 @@ function readBriefCache(): Record<string, CachedAiBrief> {
       cursor: pointer;
       font-size: 0.76rem;
       font-weight: 600;
-      color: #6366f1;
+      color: var(--po-accent);
     }
     .brief-excerpt {
       margin: 0.35rem 0 0;
@@ -450,9 +450,9 @@ function readBriefCache(): Record<string, CachedAiBrief> {
     }
     .memory-chip:hover { border-color: rgba(99, 102, 241, 0.35); color: #6366f1; }
     .memory-chip.active {
-      background: rgba(99, 102, 241, 0.1);
-      border-color: rgba(99, 102, 241, 0.4);
-      color: #6366f1;
+      background: oklch(from var(--po-accent) l c h / 10%);
+      border-color: oklch(from var(--po-accent) l c h / 40%);
+      color: var(--po-accent);
     }
     .memory-chip .chip-count { font-weight: 500; opacity: 0.7; }
     :host-context([data-bs-theme="dark"]) .memory-chip { color: rgba(148, 163, 184, 0.85); }
@@ -476,8 +476,8 @@ function readBriefCache(): Record<string, CachedAiBrief> {
       letter-spacing: 0.03em;
       padding: 0.08rem 0.4rem;
       border-radius: 999px;
-      background: rgba(99, 102, 241, 0.08);
-      color: #6366f1;
+      background: oklch(from var(--po-accent) l c h / 8%);
+      color: var(--po-accent);
     }
     .brief-modal-footer {
       display: flex;
@@ -500,7 +500,7 @@ function readBriefCache(): Record<string, CachedAiBrief> {
       align-items: center;
       gap: 0.25rem;
       padding: 0.4rem 0.8rem;
-      background: #6366f1;
+      background: var(--po-accent);
       color: #fff;
       border: none;
       border-radius: 8px;

@@ -206,7 +206,7 @@ const LABEL_KEYS: Record<string, string> = {
       font-weight: 700;
       padding: 0.1rem 0.4rem;
       border-radius: 10px;
-      background: rgba(168, 85, 247, 0.1);
+      background: oklch(from var(--po-accent) l c h / 10%);
       color: #7c3aed;
     }
     .workflow-pill .ti { font-size: 0.72rem; }
@@ -248,7 +248,7 @@ const LABEL_KEYS: Record<string, string> = {
       overflow: hidden;
     }
     .fork-icon {
-      color: #8b5cf6;
+      color: var(--po-accent);
       font-size: 0.82rem;
       margin-inline-end: 0.15rem;
     }
@@ -378,7 +378,7 @@ const LABEL_KEYS: Record<string, string> = {
       font-weight: 700;
       border-radius: 10px;
       border: none;
-      background: var(--bs-primary, #6366f1);
+      background: var(--bs-primary, var(--po-accent));
       color: #fff;
       cursor: pointer;
       transition: all 0.2s;
@@ -430,8 +430,8 @@ const LABEL_KEYS: Record<string, string> = {
       letter-spacing: 0.03em;
     }
     .vis-pill.public {
-      background: rgba(99, 102, 241, 0.08);
-      color: #6366f1;
+      background: oklch(from var(--po-accent) l c h / 8%);
+      color: var(--po-accent);
     }
     .vis-pill .ti { font-size: 0.65rem; }
 

@@ -22,7 +22,7 @@ import { Component, OnDestroy, input, signal, ChangeDetectionStrategy } from '@a
     :host { position: absolute; inset: 0; z-index: 50; }
     .spawn-overlay {
       position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-      background: radial-gradient(120% 90% at 50% 45%, rgba(168, 85, 247, 0.10) 0%, transparent 60%), rgba(6, 7, 12, 0.94);
+      background: radial-gradient(120% 90% at 50% 45%, oklch(from var(--po-accent) l c h / 10%) 0%, transparent 60%), rgba(6, 7, 12, 0.94);
       backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); cursor: wait;
     }
     .spawn-overlay.soft { background: rgba(6, 7, 12, 0.55); }

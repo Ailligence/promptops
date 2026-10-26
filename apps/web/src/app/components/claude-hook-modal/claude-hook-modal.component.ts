@@ -113,7 +113,7 @@ import { ClaudeHookService, PendingHookInteraction } from '../../views/admin-cor
     .hook-toast-icon {
       width: 34px; height: 34px;
       border-radius: 10px;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      background: linear-gradient(135deg, var(--po-accent), var(--po-accent));
       display: flex;
       align-items: center;
       justify-content: center;
@@ -123,7 +123,7 @@ import { ClaudeHookService, PendingHookInteraction } from '../../views/admin-cor
       background: linear-gradient(135deg, #f59e0b, #ef4444);
     }
     .hook-toast.input .hook-toast-icon {
-      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      background: linear-gradient(135deg, #3b82f6, var(--po-accent));
     }
     .hook-toast-icon .ti { font-size: 1.05rem; color: #fff; }
 
@@ -169,8 +169,8 @@ import { ClaudeHookService, PendingHookInteraction } from '../../views/admin-cor
       white-space: nowrap;
     }
     .hook-toast-badge.session {
-      background: rgba(99, 102, 241, 0.12);
-      color: #6366f1;
+      background: oklch(from var(--po-accent) l c h / 12%);
+      color: var(--po-accent);
     }
     .hook-toast-badge.workspace {
       background: rgba(34, 197, 94, 0.12);
@@ -269,7 +269,7 @@ import { ClaudeHookService, PendingHookInteraction } from '../../views/admin-cor
       bottom: 0;
       left: 0;
       height: 2px;
-      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+      background: linear-gradient(90deg, var(--po-accent), var(--po-accent));
       animation: toastProgress var(--po-toast-duration, 5000ms) linear forwards;
     }
     .hook-toast.hover-pausable:hover .hook-toast-progress {
@@ -279,7 +279,7 @@ import { ClaudeHookService, PendingHookInteraction } from '../../views/admin-cor
       background: linear-gradient(90deg, #f59e0b, #ef4444);
     }
     .hook-toast.input .hook-toast-progress {
-      background: linear-gradient(90deg, #3b82f6, #6366f1);
+      background: linear-gradient(90deg, #3b82f6, var(--po-accent));
     }
 
     @keyframes toastIn {

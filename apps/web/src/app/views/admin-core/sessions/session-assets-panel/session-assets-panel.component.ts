@@ -155,7 +155,7 @@ import { EscCloseDirective } from '../../../../common/esc-close.directive';
     }
     .drop-zone:hover,
     .drop-zone.drag-over {
-      border-color: #58a6ff;
+      border-color: var(--po-info);
       background: rgba(88, 166, 255, 0.06);
     }
     .drop-zone.drag-over {
@@ -201,8 +201,8 @@ import { EscCloseDirective } from '../../../../common/esc-close.directive';
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
     .asset-card.selected {
-      border-color: #58a6ff;
-      box-shadow: 0 0 0 1px #58a6ff;
+      border-color: var(--po-info);
+      box-shadow: 0 0 0 1px var(--po-info);
     }
 
     .asset-preview {
@@ -292,19 +292,19 @@ import { EscCloseDirective } from '../../../../common/esc-close.directive';
       background: rgba(0, 0, 0, 0.8);
     }
     .btn-asset-action.delete:hover {
-      background: rgba(248, 81, 73, 0.8);
+      background: oklch(from var(--po-error) l c h / 80%);
     }
 
     /* ── Esito copia (card, barra selezione, composer) ── */
     .btn-asset-action.copied,
     .sel-btn.copied,
     .composer-close.copied {
-      color: #3fb950;
+      color: var(--po-success);
     }
     .btn-asset-action.copy-failed,
     .sel-btn.copy-failed,
     .composer-close.copy-failed {
-      color: #f85149;
+      color: var(--po-error);
     }
 
     /* ── Multi-select Toolbar (Google Drive style) ── */
@@ -366,20 +366,20 @@ import { EscCloseDirective } from '../../../../common/esc-close.directive';
       border-color: rgba(88, 166, 255, 0.5);
     }
     .sel-btn.debug {
-      border-color: rgba(248, 81, 73, 0.3);
+      border-color: oklch(from var(--po-error) l c h / 30%);
       color: var(--po-error);
     }
     .sel-btn.debug:hover {
       background: var(--po-error-bg);
-      border-color: rgba(248, 81, 73, 0.5);
+      border-color: oklch(from var(--po-error) l c h / 50%);
     }
     .sel-btn.explain {
-      border-color: rgba(210, 153, 34, 0.3);
+      border-color: oklch(from var(--po-warning) l c h / 30%);
       color: var(--po-warning);
     }
     .sel-btn.explain:hover {
       background: var(--po-warning-bg);
-      border-color: rgba(210, 153, 34, 0.5);
+      border-color: oklch(from var(--po-warning) l c h / 50%);
     }
     .sel-btn.prompt {
       border-color: rgba(163, 113, 247, 0.3);
@@ -390,8 +390,8 @@ import { EscCloseDirective } from '../../../../common/esc-close.directive';
       border-color: rgba(163, 113, 247, 0.5);
     }
     .sel-btn.delete:hover {
-      background: rgba(248, 81, 73, 0.15);
-      border-color: rgba(248, 81, 73, 0.5);
+      background: oklch(from var(--po-error) l c h / 15%);
+      border-color: oklch(from var(--po-error) l c h / 50%);
       color: var(--po-error);
     }
 
@@ -448,7 +448,7 @@ import { EscCloseDirective } from '../../../../common/esc-close.directive';
       height: 28px;
       border: none;
       border-radius: 50%;
-      background: rgba(248, 81, 73, 0.9);
+      background: oklch(from var(--po-error) l c h / 90%);
       color: #fff;
       cursor: pointer;
       display: flex;
@@ -468,7 +468,7 @@ import { EscCloseDirective } from '../../../../common/esc-close.directive';
       font-size: 0.7rem;
       padding: 1px 4px;
       background: var(--po-bg-0);
-      border: 1px solid #58a6ff;
+      border: 1px solid var(--po-info);
       border-radius: 3px;
       color: var(--po-text-primary);
       width: 100%;
@@ -747,7 +747,7 @@ import { EscCloseDirective } from '../../../../common/esc-close.directive';
 
     /* ── Highlight glow ── */
     .asset-card.highlighted {
-      border-color: #58a6ff;
+      border-color: var(--po-info);
       box-shadow: 0 0 12px rgba(88, 166, 255, 0.5), 0 0 4px rgba(88, 166, 255, 0.3);
       animation: highlightPulse 1.5s ease-in-out;
     }

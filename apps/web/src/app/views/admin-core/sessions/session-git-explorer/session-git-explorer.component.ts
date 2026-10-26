@@ -1943,8 +1943,8 @@ const GRAPH_COLORS = [
     .sb-merge-btn {
       margin-left: auto;
       display: inline-flex; align-items: center; gap: 0.2rem;
-      background: rgba(139, 92, 246, 0.12);
-      border: 1px solid rgba(139, 92, 246, 0.3);
+      background: oklch(from var(--po-accent) l c h / 12%);
+      border: 1px solid oklch(from var(--po-accent) l c h / 30%);
       color: rgba(196, 181, 253, 1);
       padding: 0.1rem 0.4rem; border-radius: 10px;
       font-size: 0.55rem; font-weight: 600;
@@ -1952,8 +1952,8 @@ const GRAPH_COLORS = [
       cursor: pointer; transition: background 0.12s ease, border-color 0.12s ease;
     }
     .sb-merge-btn:hover {
-      background: rgba(139, 92, 246, 0.22);
-      border-color: rgba(139, 92, 246, 0.5);
+      background: oklch(from var(--po-accent) l c h / 22%);
+      border-color: oklch(from var(--po-accent) l c h / 50%);
       color: white;
     }
 
@@ -2011,7 +2011,7 @@ const GRAPH_COLORS = [
     .bcm-form { display: flex; flex-direction: column; gap: 0.35rem; padding: 0.4rem 0.5rem; }
     .bcm-input {
       width: 100%; padding: 0.3rem 0.45rem;
-      background: var(--po-bg, #0d1117);
+      background: var(--po-bg, var(--po-terminal-bg));
       border: 1px solid var(--po-border, #30363d);
       border-radius: 5px;
       color: var(--po-text, #e6edf3);
@@ -2028,15 +2028,15 @@ const GRAPH_COLORS = [
     }
     .bcm-btn:hover { background: rgba(255,255,255,0.1); }
     .bcm-btn.primary {
-      background: rgba(99, 102, 241, 0.2);
-      border-color: rgba(99, 102, 241, 0.45);
+      background: oklch(from var(--po-accent) l c h / 20%);
+      border-color: oklch(from var(--po-accent) l c h / 45%);
       color: rgba(196, 181, 253, 1);
     }
     .bcm-btn.primary:hover { background: rgba(99, 102, 241, 0.35); }
     .bcm-btn.danger {
-      background: rgba(248, 81, 73, 0.15);
-      border-color: rgba(248, 81, 73, 0.4);
-      color: #f85149;
+      background: oklch(from var(--po-error) l c h / 15%);
+      border-color: oklch(from var(--po-error) l c h / 40%);
+      color: var(--po-error);
     }
     .bcm-btn.danger:hover { background: rgba(248, 81, 73, 0.28); }
     .bcm-btn:disabled { opacity: 0.5; cursor: default; }
@@ -2054,8 +2054,8 @@ const GRAPH_COLORS = [
       max-width: min(80vw, 560px);
       padding: 0.45rem 0.8rem; border-radius: 8px;
       background: var(--po-surface, #161b22);
-      border: 1px solid rgba(63, 185, 80, 0.45);
-      color: var(--po-success, #3fb950);
+      border: 1px solid oklch(from var(--po-success) l c h / 45%);
+      color: var(--po-success, var(--po-success));
       font-size: 0.72rem; font-weight: 500;
       box-shadow: 0 10px 30px rgba(0,0,0,0.45);
     }
@@ -2092,13 +2092,13 @@ const GRAPH_COLORS = [
       flex-shrink: 0;
     }
     .sb-new-branch-btn {
-      background: rgba(63,185,80,0.12);
-      border-color: rgba(63,185,80,0.3);
+      background: oklch(from var(--po-success) l c h / 12%);
+      border-color: oklch(from var(--po-success) l c h / 30%);
       color: var(--po-success);
     }
     .sb-new-branch-btn:hover {
-      background: rgba(63,185,80,0.22);
-      border-color: rgba(63,185,80,0.5);
+      background: oklch(from var(--po-success) l c h / 22%);
+      border-color: oklch(from var(--po-success) l c h / 50%);
       color: white;
     }
     .sb-checkout-btn {
@@ -2177,7 +2177,7 @@ const GRAPH_COLORS = [
     .ref-badge:hover { background: rgba(88,166,255,0.25); }
     .ref-badge.ref-head {
       background: var(--po-success-bg); color: var(--po-success);
-      border-color: rgba(63,185,80,0.35);
+      border-color: oklch(from var(--po-success) l c h / 35%);
     }
     .ref-badge.ref-head:hover { background: rgba(63,185,80,0.25); }
     .ref-badge.ref-tag {
@@ -2192,7 +2192,7 @@ const GRAPH_COLORS = [
     .ref-badge.ref-remote:hover { background: rgba(139,148,158,0.2); }
     .ref-badge.ref-local {
       background: rgba(99,102,241,0.14); color: #a5b4fc;
-      border-color: rgba(99,102,241,0.35);
+      border-color: oklch(from var(--po-accent) l c h / 35%);
       border-style: dashed;                        /* local-only: not pushed yet */
     }
     .ref-badge.ref-local:hover { background: rgba(99,102,241,0.28); }

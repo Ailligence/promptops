@@ -91,19 +91,19 @@ type TabType = "all" | "public" | "private" | "starred" | "shared";
     }
     .tab-btn:hover { color: #4f46e5; }
     .tab-btn.active {
-      color: #4f46e5;
-      border-bottom-color: #4f46e5;
+      color: var(--po-accent);
+      border-bottom-color: var(--po-accent);
     }
     .tab-count {
       font-size: 0.7rem;
       font-weight: 600;
       padding: 0.05rem 0.4rem;
       border-radius: 10px;
-      background: rgba(99, 102, 241, 0.08);
-      color: #6366f1;
+      background: oklch(from var(--po-accent) l c h / 8%);
+      color: var(--po-accent);
     }
     .tab-btn.active .tab-count {
-      background: rgba(99, 102, 241, 0.15);
+      background: oklch(from var(--po-accent) l c h / 15%);
     }
 
     /* ─── Filters inline ─── */
@@ -205,8 +205,8 @@ type TabType = "all" | "public" | "private" | "starred" | "shared";
       transition: all 0.2s;
     }
     .page-btn:hover:not(:disabled) {
-      border-color: rgba(99, 102, 241, 0.3);
-      color: #4f46e5;
+      border-color: oklch(from var(--po-accent) l c h / 30%);
+      color: var(--po-accent);
     }
     .page-btn:disabled {
       opacity: 0.3;

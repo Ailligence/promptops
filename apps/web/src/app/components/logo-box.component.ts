@@ -98,7 +98,7 @@ import { TranslateModule } from "@ngx-translate/core";
       color: #1a1a1a;
     }
     .ops-text {
-      background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #A855F7 100%);
+      background: linear-gradient(135deg, var(--po-accent) 0%, #7C3AED 50%, #A855F7 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;

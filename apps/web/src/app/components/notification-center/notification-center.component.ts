@@ -71,11 +71,11 @@ import {
       align-items: center;
       justify-content: space-between;
       padding: 16px 20px 14px;
-      background: linear-gradient(180deg, rgba(99, 102, 241, 0.03) 0%, transparent 100%);
+      background: linear-gradient(180deg, oklch(from var(--po-accent) l c h / 3%) 0%, transparent 100%);
       border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     }
     :host-context([data-bs-theme="dark"]) .nc-header {
-      background: linear-gradient(180deg, rgba(99, 102, 241, 0.06) 0%, transparent 100%);
+      background: linear-gradient(180deg, oklch(from var(--po-accent) l c h / 6%) 0%, transparent 100%);
       border-bottom-color: rgba(255, 255, 255, 0.05);
     }
     .nc-header-title {
@@ -97,18 +97,18 @@ import {
       border-radius: 11px;
       font-size: 0.65rem;
       font-weight: 700;
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.12) 100%);
-      color: #6366f1;
+      background: linear-gradient(135deg, oklch(from var(--po-accent) l c h / 12%) 0%, oklch(from var(--po-accent) l c h / 12%) 100%);
+      color: var(--po-accent);
     }
     :host-context([data-bs-theme="dark"]) .nc-header-count {
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
-      color: #a5b4fc;
+      background: linear-gradient(135deg, oklch(from var(--po-accent) l c h / 20%) 0%, oklch(from var(--po-accent) l c h / 20%) 100%);
+      color: var(--po-accent-text);
     }
     .nc-mark-btn {
       font-size: 0.73rem;
       font-weight: 600;
-      color: #6366f1;
-      background: rgba(99, 102, 241, 0.06);
+      color: var(--po-accent);
+      background: oklch(from var(--po-accent) l c h / 6%);
       border: none;
       border-radius: 8px;
       padding: 5px 10px;
@@ -119,15 +119,15 @@ import {
       gap: 0.3rem;
     }
     .nc-mark-btn:hover {
-      background: rgba(99, 102, 241, 0.12);
-      color: #4f46e5;
+      background: oklch(from var(--po-accent) l c h / 12%);
+      color: var(--po-accent);
     }
     :host-context([data-bs-theme="dark"]) .nc-mark-btn {
-      background: rgba(99, 102, 241, 0.1);
-      color: #a5b4fc;
+      background: oklch(from var(--po-accent) l c h / 10%);
+      color: var(--po-accent-text);
     }
     :host-context([data-bs-theme="dark"]) .nc-mark-btn:hover {
-      background: rgba(99, 102, 241, 0.18);
+      background: oklch(from var(--po-accent) l c h / 18%);
     }
 
     /* ═══════════════════════════════════════════════
@@ -184,10 +184,10 @@ import {
       position: relative;
     }
     .nc-item:hover {
-      background: rgba(99, 102, 241, 0.035);
+      background: oklch(from var(--po-accent) l c h / 4%);
     }
     :host-context([data-bs-theme="dark"]) .nc-item:hover {
-      background: rgba(99, 102, 241, 0.06);
+      background: oklch(from var(--po-accent) l c h / 6%);
     }
     .nc-item + .nc-item {
       border-top: 1px solid rgba(0, 0, 0, 0.03);
@@ -198,16 +198,16 @@ import {
 
     /* Unread state */
     .nc-item.unread {
-      background: rgba(99, 102, 241, 0.04);
+      background: oklch(from var(--po-accent) l c h / 4%);
     }
     :host-context([data-bs-theme="dark"]) .nc-item.unread {
-      background: rgba(99, 102, 241, 0.07);
+      background: oklch(from var(--po-accent) l c h / 7%);
     }
     .nc-item.unread:hover {
-      background: rgba(99, 102, 241, 0.065);
+      background: oklch(from var(--po-accent) l c h / 6%);
     }
     :host-context([data-bs-theme="dark"]) .nc-item.unread:hover {
-      background: rgba(99, 102, 241, 0.1);
+      background: oklch(from var(--po-accent) l c h / 10%);
     }
 
     /* Left accent stripe */
@@ -217,7 +217,7 @@ import {
       inset-inline-start: 0; top: 6px; bottom: 6px;
       width: 3px;
       border-radius: 0 4px 4px 0;
-      background: linear-gradient(180deg, #6366f1, #818cf8);
+      background: linear-gradient(180deg, var(--po-accent), var(--po-accent-text));
     }
     .nc-item.actionable::after {
       background: linear-gradient(180deg, #f59e0b, #fbbf24);
@@ -244,8 +244,8 @@ import {
       color: #22c55e;
     }
     .nc-icon.share {
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
-      color: #6366f1;
+      background: linear-gradient(135deg, oklch(from var(--po-accent) l c h / 10%), oklch(from var(--po-accent) l c h / 10%));
+      color: var(--po-accent);
     }
     .nc-icon.promo {
       background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(251, 191, 36, 0.08));
@@ -256,8 +256,8 @@ import {
       color: #d97706;
     }
     .nc-icon.comment {
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(168, 85, 247, 0.08));
-      color: #818cf8;
+      background: linear-gradient(135deg, oklch(from var(--po-accent) l c h / 8%), oklch(from var(--po-accent) l c h / 8%));
+      color: var(--po-accent-text);
     }
     .nc-icon.general {
       background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(6, 182, 212, 0.08));
@@ -340,14 +340,14 @@ import {
       font-weight: 600;
       border: none;
       cursor: pointer;
-      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      background: linear-gradient(135deg, var(--po-accent), var(--po-accent));
       color: #fff;
-      box-shadow: 0 1px 3px rgba(79, 70, 229, 0.3);
+      box-shadow: 0 1px 3px oklch(from var(--po-accent) l c h / 30%);
       transition: all 0.15s ease;
     }
     .nc-btn-accept:hover {
-      background: linear-gradient(135deg, #4338ca, #4f46e5);
-      box-shadow: 0 2px 6px rgba(79, 70, 229, 0.4);
+      background: linear-gradient(135deg, #4338ca, var(--po-accent));
+      box-shadow: 0 2px 6px oklch(from var(--po-accent) l c h / 40%);
       transform: translateY(-1px);
     }
     .nc-btn-decline {
@@ -374,9 +374,9 @@ import {
        ═══════════════════════════════════════════════ */
     .nc-unread-dot {
       width: 8px; height: 8px; border-radius: 50%;
-      background: linear-gradient(135deg, #6366f1, #818cf8);
+      background: linear-gradient(135deg, var(--po-accent), var(--po-accent-text));
       flex-shrink: 0; margin-top: 6px;
-      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+      box-shadow: 0 0 0 2px oklch(from var(--po-accent) l c h / 15%);
     }
 
     /* ═══════════════════════════════════════════════
@@ -419,21 +419,21 @@ import {
       border-top: 1px solid rgba(0, 0, 0, 0.05);
       font-size: 0.78rem;
       font-weight: 600;
-      color: #6366f1;
+      color: var(--po-accent);
       text-decoration: none;
       transition: all 0.15s ease;
     }
     :host-context([data-bs-theme="dark"]) .nc-footer {
       border-top-color: rgba(255, 255, 255, 0.05);
-      color: #a5b4fc;
+      color: var(--po-accent-text);
     }
     .nc-footer:hover {
-      background: rgba(99, 102, 241, 0.04);
-      color: #4f46e5;
+      background: oklch(from var(--po-accent) l c h / 4%);
+      color: var(--po-accent);
     }
     :host-context([data-bs-theme="dark"]) .nc-footer:hover {
-      background: rgba(99, 102, 241, 0.08);
-      color: #c7d2fe;
+      background: oklch(from var(--po-accent) l c h / 8%);
+      color: var(--po-accent-text);
     }
     .nc-footer i {
       font-size: 15px;

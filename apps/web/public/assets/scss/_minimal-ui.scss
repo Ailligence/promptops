@@ -35,31 +35,35 @@ $po-minimal-states: (
 
 html[data-po-ui="minimal"] {
   // ── Token overrides (theme-agnostic) ──────────────────────────────────────
-  // goodboy radii: generous and soft, not tight.
-  --po-radius-md: 8px;
-  --po-radius-lg: 12px;
-  --po-radius-xl: 16px;
+  // Panel hardware: machined, not pillowy. Housings (dialogs) get the most.
+  --po-radius-xs: 1px;
+  --po-radius-sm: 3px;
+  --po-radius-md: 4px;
+  --po-radius-lg: 4px;
+  --po-radius-xl: 6px;
 
   // Header is fully removed in minimal (its controls move to the sidebar
   // footer and the bottom bar): zero the token so the fullscreen session
   // column calc(100vh - --po-topbar-h - --po-bottombar-h) reclaims the space.
   --po-topbar-h: 0px;
 
-  // goodboy motion: fast/normal/slow with an emphasized decel.
-  --po-duration-fast: 100ms;
-  --po-duration-base: 200ms;
-  --po-duration-slow: 350ms;
-  --po-ease-out: cubic-bezier(0.2, 0, 0, 1);
+  // Lamp timing: a lamp warms up, it does not blink on.
+  --po-duration-fast: 120ms;
+  --po-duration-base: 180ms;
+  --po-duration-slow: 320ms;
+  --po-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
-  // Native system type — the Cursor-calm texture. Standard weights: the
-  // Geist variable-axis values (350/570/680) would round oddly on SF Pro.
-  --po-font-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --po-font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --po-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Cascadia Mono", monospace;
+  // One workhorse family carries the whole panel; Geist Mono for every
+  // number, path and command. Engraved panel labels use the label tokens.
+  --po-font-display: "Geist Variable", "Geist", system-ui, sans-serif;
+  --po-font-body: "Geist Variable", "Geist", system-ui, sans-serif;
+  --po-font-mono: "Geist Mono Variable", "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --po-weight-body: 400;
   --po-weight-medium: 500;
   --po-weight-semibold: 600;
-  --po-weight-bold: 700;
+  --po-weight-bold: 680;
+  --po-label-size: 0.6875rem;
+  --po-label-tracking: 0.09em;
 
   // Alpha tints derived from the live solids — follow the theme for free.
   --po-accent-muted-bg: oklch(from var(--po-accent) l c h / 14%);
@@ -1261,319 +1265,211 @@ html[data-po-ui="minimal"] {
   to { --po-spin-angle: 360deg; }
 }
 
-// ── Dark theme (default) ────────────────────────────────────────────────────
-// goodboy's lifted desaturated darks: a brighter, calmer canvas (L 25% vs the
-// classic 17%) with a monotonic 4-step elevation ramp above it. Borders are
-// quiet (L 32/40%), never white. Accent teal, semantics at soft chroma.
+// ── Dark theme (default): the signal panel ──────────────────────────────────
+// Matte panel enamel, a whisper of green-grey (hue 170) so it reads as a
+// painted panel, not a monitor black. Monotonic ramp: the track bed (bg-0,
+// terminals) is the deepest plane, the panel face (bg-1) sits above it,
+// raised housings (bg-2…bg-4) above that. Separation is drawn with 1px rules,
+// never with shadows; the only saturated color on the panel is a lit lamp.
 html[data-po-ui="minimal"][data-bs-theme="dark"],
 html[data-po-ui="minimal"]:not([data-bs-theme="light"]) {
-  --po-bg-0: oklch(22% 0.006 255);
-  --po-bg-1: oklch(25% 0.006 255);
-  --po-bg-2: oklch(29% 0.008 255);
-  --po-bg-3: oklch(33% 0.01 255);
-  --po-bg-4: oklch(37% 0.011 255);
+  --po-bg-0: oklch(15.5% 0.006 170);
+  --po-bg-1: oklch(18.5% 0.006 170);
+  --po-bg-2: oklch(22% 0.007 170);
+  --po-bg-3: oklch(25.5% 0.008 170);
+  --po-bg-4: oklch(29% 0.008 170);
 
-  --po-border-subtle: oklch(32% 0.01 255);
-  --po-border-strong: oklch(40% 0.012 255);
+  --po-border-subtle: oklch(28% 0.007 170);
+  --po-border-strong: oklch(37% 0.008 170);
 
-  --po-text-primary:   oklch(91% 0.006 90);
-  // WCAG contrast (UX audit 10/2026, target AA 4.5:1 for normal text),
-  // computed oklch → sRGB on bg-0 / bg-1 / bg-2 / bg-3 / bg-4:
-  //   secondary #b1b8c1 → 8.66 / 8.00 / 7.05 / 6.11 / 5.21
-  //   tertiary  #9da2a9 → 6.73 / 6.22 / 5.49 / 4.75 / 4.05 (bg-4 = hover/highlighted
-  //   row only). Previously L60% #7b8187 → 4.39 / 4.06 / 3.58 / 3.10 / 2.64.
-  --po-text-secondary: oklch(78% 0.015 255);
-  --po-text-tertiary:  oklch(71% 0.012 255);
+  // Track lines: warm off-white at full strength, the panel's drawing ink.
+  --po-track:     oklch(86% 0.012 95);
+  --po-track-dim: oklch(40% 0.008 170);
 
-  // Accent: NOT overridden — the brand indigo (violet, ≈ #6366F1) inherits
-  // untouched from _tokens.scss, same as the topbar global refresh.
+  --po-text-primary:   oklch(93% 0.01 95);
+  // AA 4.5:1 on bg-0…bg-3 for both tiers (bg-4 is the hover row only).
+  --po-text-secondary: oklch(78% 0.012 170);
+  --po-text-tertiary:  oklch(68% 0.012 170);
 
-  --po-success: oklch(69% 0.13 148);
-  --po-warning: oklch(76% 0.13 78);
-  // L69%: 4.7:1 as text on bg-2; error buttons carry dark text (6.6:1) instead
-  // of light text on L63% (3.3:1).
-  --po-error:   oklch(69% 0.16 22);
-  --po-info:    oklch(69% 0.11 238);
-  --po-success-on: oklch(15% 0 0);
-  --po-warning-on: oklch(15% 0 0);
-  --po-error-on:   oklch(15% 0 0);
-  --po-info-on:    oklch(15% 0 0);
+  // Route set: brand violet #4F41FA. Solid fills (primary action, selection)
+  // take the brand value; text and rules on the dark panel use the lifted
+  // tone so they clear AA.
+  --po-accent:          oklch(58% 0.24 277);
+  --po-accent-hover:    oklch(63% 0.22 277);
+  --po-accent-active:   oklch(52% 0.25 276);
+  --po-accent-text:     oklch(74% 0.15 278);
+  --po-accent-on:       oklch(99% 0.004 276);
 
-  // goodboy dark shadows: subtle drop + faint inner highlight for the lift.
-  --po-shadow-sm: 0 1px 2px 0 oklch(0 0 0 / 0.28), inset 0 1px 0 0 oklch(1 0 0 / 0.03);
-  --po-shadow-md: 0 6px 16px -4px oklch(0 0 0 / 0.44), 0 2px 4px -1px oklch(0 0 0 / 0.3), inset 0 1px 0 0 oklch(1 0 0 / 0.04);
-  --po-shadow-lg: 0 18px 40px -10px oklch(0 0 0 / 0.52), 0 6px 12px -4px oklch(0 0 0 / 0.38), inset 0 1px 0 0 oklch(1 0 0 / 0.05);
+  // Signal lamps. Green = proceeding (working), amber = caution (idle,
+  // waiting), red = stop (blocked: only you can clear it), off = exited.
+  --po-success: oklch(76% 0.16 150);
+  --po-warning: oklch(81% 0.14 78);
+  --po-error:   oklch(68% 0.2 25);
+  --po-info:    oklch(74% 0.1 230);
+  --po-lamp-off: oklch(42% 0.008 170);
+  --po-success-on: oklch(16% 0.01 150);
+  --po-warning-on: oklch(18% 0.02 78);
+  --po-error-on:   oklch(15% 0.01 25);
+  --po-info-on:    oklch(15% 0.01 230);
 
-  // rgb triplets feed the compiled text-*/bg-* utilities and link colors —
+  // No lift by shadow on the panel. Only floating housings (menus, dialogs)
+  // cast a soft, offset shadow so they read as above the face.
+  --po-shadow-sm: none;
+  --po-shadow-md: 0 8px 24px -8px oklch(0 0 0 / 0.55);
+  --po-shadow-lg: 0 18px 44px -12px oklch(0 0 0 / 0.6), 0 4px 10px -4px oklch(0 0 0 / 0.4);
+
+  // rgb triplets feed the compiled text-*/bg-* utilities and link colors:
   // they cannot chain to oklch vars, so they carry literal equivalents.
-  --#{$prefix}primary-rgb: 99, 102, 241;
-  --#{$prefix}secondary-rgb: 184, 188, 200;
-  --#{$prefix}success-rgb: 68, 176, 110;
-  --#{$prefix}danger-rgb: 238, 109, 109;
-  --#{$prefix}warning-rgb: 221, 171, 71;
-  --#{$prefix}info-rgb: 106, 163, 232;
-  --#{$prefix}body-color-rgb: 233, 230, 222;
-  --#{$prefix}body-bg-rgb: 43, 46, 53;
-  --#{$prefix}link-color-rgb: 99, 102, 241;
-  --#{$prefix}link-hover-color-rgb: 126, 130, 245;
+  --#{$prefix}primary-rgb: 79, 65, 250;
+  --#{$prefix}secondary-rgb: 176, 190, 185;
+  --#{$prefix}success-rgb: 94, 205, 128;
+  --#{$prefix}danger-rgb: 240, 96, 90;
+  --#{$prefix}warning-rgb: 236, 190, 92;
+  --#{$prefix}info-rgb: 110, 180, 214;
+  --#{$prefix}body-color-rgb: 236, 234, 226;
+  --#{$prefix}body-bg-rgb: 24, 28, 27;
+  --#{$prefix}link-color-rgb: 160, 160, 255;
+  --#{$prefix}link-hover-color-rgb: 186, 186, 255;
+  --#{$prefix}link-color: var(--po-accent-text);
   --#{$prefix}light: var(--po-bg-3);
-  --#{$prefix}light-rgb: 67, 70, 79;
+  --#{$prefix}light-rgb: 52, 58, 56;
   --#{$prefix}dark: var(--po-text-primary);
-  --#{$prefix}dark-rgb: 233, 230, 222;
-
-  // Checked glyphs: indigo fill → bootstrap's default white glyphs are right.
+  --#{$prefix}dark-rgb: 236, 234, 226;
 }
 
-// ── Light theme (web fallback) — goodboy light mapping ──────────────────────
-// Mirrored elevation model: brighter L = more elevated. Semantics tuned for
-// AA on light backgrounds, accent stays teal with a near-white label.
+// ── Light theme (web fallback): the same panel under daylight ───────────────
 html[data-po-ui="minimal"][data-bs-theme="light"] {
-  --po-bg-0: oklch(89% 0.006 250);
-  --po-bg-1: oklch(91.5% 0.006 250);
-  --po-bg-2: oklch(94% 0.005 250);
-  --po-bg-3: oklch(98.5% 0.003 250);
-  --po-bg-4: oklch(96% 0.004 250);
+  --po-bg-0: oklch(90% 0.006 170);
+  --po-bg-1: oklch(95% 0.005 170);
+  --po-bg-2: oklch(97.5% 0.004 170);
+  --po-bg-3: oklch(99.5% 0.002 170);
+  --po-bg-4: oklch(92.5% 0.006 170);
 
-  --po-border-subtle: oklch(87% 0.005 250);
-  --po-border-strong: oklch(82% 0.006 250);
+  --po-border-subtle: oklch(87% 0.006 170);
+  --po-border-strong: oklch(78% 0.008 170);
 
-  --po-text-primary:   oklch(21% 0.005 250);
-  // WCAG contrast (UX audit 10/2026, target AA 4.5:1), on bg-0 / bg-1 / bg-2 /
-  // bg-3 / bg-4 (here bg-0 is the darkest, L89%):
-  //   secondary #45484b → 6.62 / 7.16 / 7.72 / 8.82 / 8.20 (previously L44%: 5.58 min)
-  //   tertiary  #5b5e61 → 4.70 / 5.08 / 5.48 / 6.26 / 5.82
-  //   (previously L58% #787b7e → 3.08 / 3.33 / 3.59 / 4.10 / 3.81).
-  --po-text-secondary: oklch(40% 0.006 250);
-  --po-text-tertiary:  oklch(48% 0.006 250);
+  --po-track:     oklch(25% 0.01 170);
+  --po-track-dim: oklch(78% 0.008 170);
 
-  // Accent: NOT overridden — the light-mode brand indigo (≈ #4F46E5)
-  // inherits untouched from _tokens.scss.
+  --po-text-primary:   oklch(21% 0.008 170);
+  --po-text-secondary: oklch(40% 0.008 170);
+  --po-text-tertiary:  oklch(48% 0.008 170);
 
-  --po-success: oklch(46% 0.14 148);
-  --po-warning: oklch(50% 0.15 55);  // 4.5:1 as text on bg-0, 6.1:1 under white text
-  --po-error:   oklch(50% 0.19 22);
-  --po-info:    oklch(48% 0.14 238);
+  --po-accent:          oklch(52% 0.26 276);
+  --po-accent-hover:    oklch(47% 0.25 276);
+  --po-accent-active:   oklch(42% 0.24 276);
+  --po-accent-text:     oklch(48% 0.24 276);
+  --po-accent-on:       oklch(99% 0.004 276);
+
+  --po-success: oklch(50% 0.14 150);
+  --po-warning: oklch(55% 0.14 65);
+  --po-error:   oklch(52% 0.2 25);
+  --po-info:    oklch(50% 0.12 230);
+  --po-lamp-off: oklch(70% 0.006 170);
   --po-success-on: oklch(99% 0 0);
   --po-warning-on: oklch(99% 0 0);
   --po-error-on:   oklch(99% 0 0);
   --po-info-on:    oklch(99% 0 0);
 
-  // goodboy light shadows: softer, multi-layered.
-  --po-shadow-sm: 0 1px 2px 0 oklch(0 0 0 / 0.06), 0 1px 3px 0 oklch(0 0 0 / 0.08);
-  --po-shadow-md: 0 4px 12px -2px oklch(0 0 0 / 0.1), 0 2px 4px -1px oklch(0 0 0 / 0.08);
-  --po-shadow-lg: 0 16px 36px -8px oklch(0 0 0 / 0.14), 0 6px 12px -4px oklch(0 0 0 / 0.1);
+  --po-shadow-sm: none;
+  --po-shadow-md: 0 8px 24px -10px oklch(0 0 0 / 0.16);
+  --po-shadow-lg: 0 18px 40px -14px oklch(0 0 0 / 0.2), 0 4px 10px -4px oklch(0 0 0 / 0.08);
 
-  --#{$prefix}primary-rgb: 79, 70, 229;
-  --#{$prefix}secondary-rgb: 93, 96, 102;
-  --#{$prefix}success-rgb: 17, 122, 64;
-  --#{$prefix}danger-rgb: 192, 58, 43;
-  --#{$prefix}warning-rgb: 161, 68, 0;
-  --#{$prefix}info-rgb: 47, 108, 196;
-  --#{$prefix}body-color-rgb: 29, 31, 35;
-  --#{$prefix}body-bg-rgb: 226, 228, 233;
-  --#{$prefix}link-color-rgb: 79, 70, 229;
-  --#{$prefix}link-hover-color-rgb: 67, 56, 202;
+  --#{$prefix}primary-rgb: 79, 65, 250;
+  --#{$prefix}secondary-rgb: 82, 94, 90;
+  --#{$prefix}success-rgb: 30, 125, 70;
+  --#{$prefix}danger-rgb: 192, 48, 44;
+  --#{$prefix}warning-rgb: 150, 90, 10;
+  --#{$prefix}info-rgb: 30, 110, 150;
+  --#{$prefix}body-color-rgb: 26, 32, 30;
+  --#{$prefix}body-bg-rgb: 236, 240, 238;
+  --#{$prefix}link-color-rgb: 79, 65, 250;
+  --#{$prefix}link-hover-color-rgb: 60, 48, 210;
+  --#{$prefix}link-color: var(--po-accent-text);
   --#{$prefix}light: var(--po-bg-2);
-  --#{$prefix}light-rgb: 238, 239, 243;
+  --#{$prefix}light-rgb: 244, 247, 246;
   --#{$prefix}dark: var(--po-text-primary);
-  --#{$prefix}dark-rgb: 29, 31, 35;
-
-  // Checked glyphs: indigo fill → bootstrap's default white glyphs are right.
+  --#{$prefix}dark-rgb: 26, 32, 30;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-//  Liquid Glass rail (Revolut RUI-flavored)
+//  The rail: a flat strip of engraved destinations
 // ---------------------------------------------------------------------------
-//  The sidenav stops being an opaque panel and becomes a pane of glass: a
-//  translucent tint over a blurred + saturated backdrop, a specular hairline
-//  along its edges, and rows that read as frosted pills. Behavior is
-//  untouched — minimal keeps data-sidenav-size="sm-hover", so the rail is a
-//  70px rail that expands on hover *over* the content, which is exactly what
-//  makes the blur read as real glass.
-//  Everything is scoped under [data-po-ui="minimal"]: Classic stays flat.
+//  Opaque panel face, a single 1px rule against the content. Rows are plain;
+//  the current destination is "route set": a 2px violet bar on the inner
+//  edge and the icon in violet. Nothing floats, nothing is frosted.
 // ═══════════════════════════════════════════════════════════════════════════
 html[data-po-ui="minimal"] {
-  // Dark-first glass tokens (light overridden below).
-  --po-glass-blur: 28px;
-  --po-glass-saturate: 175%;
-  --po-glass-tint: oklch(from var(--po-bg-1) l c h / 55%);
-  --po-glass-edge: oklch(100% 0 0 / 12%);
-  --po-glass-edge-soft: oklch(100% 0 0 / 6%);
-  --po-glass-specular: oklch(100% 0 0 / 9%);
-  --po-glass-row-hover: oklch(100% 0 0 / 7%);
-  --po-glass-row-active: oklch(100% 0 0 / 13%);
-  --po-glass-icon: oklch(100% 0 0 / 5%);
-  --po-glass-shadow: 0 8px 40px -10px oklch(0 0 0 / 55%);
-
-  &[data-bs-theme="light"] {
-    --po-glass-tint: oklch(from var(--po-bg-0) l c h / 62%);
-    --po-glass-edge: oklch(0 0 0 / 9%);
-    --po-glass-edge-soft: oklch(0 0 0 / 5%);
-    --po-glass-specular: oklch(100% 0 0 / 65%);
-    --po-glass-row-hover: oklch(100% 0 0 / 70%);
-    --po-glass-row-active: oklch(100% 0 0 / 92%);
-    --po-glass-icon: oklch(100% 0 0 / 55%);
-    --po-glass-shadow: 0 8px 32px -10px oklch(0 0 0 / 18%);
-  }
-
-  // ── The pane ──────────────────────────────────────────────────────────────
   .po-sidebar {
-    background: var(--po-glass-tint);
-    backdrop-filter: blur(var(--po-glass-blur)) saturate(var(--po-glass-saturate));
-    -webkit-backdrop-filter: blur(var(--po-glass-blur)) saturate(var(--po-glass-saturate));
-    border-inline-end: 1px solid var(--po-glass-edge);
-    box-shadow:
-      var(--po-glass-shadow),
-      inset 0 1px 0 var(--po-glass-specular),
-      inset -1px 0 0 var(--po-glass-edge-soft);
-    isolation: isolate;
+    background: var(--po-bg-1);
+    border-inline-end: 1px solid var(--po-border-subtle);
+    box-shadow: none;
 
-    // Specular sheen: a light source at the top-left of the pane, fading out.
-    // Sits under the content (z-index 0 vs. the children's stacking).
-    &::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background:
-        linear-gradient(180deg, var(--po-glass-specular) 0%, transparent 18%),
-        linear-gradient(105deg, oklch(100% 0 0 / 4%) 0%, transparent 42%);
-      z-index: -1;
-    }
-
-    // Inner separators become glass edges, not solid borders.
     .po-brand,
     .sidenav-minimal-footer,
     .quick-access-section {
-      border-color: var(--po-glass-edge-soft) !important;
+      border-color: var(--po-border-subtle) !important;
       background: transparent;
     }
   }
 
-  // Expanded (hover) state: the pane lifts off the content underneath.
+  // Expanded on hover, the rail overlaps the content: it is a housing now.
   &[data-sidenav-size="sm-hover"] .po-sidebar:hover {
-    box-shadow:
-      0 16px 60px -12px oklch(0 0 0 / 60%),
-      inset 0 1px 0 var(--po-glass-specular),
-      inset -1px 0 0 var(--po-glass-edge-soft);
-  }
-  &[data-bs-theme="light"][data-sidenav-size="sm-hover"] .po-sidebar:hover {
-    box-shadow:
-      0 16px 48px -14px oklch(0 0 0 / 22%),
-      inset 0 1px 0 var(--po-glass-specular),
-      inset -1px 0 0 var(--po-glass-edge-soft);
+    background: var(--po-bg-2);
+    box-shadow: var(--po-shadow-md);
   }
 
-  // ── Rows: frosted pills ───────────────────────────────────────────────────
   .po-nav .po-nav-item .po-nav-link {
-    border-radius: var(--po-radius-lg);
-    border: 1px solid transparent;
+    position: relative;
+    border-radius: var(--po-radius-sm);
+    border: 0;
     background: transparent;
+    color: var(--po-text-secondary);
     transition:
       background var(--po-duration-fast) var(--po-ease-out),
-      border-color var(--po-duration-fast) var(--po-ease-out),
-      box-shadow var(--po-duration-fast) var(--po-ease-out),
       color var(--po-duration-fast) var(--po-ease-out);
 
     &:hover,
-    &:focus {
-      background: var(--po-glass-row-hover);
-      border-color: var(--po-glass-edge-soft);
-      box-shadow: inset 0 1px 0 var(--po-glass-specular);
+    &:focus-visible {
+      background: var(--po-bg-3);
+      color: var(--po-text-primary);
     }
 
-    // Icon in its own little glass tile, Revolut-style.
     .po-nav-icon {
       width: 26px !important;
       height: 26px !important;
-      border-radius: 7px;
-      background: var(--po-glass-icon);
-      border: 1px solid transparent;
-      box-shadow: inset 0 1px 0 var(--po-glass-edge-soft);
-      transition:
-        background var(--po-duration-fast) var(--po-ease-out),
-        border-color var(--po-duration-fast) var(--po-ease-out);
-    }
-    &:hover .po-nav-icon {
-      background: var(--po-glass-row-hover);
-      border-color: var(--po-glass-edge-soft);
+      border-radius: var(--po-radius-sm);
+      background: transparent;
     }
   }
 
-  // Active row: brighter glass + accent-lit icon tile. The accent stays the
-  // only brand hue; the left accent bar of Classic is replaced by the tile.
-  .po-nav .po-nav-item.active .po-nav-link.active {
-    background: var(--po-glass-row-active) !important;
-    border-color: var(--po-glass-edge) !important;
-    border-inline-start: 1px solid var(--po-glass-edge) !important;
-    padding-inline-start: 12px !important;
-    box-shadow:
-      inset 0 1px 0 var(--po-glass-specular),
-      0 1px 3px -1px oklch(0 0 0 / 25%);
-
-    .po-nav-icon {
-      background: oklch(from var(--po-accent) l c h / 18%);
-      border-color: oklch(from var(--po-accent) l c h / 32%);
-    }
-  }
-
-  // Collapsed rail: the group holding the active page lights up like an active
-  // row (its children are shown as icons right below it).
+  .po-nav .po-nav-item.active .po-nav-link.active,
   &[data-sidenav-size="sm-hover"] .po-sidebar:not(:hover) .po-nav-item.active-group > .po-nav-link {
-    background: var(--po-glass-row-active);
-    border-color: var(--po-glass-edge);
-    box-shadow: inset 0 1px 0 var(--po-glass-specular);
+    background: var(--po-bg-3) !important;
+    color: var(--po-text-primary);
+    border-inline-start: 0 !important;
+    padding-inline-start: 12px !important;
 
-    .po-nav-icon {
-      background: oklch(from var(--po-accent) l c h / 18%);
-      border-color: oklch(from var(--po-accent) l c h / 32%);
-    }
+    .po-nav-icon { color: var(--po-accent-text); }
   }
 
-  // Sub-menu items follow the same grammar, one step quieter.
   .po-nav .po-nav-sub .po-nav-item .po-nav-link:hover {
-    background: var(--po-glass-row-hover);
+    background: var(--po-bg-3);
   }
 
-  // Flyout sub-menus (collapsed rail) are glass panes too.
   &[data-sidenav-size="sm-hover"] .po-sidebar .po-nav-sub {
-    background-color: var(--po-glass-tint) !important;
-    backdrop-filter: blur(var(--po-glass-blur)) saturate(var(--po-glass-saturate));
-    -webkit-backdrop-filter: blur(var(--po-glass-blur)) saturate(var(--po-glass-saturate));
-    border-color: var(--po-glass-edge) !important;
+    background-color: var(--po-bg-2) !important;
+    border-color: var(--po-border-strong) !important;
+    box-shadow: var(--po-shadow-md);
   }
 
-  // ── Footer rows (notifications + user) share the pill treatment ───────────
   .sidenav-minimal-footer .snf-notifications .po-topbar-btn,
   .sidenav-minimal-footer .snf-user .um-toggle {
-    border-radius: var(--po-radius-lg);
-    border: 1px solid transparent;
+    border-radius: var(--po-radius-sm);
+    border: 0;
   }
   .sidenav-minimal-footer .snf-notifications .po-topbar-btn:hover,
   .sidenav-minimal-footer .snf-user .um-toggle:hover {
-    background: var(--po-glass-row-hover);
-    border-color: var(--po-glass-edge-soft);
-    box-shadow: inset 0 1px 0 var(--po-glass-specular);
-  }
-
-  // ── Fallbacks ─────────────────────────────────────────────────────────────
-  // No backdrop-filter (or the user asked for less transparency): fall back to
-  // the opaque surfaces, keeping the pill geometry.
-  @supports not (backdrop-filter: blur(1px)) {
-    .po-sidebar,
-    &[data-sidenav-size="sm-hover"] .po-sidebar .po-nav-sub {
-      background: var(--po-bg-1) !important;
-    }
-  }
-}
-
-@media (prefers-reduced-transparency: reduce) {
-  html[data-po-ui="minimal"] {
-    .po-sidebar,
-    &[data-sidenav-size="sm-hover"] .po-sidebar .po-nav-sub {
-      background: var(--po-bg-1) !important;
-      backdrop-filter: none;
-      -webkit-backdrop-filter: none;
-    }
+    background: var(--po-bg-3);
   }
 }

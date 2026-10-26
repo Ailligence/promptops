@@ -158,8 +158,8 @@ import { SwalService } from '@core/services/swal.service';
       transition: border-color 0.12s, background 0.12s;
     }
     .dl-item:hover {
-      border-color: rgba(99,102,241,0.45);
-      background: rgba(99,102,241,0.05);
+      border-color: oklch(from var(--po-accent) l c h / 45%);
+      background: oklch(from var(--po-accent) l c h / 5%);
     }
     .dl-item-main { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
     .dl-item-label {

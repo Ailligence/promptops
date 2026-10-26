@@ -130,8 +130,8 @@ const TRIGGER_REGEX = /(^|\s)@([^\s@]*)$/;
     }
     .mention-item.active,
     .mention-item:hover {
-      background: rgba(99, 102, 241, 0.18);
-      color: #c7d2fe;
+      background: oklch(from var(--po-accent) l c h / 18%);
+      color: var(--po-accent-text);
     }
 
     .mention-name {

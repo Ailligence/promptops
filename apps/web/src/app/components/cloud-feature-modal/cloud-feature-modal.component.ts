@@ -53,7 +53,7 @@ const ICONS: Record<CloudFeature, string> = {
     .cloud-modal {
       position: relative;
       padding: 28px 28px 20px;
-      --cloud-accent: #4f41fa;
+      --cloud-accent: var(--po-accent);
     }
 
     .cloud-close {
@@ -77,7 +77,7 @@ const ICONS: Record<CloudFeature, string> = {
       width: 44px;
       height: 44px;
       border-radius: 12px;
-      background: rgba(79, 65, 250, 0.1);
+      background: oklch(from var(--po-accent) l c h / 10%);
       color: var(--cloud-accent);
       font-size: 1.4rem;
     }

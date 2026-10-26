@@ -1607,6 +1607,9 @@
       "Tailer detected": "पहचाना गया",
       "Tailer response": "जवाब",
       "Close": "बंद करें"
+    },
+    "NEEDS_YOU": {
+      "Title": "आपकी ज़रूरत"
     }
   },
   "SUBAGENTS": {
@@ -4486,5 +4489,34 @@
     "Stage file": "फ़ाइल stage करें",
     "Unstage folder": "पूरे फ़ोल्डर को unstage करें",
     "Unstage file": "फ़ाइल unstage करें"
+  },
+  "PALETTE": {
+    "Placeholder": "किसी सत्र, एजेंट, टूल या पेज पर जाएँ…",
+    "Empty": "कोई परिणाम नहीं",
+    "Hint": "↑↓ चुनें · ↵ चलाएँ · esc बंद करें",
+    "Sessions": "सत्र",
+    "Agents": "एजेंट",
+    "Actions": "क्रियाएँ",
+    "Pages": "पेज",
+    "New session": "नया सत्र",
+    "All sessions": "सभी सत्र दिखाएँ",
+    "Spawn agent": "एजेंट शुरू करें",
+    "Git": "Git इतिहास",
+    "Database": "डेटाबेस एक्सप्लोरर",
+    "Docker": "Docker कंटेनर",
+    "SSH": "SSH कनेक्शन",
+    "Terminal": "टर्मिनल खोलें",
+    "Links": "डेव लिंक",
+    "Quick note": "त्वरित नोट",
+    "Project brief": "प्रोजेक्ट ब्रीफ़",
+    "Todo": "कार्य सूची",
+    "Assets": "सत्र एसेट",
+    "Focus mode": "फ़ोकस मोड",
+    "Code editor": "कोड एडिटर लेआउट",
+    "Standard layout": "मानक लेआउट",
+    "Dedicated window": "अलग विंडो में खोलें",
+    "New tab": "नया टैब",
+    "Commands": "कमांड",
+    "Main agent": "मुख्य एजेंट"
   }
 }

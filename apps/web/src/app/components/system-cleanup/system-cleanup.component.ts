@@ -106,7 +106,7 @@ export function cleanupAreas(entries: StorageAuditEntry[] | null | undefined): s
       margin-bottom: 0.75rem;
     }
     .cleanup-total .size-value {
-      color: var(--po-accent, #4f46e5);
+      color: var(--po-accent, var(--po-accent));
       font-size: 0.95rem;
     }
     .cleanup-areas {

@@ -186,11 +186,12 @@ export const MENU_ITEMS: MenuItemType[] = [
   DESKTOP_EDITION,
 ];
 
-// ── Minimal UI order (audit UX 10/2026) ──
-// Same items as MENU_ITEMS (same key/url/roles/featureFlag), so role/flag
-// filters, built-in plugins and plugin pages work the same way. In minimal:
-//   1. "AI Agent Evals" leaves the Plugins group and becomes a standalone item ("Quality" section);
-//   2. Feedback disappears from the sidebar: it is already in the user menu at the bottom of the rail.
+// ── Signal Box rail ──
+// Five destinations, no section titles, no promo badges: Sessions (the
+// panel), Prompts, Tools, Plugins, Settings. Same items as MENU_ITEMS (same
+// key/url/roles/featureFlag) so role/flag filters, built-in plugins and plugin
+// pages behave the same. AI Agent Evals joins Tools; Feedback lives in the user
+// menu; the locked PromptOps Desktop group is not part of this edition's rail.
 const pickMenu = (key: string): MenuItemType => {
   const found = MENU_ITEMS.find((m) => m.key === key);
   if (!found) throw new Error(`menu-meta: item ${key} missing`);
@@ -201,24 +202,25 @@ const pickChild = (parent: string, key: string): MenuItemType => {
   if (!found) throw new Error(`menu-meta: child ${parent}/${key} missing`);
   return found;
 };
+const withoutBadges = (items: MenuItemType[] = []): MenuItemType[] =>
+  items.map(({ badge: _badge, ...item }) => item);
 
 export const MENU_ITEMS_MINIMAL: MenuItemType[] = [
-  ...["sec-workspace", "sessions", "tools"].map(pickMenu),
+  pickMenu("sessions"),
+  { ...pickMenu("prompt-library"), label: "Prompts" },
+  {
+    ...pickMenu("tools"),
+    children: withoutBadges([
+      ...(pickMenu("tools").children ?? []),
+      { ...pickChild("plugins", "speed-test"), parentKey: "tools" },
+    ]),
+  },
   {
     ...pickMenu("plugins"),
-    children: (pickMenu("plugins").children ?? []).filter((c) => c.key !== "speed-test"),
+    badge: undefined,
+    children: withoutBadges((pickMenu("plugins").children ?? []).filter((c) => c.key !== "speed-test")),
   },
   pickMenu("user-settings"),
-
-  // ── Quality — agent evaluations, outside the Workspace. ──
-  { key: "sec-quality", label: "Quality", isTitle: true },
-  { ...pickChild("plugins", "speed-test"), parentKey: undefined },
-
-  // ── Prompts ──
-  pickMenu("sec-prompts"),
-  pickMenu("prompt-library"),
-
-  pickMenu("desktop-edition"),
 ];
 
 export const MENU_ITEMS_THEME: MenuItemType[] = [];

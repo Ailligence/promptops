@@ -210,7 +210,7 @@ interface TopbarSearchGroup {
       gap: var(--po-space-1);
       padding: 3px var(--po-space-3);
       border-radius: var(--po-radius-pill);
-      background: var(--po-accent-muted-bg, rgba(99, 102, 241, 0.10));
+      background: var(--po-accent-muted-bg, oklch(from var(--po-accent) l c h / 10%));
       color: var(--po-accent);
       border: 1px dashed var(--po-accent);
       font-size: var(--po-text-xs);

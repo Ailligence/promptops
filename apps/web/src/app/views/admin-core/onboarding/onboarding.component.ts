@@ -135,8 +135,8 @@ interface OnboardingCard {
       background: var(--bs-body-bg, #fff);
       border-radius: 20px;
       padding: 48px 40px 32px;
-      box-shadow: 0 10px 40px -12px rgba(79, 70, 229, 0.18);
-      border: 1px solid rgba(99, 102, 241, 0.12);
+      box-shadow: 0 10px 40px -12px oklch(from var(--po-accent) l c h / 18%);
+      border: 1px solid oklch(from var(--po-accent) l c h / 12%);
     }
 
     .onboarding-header {
@@ -164,7 +164,7 @@ interface OnboardingCard {
       font-size: 28px;
       font-weight: 700;
       margin: 0 0 8px;
-      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      background: linear-gradient(135deg, var(--po-accent) 0%, #a855f7 100%);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -197,8 +197,8 @@ interface OnboardingCard {
       gap: 22px;
       width: 100%;
       text-align: left;
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(168, 85, 247, 0.08) 100%);
-      border: 1.5px solid rgba(99, 102, 241, 0.25);
+      background: linear-gradient(135deg, oklch(from var(--po-accent) l c h / 8%) 0%, oklch(from var(--po-accent) l c h / 8%) 100%);
+      border: 1.5px solid oklch(from var(--po-accent) l c h / 25%);
       border-radius: 18px;
       padding: 24px 28px;
       cursor: pointer;
@@ -217,13 +217,13 @@ interface OnboardingCard {
       pointer-events: none;
       opacity: 0;
       transition: opacity .18s ease;
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.10), rgba(168, 85, 247, 0.10));
+      background: linear-gradient(135deg, oklch(from var(--po-accent) l c h / 10%), oklch(from var(--po-accent) l c h / 10%));
     }
 
     .hero-card:hover:not(.is-disabled):not(.is-loading) {
       transform: translateY(-3px);
-      box-shadow: 0 16px 36px -14px rgba(99, 102, 241, 0.45);
-      border-color: rgba(99, 102, 241, 0.55);
+      box-shadow: 0 16px 36px -14px oklch(from var(--po-accent) l c h / 45%);
+      border-color: oklch(from var(--po-accent) l c h / 55%);
     }
 
     .hero-card:hover:not(.is-disabled):not(.is-loading)::before {
@@ -243,8 +243,8 @@ interface OnboardingCard {
       justify-content: center;
       color: #fff;
       font-size: 32px;
-      background: linear-gradient(135deg, #6366f1, #a855f7);
-      box-shadow: 0 10px 24px -8px rgba(99, 102, 241, 0.6);
+      background: linear-gradient(135deg, var(--po-accent), #a855f7);
+      box-shadow: 0 10px 24px -8px oklch(from var(--po-accent) l c h / 60%);
     }
 
     .hero-body {
@@ -260,8 +260,8 @@ interface OnboardingCard {
       text-transform: uppercase;
       padding: 3px 10px;
       border-radius: 999px;
-      background: rgba(99, 102, 241, 0.15);
-      color: #4f46e5;
+      background: oklch(from var(--po-accent) l c h / 15%);
+      color: var(--po-accent);
       margin-bottom: 8px;
     }
 
@@ -286,17 +286,17 @@ interface OnboardingCard {
       gap: 10px;
       padding: 10px 16px;
       border-radius: 12px;
-      background: linear-gradient(135deg, #6366f1, #a855f7);
+      background: linear-gradient(135deg, var(--po-accent), #a855f7);
       color: #fff;
       font-size: 14px;
       font-weight: 600;
-      box-shadow: 0 8px 20px -8px rgba(99, 102, 241, 0.55);
+      box-shadow: 0 8px 20px -8px oklch(from var(--po-accent) l c h / 55%);
       transition: transform .18s ease, box-shadow .18s ease;
     }
 
     .hero-card:hover:not(.is-disabled):not(.is-loading) .hero-cta {
       transform: translateX(2px);
-      box-shadow: 0 10px 24px -8px rgba(168, 85, 247, 0.6);
+      box-shadow: 0 10px 24px -8px oklch(from var(--po-accent) l c h / 60%);
     }
 
     .hero-arrow { display: inline-flex; }
@@ -347,8 +347,8 @@ interface OnboardingCard {
 
     .secondary-card:hover:not(.is-disabled):not(.is-loading) {
       transform: translateY(-2px);
-      box-shadow: 0 8px 18px -8px rgba(99, 102, 241, 0.28);
-      border-color: rgba(99, 102, 241, 0.3);
+      box-shadow: 0 8px 18px -8px oklch(from var(--po-accent) l c h / 28%);
+      border-color: oklch(from var(--po-accent) l c h / 30%);
     }
 
     .secondary-card.is-disabled { opacity: .45; cursor: not-allowed; }
@@ -368,7 +368,7 @@ interface OnboardingCard {
       justify-content: center;
       color: #fff;
       font-size: 18px;
-      box-shadow: 0 5px 12px -5px rgba(99, 102, 241, 0.5);
+      box-shadow: 0 5px 12px -5px oklch(from var(--po-accent) l c h / 50%);
     }
 
     .sec-body { flex: 1 1 auto; min-width: 0; }
@@ -395,8 +395,8 @@ interface OnboardingCard {
       width: 26px;
       height: 26px;
       border-radius: 50%;
-      background: rgba(99, 102, 241, 0.1);
-      color: #6366f1;
+      background: oklch(from var(--po-accent) l c h / 10%);
+      color: var(--po-accent);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -406,7 +406,7 @@ interface OnboardingCard {
 
     .secondary-card:hover:not(.is-disabled):not(.is-loading) .sec-arrow {
       transform: translateY(-50%) translateX(3px);
-      background: #6366f1;
+      background: var(--po-accent);
       color: #fff;
     }
 
@@ -435,13 +435,13 @@ interface OnboardingCard {
       pointer-events: none;
       opacity: 0;
       transition: opacity .18s ease;
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(168, 85, 247, 0.08));
+      background: linear-gradient(135deg, oklch(from var(--po-accent) l c h / 8%), oklch(from var(--po-accent) l c h / 8%));
     }
 
     .onboarding-card:hover:not(.is-disabled):not(.is-loading) {
       transform: translateY(-3px);
-      box-shadow: 0 12px 28px -10px rgba(99, 102, 241, 0.35);
-      border-color: rgba(99, 102, 241, 0.35);
+      box-shadow: 0 12px 28px -10px oklch(from var(--po-accent) l c h / 35%);
+      border-color: oklch(from var(--po-accent) l c h / 35%);
     }
 
     .onboarding-card:hover:not(.is-disabled):not(.is-loading)::before {
@@ -455,7 +455,7 @@ interface OnboardingCard {
 
     .onboarding-card.is-loading {
       cursor: progress;
-      border-color: rgba(99, 102, 241, 0.55);
+      border-color: oklch(from var(--po-accent) l c h / 55%);
     }
 
     .onboarding-card[data-accent="indigo"] .card-icon { background: linear-gradient(135deg, #6366f1, #818cf8); }
@@ -473,7 +473,7 @@ interface OnboardingCard {
       color: #fff;
       font-size: 24px;
       margin-bottom: 16px;
-      box-shadow: 0 6px 16px -6px rgba(99, 102, 241, 0.6);
+      box-shadow: 0 6px 16px -6px oklch(from var(--po-accent) l c h / 60%);
     }
 
     .card-title {
@@ -497,8 +497,8 @@ interface OnboardingCard {
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: rgba(99, 102, 241, 0.12);
-      color: #6366f1;
+      background: oklch(from var(--po-accent) l c h / 12%);
+      color: var(--po-accent);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -508,7 +508,7 @@ interface OnboardingCard {
 
     .onboarding-card:hover:not(.is-disabled):not(.is-loading) .card-arrow {
       transform: translateX(4px);
-      background: #6366f1;
+      background: var(--po-accent);
       color: #fff;
     }
 
@@ -530,8 +530,8 @@ interface OnboardingCard {
     }
 
     .skip-link:hover:not(:disabled) {
-      color: #6366f1;
-      background: rgba(99, 102, 241, 0.08);
+      color: var(--po-accent);
+      background: oklch(from var(--po-accent) l c h / 8%);
     }
 
     .skip-link:disabled {

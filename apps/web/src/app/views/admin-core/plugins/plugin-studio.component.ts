@@ -535,7 +535,7 @@ const RESUME_FAILED_RE = /No\s*conversation\s*found|No\s*(recent\s*)?sessions?\s
     /* Its own height: the manual guide below must never squash terminal and preview. */
     .ps-split { flex: none; height: calc(100vh - 150px); min-height: 520px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); gap: 12px; }
     @media (max-width: 1000px) { .ps-split { grid-template-columns: 1fr; grid-template-rows: none; grid-auto-rows: minmax(420px, auto); height: auto; } }
-    .ps-left { display: flex; flex-direction: column; min-height: 0; border: 1px solid #30363d; border-radius: 10px; overflow: hidden; background: #0d1117; }
+    .ps-left { display: flex; flex-direction: column; min-height: 0; border: 1px solid #30363d; border-radius: 10px; overflow: hidden; background: var(--po-terminal-bg); }
     /* Like the Browser page: the terminal fills a container of definite height. */
     .ps-cli-bar { flex: none; display: flex; align-items: center; gap: 4px; padding: 6px 8px; border-bottom: 1px solid #30363d; }
     .ps-cli-chip { position: relative; display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 8px; margin: 0; border-radius: 8px;
@@ -575,7 +575,7 @@ const RESUME_FAILED_RE = /No\s*conversation\s*found|No\s*(recent\s*)?sessions?\s
     @media (prefers-reduced-motion: reduce) { .ps-build-ready, .ps-flash, .ps-spin { animation: none; } }
     .ps-lead { font-size: 13px; line-height: 1.5; margin: 0 0 8px; }
     .muted { color: var(--po-page-muted, var(--po-text-secondary)); }
-    .ps-mock-term { height: 56px; background: #0d1117; border: 1px solid #30363d; border-bottom: 0; border-radius: 8px 8px 0 0; display: flex; align-items: flex-end; padding: 6px 10px; }
+    .ps-mock-term { height: 56px; background: var(--po-terminal-bg); border: 1px solid #30363d; border-bottom: 0; border-radius: 8px 8px 0 0; display: flex; align-items: flex-end; padding: 6px 10px; }
     .ps-mock-term span { color: #6e7681; font-size: 11px; font-family: var(--po-font-mono, ui-monospace, monospace); }
     .ps-mock-bar { display: flex; align-items: center; justify-content: flex-end; gap: 4px; padding: 3px 6px; background: rgba(13, 17, 23, .92); border: 1px solid #30363d; border-radius: 0 0 8px 8px; color: #c9d1d9; }
     .ps-mock-model { margin-right: auto; font-size: 11px; opacity: .8; }
@@ -589,7 +589,7 @@ const RESUME_FAILED_RE = /No\s*conversation\s*found|No\s*(recent\s*)?sessions?\s
     .ps-steps > li { border: 1px solid var(--po-page-border, var(--promptops-border-color)); border-radius: 10px; padding: 12px 14px; }
     .ps-step-head { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; font-size: 13px; }
     .ps-step-n { width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; background: var(--po-page-soft, rgba(127,127,127,.15)); }
-    .ps-cmd { display: flex; align-items: flex-start; gap: 8px; background: #0d1117; border-radius: 8px; padding: 8px 10px; }
+    .ps-cmd { display: flex; align-items: flex-start; gap: 8px; background: var(--po-terminal-bg); border-radius: 8px; padding: 8px 10px; }
     .ps-cmd pre { flex: 1; margin: 0; color: #c9d1d9; font-size: 12px; white-space: pre; overflow-x: auto; font-family: var(--po-font-mono, ui-monospace, monospace); }
     .ps-copy { flex: none; border: 1px solid #30363d; background: transparent; color: #c9d1d9; border-radius: 6px; font-size: 11px; padding: 2px 8px; }
     .ps-files { font-size: 12px; padding-left: 18px; margin: 8px 0 0; }
@@ -615,7 +615,7 @@ const RESUME_FAILED_RE = /No\s*conversation\s*found|No\s*(recent\s*)?sessions?\s
     .pm-knob { width: 14px; height: 8px; border-radius: 8px; background: var(--po-border-subtle, #30363d); }
     .ps-embed { border: 1px dashed var(--po-page-border, var(--promptops-border-color)); border-radius: 8px; overflow: hidden; }
     .ps-calls { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
-    .ps-pre { font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; margin: 6px 0 10px; padding: 10px; border-radius: 8px; background: #0d1117; color: #c9d1d9; font-family: var(--po-font-mono, ui-monospace, monospace); max-height: 320px; overflow: auto; }
+    .ps-pre { font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; margin: 6px 0 10px; padding: 10px; border-radius: 8px; background: var(--po-terminal-bg); color: #c9d1d9; font-family: var(--po-font-mono, ui-monospace, monospace); max-height: 320px; overflow: auto; }
     .ps-notes, .ps-changes, .ps-activity { font-size: 12px; padding-left: 18px; margin: 0 0 10px; }
     .ps-changes, .ps-activity { list-style: none; padding: 0; }
     .ps-changes li, .ps-activity li { padding: 3px 0; border-bottom: 1px solid var(--po-page-border, var(--promptops-border-color)); overflow-wrap: anywhere; }

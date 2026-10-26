@@ -1607,6 +1607,9 @@
       "Tailer detected": "Gedetecteerd",
       "Tailer response": "Antwoord",
       "Close": "Sluiten"
+    },
+    "NEEDS_YOU": {
+      "Title": "Wacht op jou"
     }
   },
   "SUBAGENTS": {
@@ -4486,5 +4489,34 @@
     "Stage file": "Bestand stagen",
     "Unstage folder": "Hele map unstagen",
     "Unstage file": "Bestand unstagen"
+  },
+  "PALETTE": {
+    "Placeholder": "Ga naar een sessie, agent, tool of pagina…",
+    "Empty": "Geen resultaten",
+    "Hint": "↑↓ verplaatsen · ↵ uitvoeren · esc sluiten",
+    "Sessions": "Sessies",
+    "Agents": "Agents",
+    "Actions": "Acties",
+    "Pages": "Pagina’s",
+    "New session": "Nieuwe sessie",
+    "All sessions": "Alle sessies tonen",
+    "Spawn agent": "Een agent starten",
+    "Git": "Git-geschiedenis",
+    "Database": "Database-verkenner",
+    "Docker": "Docker-containers",
+    "SSH": "SSH-verbindingen",
+    "Terminal": "Terminal openen",
+    "Links": "Dev-links",
+    "Quick note": "Snelle notitie",
+    "Project brief": "Projectbrief",
+    "Todo": "Takenlijst",
+    "Assets": "Sessie-assets",
+    "Focus mode": "Focusmodus",
+    "Code editor": "Code-editor-indeling",
+    "Standard layout": "Standaardindeling",
+    "Dedicated window": "Openen in een eigen venster",
+    "New tab": "Nieuw tabblad",
+    "Commands": "Opdrachten",
+    "Main agent": "Hoofdagent"
   }
 }

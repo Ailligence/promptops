@@ -41,8 +41,8 @@ const RELEASES_URL = "https://github.com/shellonback/promptops/releases";
       width: 56px;
       height: 56px;
       border-radius: 14px;
-      background: rgba(79, 65, 250, 0.1);
-      color: #4f41fa;
+      background: oklch(from var(--po-accent) l c h / 10%);
+      color: var(--po-accent);
       font-size: 1.6rem;
     }
     h2 { margin: 0; font-size: 1.5rem; font-weight: 700; }

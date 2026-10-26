@@ -190,8 +190,8 @@ import { SmartActionAlternative } from '../services/smart-action.service';
       color: inherit;
     }
     .folder-option:hover {
-      border-color: rgba(210, 153, 34, 0.4);
-      background: rgba(210, 153, 34, 0.04);
+      border-color: oklch(from var(--po-warning) l c h / 40%);
+      background: oklch(from var(--po-warning) l c h / 4%);
     }
     .folder-option.selected {
       border-color: var(--po-warning);
@@ -232,7 +232,7 @@ import { SmartActionAlternative } from '../services/smart-action.service';
       padding: 0.5rem 0.65rem;
       border-radius: 6px;
       background: var(--po-success-bg);
-      border: 1px solid rgba(63, 185, 80, 0.15);
+      border: 1px solid oklch(from var(--po-success) l c h / 15%);
       font-size: 0.75rem;
       font-weight: 500;
       color: var(--po-success);

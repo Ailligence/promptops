@@ -75,8 +75,8 @@ import { BuiltinPluginsService } from '../../plugins/builtin-plugins.service';
     }
 
     .provider-section {
-      background: linear-gradient(180deg, rgba(99, 102, 241, 0.03), rgba(168, 85, 247, 0.02));
-      border-color: rgba(99, 102, 241, 0.18);
+      background: linear-gradient(180deg, oklch(from var(--po-accent) l c h / 3%), oklch(from var(--po-accent) l c h / 2%));
+      border-color: oklch(from var(--po-accent) l c h / 18%);
     }
 
     .section-head {
@@ -94,7 +94,7 @@ import { BuiltinPluginsService } from '../../plugins/builtin-plugins.service';
       align-items: center;
       justify-content: center;
       border-radius: 8px;
-      background: linear-gradient(135deg, #6366f1, #a855f7);
+      background: linear-gradient(135deg, var(--po-accent), #a855f7);
       color: #fff;
     }
 
@@ -125,7 +125,7 @@ import { BuiltinPluginsService } from '../../plugins/builtin-plugins.service';
       align-items: center;
       gap: 4px;
       margin-top: 8px;
-      color: #6366f1;
+      color: var(--po-accent);
       text-decoration: none;
       font-weight: 500;
     }
@@ -159,12 +159,12 @@ import { BuiltinPluginsService } from '../../plugins/builtin-plugins.service';
       border-inline-end: 1px solid var(--bs-border-color, rgba(0, 0, 0, 0.1));
     }
     .path-mode-btn:hover:not(.is-active) {
-      background: rgba(99, 102, 241, 0.04);
+      background: oklch(from var(--po-accent) l c h / 4%);
       color: var(--bs-body-color, #1f2937);
     }
     .path-mode-btn.is-active {
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.06));
-      color: #6366f1;
+      background: linear-gradient(135deg, oklch(from var(--po-accent) l c h / 10%), oklch(from var(--po-accent) l c h / 6%));
+      color: var(--po-accent);
     }
 
     /* ── Clone form inside create modal ── */
@@ -268,9 +268,9 @@ import { BuiltinPluginsService } from '../../plugins/builtin-plugins.service';
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      border: 1px solid rgba(99, 102, 241, 0.3);
-      background: rgba(99, 102, 241, 0.06);
-      color: #6366f1;
+      border: 1px solid oklch(from var(--po-accent) l c h / 30%);
+      background: oklch(from var(--po-accent) l c h / 6%);
+      color: var(--po-accent);
       border-radius: 999px;
       padding: 2px 10px;
       font-size: 11.5px;
@@ -278,7 +278,7 @@ import { BuiltinPluginsService } from '../../plugins/builtin-plugins.service';
       cursor: pointer;
     }
     .remote-example-chip:hover {
-      background: rgba(99, 102, 241, 0.12);
+      background: oklch(from var(--po-accent) l c h / 12%);
     }
     .remote-steps {
       display: flex;
@@ -306,8 +306,8 @@ import { BuiltinPluginsService } from '../../plugins/builtin-plugins.service';
       border: 1px solid currentColor;
     }
     .remote-step.is-active .remote-step-num {
-      background: #6366f1;
-      border-color: #6366f1;
+      background: var(--po-accent);
+      border-color: var(--po-accent);
       color: #fff;
     }
     .remote-step-sep {
@@ -429,18 +429,18 @@ import { BuiltinPluginsService } from '../../plugins/builtin-plugins.service';
       flex: 0 1 auto;
     }
     .wizard-step:hover:not([disabled]) {
-      border-color: rgba(99, 102, 241, 0.4);
+      border-color: oklch(from var(--po-accent) l c h / 40%);
       color: var(--bs-body-color, #1f2937);
     }
     .wizard-step.is-active {
-      background: linear-gradient(135deg, #6366f1, #a855f7);
+      background: linear-gradient(135deg, var(--po-accent), #a855f7);
       border-color: transparent;
       color: #fff;
-      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+      box-shadow: 0 2px 8px oklch(from var(--po-accent) l c h / 25%);
     }
     .wizard-step.is-done {
-      border-color: rgba(99, 102, 241, 0.4);
-      color: #6366f1;
+      border-color: oklch(from var(--po-accent) l c h / 40%);
+      color: var(--po-accent);
     }
     .wizard-step[disabled] {
       cursor: not-allowed;
@@ -465,8 +465,8 @@ import { BuiltinPluginsService } from '../../plugins/builtin-plugins.service';
       color: var(--bs-secondary-color, #6c757d);
     }
     .wizard-step.is-done .step-num {
-      background: rgba(99, 102, 241, 0.12);
-      color: #6366f1;
+      background: oklch(from var(--po-accent) l c h / 12%);
+      color: var(--po-accent);
     }
     .wizard-step-divider {
       flex: 1 1 auto;

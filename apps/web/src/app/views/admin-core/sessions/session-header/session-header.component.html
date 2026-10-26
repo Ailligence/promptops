@@ -20,6 +20,16 @@
         </button>
       </div>
     }
+    <!-- Canvas line: the only header row the canvas shows (row 1 and the
+         right-hand toolbar of row 2 live in ⌘K). -->
+    @let st0 = s.standbyAt ? 'standby' : s.status;
+    <div class="canvas-bar">
+      <span [class]="'po-lamp po-lamp--' + lampState(st0)" role="img" [attr.aria-label]="'SESSIONS.Status ' + st0 | translate"></span>
+      <span class="cb-name">{{ s.name }}</span>
+      @if (s.workspace) {
+        <span class="cb-ws" [appTooltip]="s.workspace.path">{{ s.workspace.name }}</span>
+      }
+    </div>
     <!-- Row 1: workspace path + status + actions -->
     <div class="header-top">
       <div class="header-title-group">
@@ -120,7 +130,7 @@
           must not contradict the "Session on standby" cover. -->
           @let st = s.standbyAt ? 'standby' : s.status;
           <span class="status-inline">
-            <span class="status-dot" [class]="'dot-' + st" [appTooltip]="'SESSIONS.Status ' + st | translate"></span>
+            <span [class]="'po-lamp po-lamp--' + lampState(st)" [appTooltip]="'SESSIONS.Status ' + st | translate"></span>
             <span class="status-label" [class]="'label-' + st">{{ 'SESSIONS.Status ' + st | translate }}</span>
           </span>
         </div>
@@ -167,7 +177,7 @@
         </div>
         <!-- Git button -->
         @if (ff.canAccess('git_panel')) {
-          <button class="history-badge git-badge" style="border-color: rgba(63,185,80,0.25); color: #3fb950;" (click)="onOpenGitExplorer.emit()" [appTooltip]="'SESSIONS.TOOLTIPS.Git history' | translate">
+          <button class="history-badge git-badge" (click)="onOpenGitExplorer.emit()" [appTooltip]="'SESSIONS.TOOLTIPS.Git history' | translate">
             <iconify-icon icon="mdi:git" width="17"></iconify-icon>
             {{ 'SESSIONS.Git label' | translate }}
             @if (gitCounts().total > 0) {
@@ -194,16 +204,9 @@
             }
           </button>
         }
-        <!-- Team board: part of PromptOps Desktop, shown locked. -->
-        <button class="history-badge team-badge" (click)="onOpenTeamBoard.emit()"
-          [appTooltip]="'CLOUD.Locked tooltip' | translate">
-          <iconify-icon icon="tabler:users-group" width="17"></iconify-icon>
-          {{ 'SESSIONS.Team label' | translate }}
-          @if (session()?.projectId) { <span class="team-badge-dot"></span> }
-        </button>
         <!-- SSH button (built-in plugin, can be turned off from Plugins) -->
         @if (builtins.isOn('ssh')) {
-          <button class="history-badge" style="border-color: rgba(99,102,241,0.3); color: #818cf8;" (click)="onOpenSsh.emit()" [appTooltip]="'BUILTIN_PLUGINS.ssh.Name' | translate">
+          <button class="history-badge" (click)="onOpenSsh.emit()" [appTooltip]="'BUILTIN_PLUGINS.ssh.Name' | translate">
             <iconify-icon icon="solar:server-square-bold-duotone" width="17"></iconify-icon>
             SSH
           </button>
@@ -265,18 +268,6 @@
             [attr.aria-label]="'BRIEF.Project brief' | translate">
             <iconify-icon icon="solar:presentation-graph-bold" width="17"></iconify-icon>
           </button>
-        }
-        @if (providerAsAccountId(); as pa) {
-          <po-provider-account-switcher
-            [provider]="pa"
-            mode="picker"
-            [value]="sessionProviderAccountId()"
-            [showInherit]="true"
-            [allowOptOut]="true"
-            [compact]="true"
-            placement="bottom-end"
-            (valueChange)="onSessionAccountChange($event)"
-            />
         }
       </div>
     </div>
@@ -367,6 +358,29 @@
           }
         </button>
       }
+      <!-- Canvas: the session's own controls, right end of the line. -->
+      <div class="canvas-actions">
+          @if (providerAsAccountId(); as pa) {
+            <po-provider-account-switcher
+              [provider]="pa"
+              mode="picker"
+              [value]="sessionProviderAccountId()"
+              [showInherit]="true"
+              [allowOptOut]="true"
+              [compact]="true"
+              placement="bottom-end"
+              (valueChange)="onSessionAccountChange($event)"
+              />
+          }
+        <button type="button" class="cb-btn" [class.on]="agentsOpen()" (click)="onToggleAgents.emit()"
+          [attr.aria-pressed]="agentsOpen()" [attr.aria-label]="'PALETTE.Spawn agent' | translate" [appTooltip]="'PALETTE.Spawn agent' | translate">
+          <iconify-icon icon="tabler:users-plus" width="16"></iconify-icon>
+          <span>{{ 'PALETTE.Agents' | translate }}</span>
+        </button>
+        <button type="button" class="cb-btn cb-cmd" (click)="onOpenPalette.emit()" [attr.aria-label]="'PALETTE.Commands' | translate">
+          <iconify-icon icon="tabler:command" width="15"></iconify-icon>
+        </button>
+      </div>
       <!-- ═══ LAYOUT MODE TOGGLE ═══ -->
       <div class="layout-mode-toggle" role="group" [attr.aria-label]="'SESSIONS.Layout mode' | translate">
         <span class="lmt-label" role="button" tabindex="0" [attr.aria-pressed]="layoutMode() === 'standard'" [class.active]="layoutMode() === 'standard'"

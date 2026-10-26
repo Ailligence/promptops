@@ -24,7 +24,7 @@ interface SnapshotStep {
           } @else if (failed()) {
             <iconify-icon icon="solar:danger-triangle-bold" width="36" style="color: #f87171"></iconify-icon>
           } @else {
-            <iconify-icon icon="solar:map-arrow-square-bold-duotone" width="36" style="color: #a78bfa"></iconify-icon>
+            <iconify-icon icon="solar:map-arrow-square-bold-duotone" width="36" style="color: var(--po-accent-text)"></iconify-icon>
           }
         </div>
       </div>
@@ -159,7 +159,7 @@ interface SnapshotStep {
     }
     .cs-progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, #818cf8, #a78bfa);
+      background: linear-gradient(90deg, var(--po-accent-text), var(--po-accent-text));
       border-radius: 4px;
       transition: width 0.4s ease;
     }
@@ -206,14 +206,14 @@ interface SnapshotStep {
     }
     .cs-step-active .cs-step-num {
       background: rgba(167, 139, 250, 0.15);
-      color: #a78bfa;
+      color: var(--po-accent-text);
     }
 
     .cs-step-spin {
       width: 14px;
       height: 14px;
       border: 2px solid rgba(167, 139, 250, 0.2);
-      border-top-color: #a78bfa;
+      border-top-color: var(--po-accent-text);
       border-radius: 50%;
       animation: cs-spin 0.7s linear infinite;
     }

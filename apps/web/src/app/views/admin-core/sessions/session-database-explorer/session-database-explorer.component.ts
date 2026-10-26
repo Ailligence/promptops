@@ -693,7 +693,7 @@ export function persistableDraft<T extends { password: string; uri: string }>(dr
       display: flex; align-items: center; gap: 0.5rem;
       padding: 0.4rem 1rem; font-size: 0.72rem;
       background: var(--po-error-bg); color: var(--po-error);
-      border-bottom: 1px solid rgba(248,81,73,0.15);
+      border-bottom: 1px solid oklch(from var(--po-error) l c h / 15%);
       flex-shrink: 0;
     }
 

@@ -41,9 +41,9 @@ import { PromptVersionInterface } from "@core/interfaces/prompt.interface";
       width: 1rem;
       height: 1rem;
       border-radius: 50%;
-      background-color: #4f46e5;
+      background-color: var(--po-accent);
       border: 2px solid #fff;
-      box-shadow: 0 0 0 2px #4f46e5;
+      box-shadow: 0 0 0 2px var(--po-accent);
     }
     .timeline-dot.latest {
       background-color: #16a34a;

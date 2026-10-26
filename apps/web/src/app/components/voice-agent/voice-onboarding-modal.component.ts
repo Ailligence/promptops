@@ -91,8 +91,8 @@ const ONBOARDED_KEY = 'voice_onboarded';
       display: flex; align-items: flex-start; gap: 0.5rem;
       margin: 0.75rem 0 0.25rem;
       padding: 0.6rem 0.75rem;
-      border: 1px solid rgba(99,102,241,0.25);
-      background: rgba(99,102,241,0.08);
+      border: 1px solid oklch(from var(--po-accent) l c h / 25%);
+      background: oklch(from var(--po-accent) l c h / 8%);
       border-radius: 8px;
       font-size: 0.78rem; line-height: 1.4; color: #a5b4fc;
     }
@@ -127,7 +127,7 @@ const ONBOARDED_KEY = 'voice_onboarded';
     .kbd-hint kbd {
       padding: 4px 10px; background: rgba(99,102,241,0.12);
       border: 1px solid rgba(99,102,241,0.3); border-radius: 6px;
-      color: #6366f1;
+      color: var(--po-accent);
     }
     .kbd-hint .hint { font-size: 0.78rem; font-weight: 400; color: var(--bs-secondary-color, #8b949e); }
     .waiting {
@@ -136,7 +136,7 @@ const ONBOARDED_KEY = 'voice_onboarded';
     }
     .waiting span {
       width: 7px; height: 7px; border-radius: 50%;
-      background: #6366f1;
+      background: var(--po-accent);
       animation: pulse 1.2s ease-in-out infinite;
     }
     .waiting span:nth-child(2) { animation-delay: 0.2s; }

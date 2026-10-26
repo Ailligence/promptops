@@ -91,21 +91,7 @@ const MONO_FONT_OPTIONS = [
               </div>
             </div>
 
-            <div class="setting-row">
-              <div class="setting-info">
-                <span class="setting-label">{{ "SETTINGS.Sidebar" | translate }}</span>
-                <span class="setting-hint">{{ "SETTINGS.Sidebar Hint" | translate }}</span>
-              </div>
-              <select
-                class="form-select form-select-sm setting-select"
-                [(ngModel)]="form.sidebar_size"
-                (ngModelChange)="previewAndSave()"
-              >
-                @for (opt of sidebarOptions; track opt.value) {
-                  <option [value]="opt.value">{{ "SETTINGS." + opt.labelKey | translate }}</option>
-                }
-              </select>
-            </div>
+            <!-- No sidebar-size choice: the rail is fixed (Signal Box). -->
           </div>
 
           <!-- ─── Typography ─────────────────────────────────────── -->
@@ -682,13 +668,13 @@ const MONO_FONT_OPTIONS = [
     .settings-card {
       background: rgba(255, 255, 255, 0.7);
       backdrop-filter: blur(12px);
-      border: 1px solid rgba(79, 70, 229, 0.08);
+      border: 1px solid oklch(from var(--po-accent) l c h / 8%);
       border-radius: 16px;
       padding: 1.25rem;
     }
     :host-context([data-bs-theme="dark"]) .settings-card {
       background: rgba(30, 41, 59, 0.7);
-      border-color: rgba(99, 102, 241, 0.12);
+      border-color: oklch(from var(--po-accent) l c h / 12%);
     }
 
     .card-section-title {
@@ -726,7 +712,7 @@ const MONO_FONT_OPTIONS = [
       margin: 0 -0.5rem;
       padding-left: 0.5rem;
       padding-right: 0.5rem;
-      background: rgba(99, 102, 241, 0.08);
+      background: oklch(from var(--po-accent) l c h / 8%);
       animation: settingHighlight 2.5s ease-out forwards;
     }
     @keyframes settingHighlight {
@@ -779,12 +765,12 @@ const MONO_FONT_OPTIONS = [
       transition: all 0.2s;
     }
     .theme-btn:hover {
-      background: rgba(99, 102, 241, 0.08);
-      border-color: rgba(99, 102, 241, 0.15);
+      background: oklch(from var(--po-accent) l c h / 8%);
+      border-color: oklch(from var(--po-accent) l c h / 15%);
     }
     .theme-btn.active {
-      background: rgba(99, 102, 241, 0.12);
-      border-color: rgba(99, 102, 241, 0.3);
+      background: oklch(from var(--po-accent) l c h / 12%);
+      border-color: oklch(from var(--po-accent) l c h / 30%);
       color: var(--po-accent);
       font-weight: 600;
     }
@@ -810,11 +796,11 @@ const MONO_FONT_OPTIONS = [
       transition: all 0.2s;
     }
     .cursor-btn:hover {
-      background: rgba(99, 102, 241, 0.08);
+      background: oklch(from var(--po-accent) l c h / 8%);
     }
     .cursor-btn.active {
-      background: rgba(99, 102, 241, 0.12);
-      border-color: rgba(99, 102, 241, 0.3);
+      background: oklch(from var(--po-accent) l c h / 12%);
+      border-color: oklch(from var(--po-accent) l c h / 30%);
       color: var(--po-accent);
       font-weight: 600;
     }
@@ -969,7 +955,7 @@ const MONO_FONT_OPTIONS = [
       color: rgb(185, 28, 28);
     }
     .voice-status.info {
-      background: rgba(99, 102, 241, 0.1);
+      background: oklch(from var(--po-accent) l c h / 10%);
       color: rgb(67, 56, 202);
     }
     :host-context([data-bs-theme="dark"]) .voice-status.success { color: rgb(74, 222, 128); }
@@ -980,7 +966,7 @@ const MONO_FONT_OPTIONS = [
       align-items: center;
       gap: 0.3rem;
       font-size: 0.76rem;
-      color: var(--po-primary, rgb(99, 102, 241));
+      color: var(--po-primary, var(--po-accent));
       text-decoration: none;
       width: fit-content;
     }
@@ -989,7 +975,7 @@ const MONO_FONT_OPTIONS = [
     /* Global shortcut sub-section */
     .shortcut-divider {
       height: 1px;
-      background: linear-gradient(to right, transparent, rgba(99,102,241,0.18), transparent);
+      background: linear-gradient(to right, transparent, oklch(from var(--po-accent) l c h / 18%), transparent);
       margin: 1rem 0 0.75rem;
     }
     .po-switch {
@@ -1011,27 +997,27 @@ const MONO_FONT_OPTIONS = [
       transition: 0.2s;
     }
     .po-switch input:checked + .po-switch-slider {
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      background: linear-gradient(135deg, var(--po-accent), var(--po-accent));
     }
     .po-switch input:checked + .po-switch-slider::before { transform: translateX(16px); }
 
     /* Safe terminal — diagnostic callout (Windows only). */
     .safe-mode-row {
-      border: 1px solid rgba(99, 102, 241, 0.35);
+      border: 1px solid oklch(from var(--po-accent) l c h / 35%);
       border-radius: 10px;
       padding: 0.65rem 0.8rem;
       margin-bottom: 0.6rem;
-      background: rgba(99, 102, 241, 0.06);
+      background: oklch(from var(--po-accent) l c h / 6%);
     }
     .safe-mode-row .setting-label { display: inline-flex; align-items: center; gap: 0.35rem; }
     .safe-mode-row.safe-mode-active {
-      border-color: rgba(139, 92, 246, 0.7);
-      background: rgba(139, 92, 246, 0.12);
+      border-color: oklch(from var(--po-accent) l c h / 70%);
+      background: oklch(from var(--po-accent) l c h / 12%);
     }
 
     .hold-slider {
       width: 180px; cursor: pointer;
-      accent-color: #6366f1;
+      accent-color: var(--po-accent);
     }
     .hold-slider:disabled { opacity: 0.4; cursor: not-allowed; }
 
@@ -1072,15 +1058,6 @@ export class UserSettingsComponent implements OnInit {
     { value: "light" as const, labelKey: "Theme Light", icon: "solar:sun-bold" },
     { value: "dark" as const, labelKey: "Theme Dark", icon: "solar:moon-bold" },
     { value: "system" as const, labelKey: "Theme System", icon: "solar:monitor-bold" },
-  ];
-
-  protected readonly sidebarOptions = [
-    { value: "default", labelKey: "Sidebar Default" },
-    { value: "compact", labelKey: "Sidebar Compact" },
-    { value: "condensed", labelKey: "Sidebar Condensed" },
-    { value: "sm-hover", labelKey: "Sidebar Hover" },
-    { value: "sm-hover-active", labelKey: "Sidebar Hover Active" },
-    { value: "fullscreen", labelKey: "Sidebar Hidden" },
   ];
 
   protected readonly cursorOptions = [

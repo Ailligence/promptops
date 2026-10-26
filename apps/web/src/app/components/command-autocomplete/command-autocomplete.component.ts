@@ -175,8 +175,8 @@ const MIN_QUERY_LEN = 2;
     }
     .cmd-item.active,
     .cmd-item:hover {
-      background: rgba(99, 102, 241, 0.18);
-      color: #c7d2fe;
+      background: oklch(from var(--po-accent) l c h / 18%);
+      color: var(--po-accent-text);
     }
 
     .cmd-name {
@@ -212,11 +212,11 @@ const MIN_QUERY_LEN = 2;
       align-items: center;
       gap: 3px;
       flex-shrink: 0;
-      color: #c7d2fe;
+      color: var(--po-accent-text);
       font-size: 0.62rem;
       font-weight: 600;
-      background: rgba(99, 102, 241, 0.18);
-      border: 1px solid rgba(99, 102, 241, 0.35);
+      background: oklch(from var(--po-accent) l c h / 18%);
+      border: 1px solid oklch(from var(--po-accent) l c h / 35%);
       border-radius: 4px;
       padding: 1px 6px;
     }

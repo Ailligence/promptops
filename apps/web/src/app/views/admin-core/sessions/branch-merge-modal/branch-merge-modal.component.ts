@@ -144,7 +144,7 @@ interface MergeRow {
                 {{ 'SESSIONS.BRANCH_MERGE.Target branch' | translate }}
               </div>
               <div class="bm-target-pill">
-                <iconify-icon icon="mdi:source-branch-check" width="13" aria-hidden="true" style="color:#3fb950"></iconify-icon>
+                <iconify-icon icon="mdi:source-branch-check" width="13" aria-hidden="true" style="color:var(--po-success)"></iconify-icon>
                 <select class="bm-target-select" aria-labelledby="bm-target-label" [ngModel]="target()" (ngModelChange)="onTargetChange($event)">
                   @for (b of localBranches; track b) {
                     <option [value]="b">{{ b }}{{ b === currentBranch ? ' (' + ('SESSIONS.BRANCH_MERGE.Current' | translate) + ')' : '' }}</option>
@@ -303,7 +303,7 @@ interface MergeRow {
       display: flex; align-items: center; justify-content: space-between;
       padding: 0.75rem 1rem;
       border-bottom: 1px solid var(--po-border-subtle, #30363d);
-      background: linear-gradient(180deg, rgba(99,102,241,0.08), transparent);
+      background: linear-gradient(180deg, oklch(from var(--po-accent) l c h / 8%), transparent);
     }
     .bm-title {
       display: flex; align-items: center; gap: 0.45rem;
@@ -351,7 +351,7 @@ interface MergeRow {
     .bm-counter {
       margin-inline-start: auto; font-weight: 500; font-size: 0.65rem;
       color: rgba(165, 180, 252, 0.9);
-      background: rgba(99, 102, 241, 0.12);
+      background: oklch(from var(--po-accent) l c h / 12%);
       padding: 0.05rem 0.4rem; border-radius: 10px;
       text-transform: none; letter-spacing: 0;
     }
@@ -371,8 +371,8 @@ interface MergeRow {
     }
     .bm-search:focus {
       outline: none;
-      border-color: rgba(139, 92, 246, 0.5);
-      box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.15);
+      border-color: oklch(from var(--po-accent) l c h / 50%);
+      box-shadow: 0 0 0 2px oklch(from var(--po-accent) l c h / 15%);
     }
 
     .bm-branch-list {
@@ -404,7 +404,7 @@ interface MergeRow {
     .bm-branch-row:hover { background: rgba(99,102,241,0.08); }
     .bm-branch-row.disabled { opacity: 0.4; cursor: not-allowed; }
     .bm-branch-row input[type=checkbox] {
-      accent-color: rgb(139, 92, 246);
+      accent-color: var(--po-accent);
       cursor: pointer;
     }
     .bm-branch-name {
@@ -427,8 +427,8 @@ interface MergeRow {
     .bm-target-pill {
       display: flex; align-items: center; gap: 0.4rem;
       padding: 0.4rem 0.55rem;
-      background: rgba(99,102,241,0.08);
-      border: 1px solid rgba(99,102,241,0.3);
+      background: oklch(from var(--po-accent) l c h / 8%);
+      border: 1px solid oklch(from var(--po-accent) l c h / 30%);
       border-radius: 6px;
     }
     .bm-target-select {
@@ -453,12 +453,12 @@ interface MergeRow {
       background: rgba(255,255,255,0.03);
     }
     .bm-strategy-row.active {
-      border-color: rgba(139, 92, 246, 0.5);
-      background: rgba(139, 92, 246, 0.08);
+      border-color: oklch(from var(--po-accent) l c h / 50%);
+      background: oklch(from var(--po-accent) l c h / 8%);
     }
     .bm-strategy-row input, .bm-checkbox-row input {
       margin-top: 0.18rem;
-      accent-color: rgb(139, 92, 246);
+      accent-color: var(--po-accent);
       cursor: pointer;
     }
     .bm-strat-title {
@@ -485,7 +485,7 @@ interface MergeRow {
     }
     .bm-message-input:focus {
       outline: none; border-color: rgba(139, 92, 246, 0.5);
-      box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.15);
+      box-shadow: 0 0 0 2px oklch(from var(--po-accent) l c h / 15%);
     }
 
     .bm-preview {
@@ -563,13 +563,13 @@ interface MergeRow {
     }
     .bm-btn.warning:hover:not(:disabled) { background: rgba(240, 136, 62, 0.2); }
     .bm-btn.primary {
-      background: linear-gradient(180deg, rgb(139, 92, 246), rgb(99, 102, 241));
+      background: linear-gradient(180deg, var(--po-accent), var(--po-accent));
       color: white; border-color: rgba(99, 102, 241, 0.6);
-      box-shadow: 0 1px 3px rgba(99, 102, 241, 0.25);
+      box-shadow: 0 1px 3px oklch(from var(--po-accent) l c h / 25%);
     }
     .bm-btn.primary:hover:not(:disabled) {
       filter: brightness(1.08);
-      box-shadow: 0 2px 6px rgba(99, 102, 241, 0.35);
+      box-shadow: 0 2px 6px oklch(from var(--po-accent) l c h / 35%);
     }
     .bm-kbd {
       background: rgba(255,255,255,0.18);

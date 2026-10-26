@@ -40,6 +40,7 @@ import { decideTerminalClipboardAction } from '@core/helper/terminal-clipboard';
 import { decideTerminalMacLineKey } from '@core/helper/terminal-mac-line-keys';
 import { TerminalReplayStream, TerminalReplayChunk } from '@core/helper/terminal-replay-stream';
 import { readClipboardImageAsFile } from '@core/helper/terminal-clipboard-image';
+import { SIGNAL_TERMINAL_THEME } from '@core/helper/terminal-theme';
 
 /**
  * The outgoing terminal during a double-buffered swap: unsubscribed from the
@@ -111,7 +112,7 @@ interface DetachedTerminal {
       position: relative;
       width: 100%;
       height: 100%;
-      background: #10121a;
+      background: var(--po-terminal-bg);
     }
     .spawn-overlay {
       position: absolute;
@@ -144,8 +145,8 @@ interface DetachedTerminal {
       font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
       font-size: 26px;
       line-height: 1;
-      color: #a5b4fc;
-      text-shadow: 0 0 12px rgba(99, 102, 241, 0.55);
+      color: var(--po-accent-text);
+      text-shadow: 0 0 12px oklch(from var(--po-accent) l c h / 55%);
     }
     .spawn-brand {
       margin: 0;
@@ -162,9 +163,7 @@ interface DetachedTerminal {
       padding: 10px 4px 6px 12px;
       z-index: 2;
       opacity: 1;
-      background:
-        radial-gradient(120% 90% at 50% 0%, rgba(99, 102, 241, 0.05) 0%, transparent 55%),
-        #10121a;
+      background: var(--po-terminal-bg);
     }
     /* Back slot: laid out (so fit() measures the real size) but invisible and
        click-through until it is promoted by commitSwap(). */
@@ -177,7 +176,7 @@ interface DetachedTerminal {
     :host ::ng-deep .xterm-viewport {
       background: transparent !important;
       scrollbar-width: thin;
-      scrollbar-color: rgba(99, 102, 241, 0.35) transparent;
+      scrollbar-color: oklch(from var(--po-accent) l c h / 35%) transparent;
     }
     :host ::ng-deep .xterm-viewport::-webkit-scrollbar {
       width: 8px;
@@ -186,11 +185,11 @@ interface DetachedTerminal {
       background: transparent;
     }
     :host ::ng-deep .xterm-viewport::-webkit-scrollbar-thumb {
-      background: rgba(99, 102, 241, 0.28);
+      background: oklch(from var(--po-accent) l c h / 28%);
       border-radius: 4px;
     }
     :host ::ng-deep .xterm-viewport::-webkit-scrollbar-thumb:hover {
-      background: rgba(99, 102, 241, 0.5);
+      background: oklch(from var(--po-accent) l c h / 50%);
     }
     .ctx-menu {
       position: fixed;
@@ -199,7 +198,7 @@ interface DetachedTerminal {
       background: rgba(23, 24, 36, 0.92);
       backdrop-filter: blur(14px) saturate(1.4);
       -webkit-backdrop-filter: blur(14px) saturate(1.4);
-      border: 1px solid rgba(99, 102, 241, 0.25);
+      border: 1px solid oklch(from var(--po-accent) l c h / 25%);
       border-radius: 10px;
       padding: 5px;
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -220,7 +219,7 @@ interface DetachedTerminal {
       transition: background 0.12s;
     }
     .ctx-item:hover {
-      background: rgba(99, 102, 241, 0.22);
+      background: oklch(from var(--po-accent) l c h / 22%);
     }
   `,
 })
@@ -885,29 +884,7 @@ export class SessionTerminalComponent implements AfterViewInit, OnChanges, OnDes
       fontFamily: termFont,
       cursorStyle: termCursor,
       lineHeight: termLineHeight,
-      theme: {
-        background: '#10121a',
-        foreground: '#b6c2d4',
-        cursor: '#818cf8',
-        cursorAccent: '#10121a',
-        selectionBackground: 'rgba(99, 102, 241, 0.32)',
-        black: '#10121a',
-        red: '#ff7b72',
-        green: '#3fb950',
-        yellow: '#e3b341',
-        blue: '#79c0ff',
-        magenta: '#d2a8ff',
-        cyan: '#56d4dd',
-        white: '#aab8c5',
-        brightBlack: '#404954',
-        brightRed: '#ffa198',
-        brightGreen: '#56d364',
-        brightYellow: '#f0c74f',
-        brightBlue: '#a5b4fc',
-        brightMagenta: '#e0c3ff',
-        brightCyan: '#7ee8f0',
-        brightWhite: '#f1f1f1',
-      },
+      theme: SIGNAL_TERMINAL_THEME,
       scrollback: 5000,
       allowProposedApi: true,
     });

@@ -37,6 +37,7 @@ import { TerminalCommandGuard } from '../services/terminal-command-guard';
 import { createTerminalLinkHandler, joinWrappedUrl, openTerminalLink } from '@core/helper/terminal-link-handler';
 import { decideTerminalClipboardAction } from '@core/helper/terminal-clipboard';
 import { decideTerminalMacLineKey } from '@core/helper/terminal-mac-line-keys';
+import { SIGNAL_TERMINAL_THEME } from '@core/helper/terminal-theme';
 
 /**
  * Terminal component for a sub-agent.
@@ -86,7 +87,7 @@ import { decideTerminalMacLineKey } from '@core/helper/terminal-mac-line-keys';
       position: relative;
       width: 100%;
       height: 100%;
-      background: #0c0e16;
+      background: var(--po-terminal-bg);
     }
     .spawn-overlay {
       position: absolute;
@@ -113,8 +114,8 @@ import { decideTerminalMacLineKey } from '@core/helper/terminal-mac-line-keys';
       font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
       font-size: 26px;
       line-height: 1;
-      color: #c084fc;
-      text-shadow: 0 0 12px rgba(168, 85, 247, 0.55);
+      color: var(--po-accent-text);
+      text-shadow: 0 0 12px oklch(from var(--po-accent) l c h / 55%);
     }
     .spawn-brand {
       margin: 0;
@@ -131,13 +132,13 @@ import { decideTerminalMacLineKey } from '@core/helper/terminal-mac-line-keys';
       padding: 8px 4px 6px 10px;
       background:
         radial-gradient(120% 90% at 50% 0%, rgba(168, 85, 247, 0.05) 0%, transparent 55%),
-        #0c0e16;
+        var(--po-terminal-bg);
     }
     /* xterm DOM is created at runtime → needs ::ng-deep to pierce scoping */
     :host ::ng-deep .xterm-viewport {
       background: transparent !important;
       scrollbar-width: thin;
-      scrollbar-color: rgba(168, 85, 247, 0.35) transparent;
+      scrollbar-color: oklch(from var(--po-accent) l c h / 35%) transparent;
     }
     :host ::ng-deep .xterm-viewport::-webkit-scrollbar {
       width: 8px;
@@ -146,11 +147,11 @@ import { decideTerminalMacLineKey } from '@core/helper/terminal-mac-line-keys';
       background: transparent;
     }
     :host ::ng-deep .xterm-viewport::-webkit-scrollbar-thumb {
-      background: rgba(168, 85, 247, 0.28);
+      background: oklch(from var(--po-accent) l c h / 28%);
       border-radius: 4px;
     }
     :host ::ng-deep .xterm-viewport::-webkit-scrollbar-thumb:hover {
-      background: rgba(168, 85, 247, 0.5);
+      background: oklch(from var(--po-accent) l c h / 50%);
     }
     .ctx-menu {
       position: fixed;
@@ -159,7 +160,7 @@ import { decideTerminalMacLineKey } from '@core/helper/terminal-mac-line-keys';
       background: rgba(23, 24, 36, 0.92);
       backdrop-filter: blur(14px) saturate(1.4);
       -webkit-backdrop-filter: blur(14px) saturate(1.4);
-      border: 1px solid rgba(168, 85, 247, 0.25);
+      border: 1px solid oklch(from var(--po-accent) l c h / 25%);
       border-radius: 10px;
       padding: 5px;
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -180,7 +181,7 @@ import { decideTerminalMacLineKey } from '@core/helper/terminal-mac-line-keys';
       transition: background 0.12s;
     }
     .ctx-item:hover {
-      background: rgba(168, 85, 247, 0.22);
+      background: oklch(from var(--po-accent) l c h / 22%);
     }
   `,
 })
@@ -415,29 +416,7 @@ export class SubAgentTerminalComponent implements OnInit, AfterViewInit, OnDestr
       cursorBlink: perf.cursorBlink,
       fontSize: 13,
       fontFamily: "'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace",
-      theme: {
-        background: '#0c0e16',
-        foreground: '#b3b1ad',
-        cursor: '#c084fc',
-        cursorAccent: '#0c0e16',
-        selectionBackground: 'rgba(168, 85, 247, 0.30)',
-        black: '#0c0e16',
-        red: '#ff7b72',
-        green: '#3fb950',
-        yellow: '#d29922',
-        blue: '#58a6ff',
-        magenta: '#bc8cff',
-        cyan: '#39c5cf',
-        white: '#b3b1ad',
-        brightBlack: '#484f58',
-        brightRed: '#ffa198',
-        brightGreen: '#56d364',
-        brightYellow: '#e3b341',
-        brightBlue: '#79c0ff',
-        brightMagenta: '#d2a8ff',
-        brightCyan: '#56d4dd',
-        brightWhite: '#f0f6fc',
-      },
+      theme: SIGNAL_TERMINAL_THEME,
       scrollback: 3000,
       allowProposedApi: true,
     });

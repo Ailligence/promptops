@@ -1607,6 +1607,9 @@
       "Tailer detected": "Upptäckt",
       "Tailer response": "Svar",
       "Close": "Stäng"
+    },
+    "NEEDS_YOU": {
+      "Title": "Behöver dig"
     }
   },
   "SUBAGENTS": {
@@ -4486,5 +4489,34 @@
     "Stage file": "Köa filen",
     "Unstage folder": "Ta bort hela mappen från kön",
     "Unstage file": "Ta bort filen från kön"
+  },
+  "PALETTE": {
+    "Placeholder": "Gå till en session, agent, verktyg eller sida…",
+    "Empty": "Inga träffar",
+    "Hint": "↑↓ flytta · ↵ kör · esc stäng",
+    "Sessions": "Sessioner",
+    "Agents": "Agenter",
+    "Actions": "Åtgärder",
+    "Pages": "Sidor",
+    "New session": "Ny session",
+    "All sessions": "Visa alla sessioner",
+    "Spawn agent": "Starta en agent",
+    "Git": "Git-historik",
+    "Database": "Databasutforskare",
+    "Docker": "Docker-containrar",
+    "SSH": "SSH-anslutningar",
+    "Terminal": "Öppna en terminal",
+    "Links": "Utvecklingslänkar",
+    "Quick note": "Snabbanteckning",
+    "Project brief": "Projektbrief",
+    "Todo": "Att göra-lista",
+    "Assets": "Sessionens tillgångar",
+    "Focus mode": "Fokusläge",
+    "Code editor": "Kodredigerarlayout",
+    "Standard layout": "Standardlayout",
+    "Dedicated window": "Öppna i ett eget fönster",
+    "New tab": "Ny flik",
+    "Commands": "Kommandon",
+    "Main agent": "Huvudagent"
   }
 }

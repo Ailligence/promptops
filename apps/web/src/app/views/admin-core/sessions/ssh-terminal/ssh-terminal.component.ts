@@ -19,6 +19,7 @@ import { attachUnicode11, attachWebglRenderer } from '../../../../core/helper/xt
 import { SshService, SshConnectionPublic, SshTarget } from '../services/ssh.service';
 import { openTerminalLink } from '@core/helper/terminal-link-handler';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { SIGNAL_TERMINAL_THEME } from '@core/helper/terminal-theme';
 
 /**
  * Interactive SSH terminal — opens an SSH shell in the desktop process and
@@ -126,7 +127,7 @@ export class SshTerminalComponent implements AfterViewInit, OnDestroy {
       fontFamily: 'ui-monospace, Menlo, monospace',
       fontSize: 12,
       cursorBlink: true,
-      theme: { background: '#0b0d12' },
+      theme: SIGNAL_TERMINAL_THEME,
       convertEol: true,
     });
     this.fit = new FitAddon();

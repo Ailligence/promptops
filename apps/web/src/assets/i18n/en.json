@@ -1607,6 +1607,9 @@
       "Tailer detected": "Detected",
       "Tailer response": "Response",
       "Close": "Close"
+    },
+    "NEEDS_YOU": {
+      "Title": "Needs you"
     }
   },
   "SUBAGENTS": {
@@ -4486,5 +4489,34 @@
     "Stage file": "Stage file",
     "Unstage folder": "Unstage entire folder",
     "Unstage file": "Unstage file"
+  },
+  "PALETTE": {
+    "Placeholder": "Go to a session, agent, tool or page…",
+    "Empty": "Nothing matches",
+    "Hint": "↑↓ move · ↵ run · esc close",
+    "Sessions": "Sessions",
+    "Agents": "Agents",
+    "Actions": "Actions",
+    "Pages": "Pages",
+    "New session": "New session",
+    "All sessions": "Show all sessions",
+    "Spawn agent": "Spawn an agent",
+    "Git": "Git history",
+    "Database": "Database explorer",
+    "Docker": "Docker containers",
+    "SSH": "SSH connections",
+    "Terminal": "Open a terminal",
+    "Links": "Dev links",
+    "Quick note": "Quick note",
+    "Project brief": "Project brief",
+    "Todo": "To-do list",
+    "Assets": "Session assets",
+    "Focus mode": "Focus mode",
+    "Code editor": "Code editor layout",
+    "Standard layout": "Standard layout",
+    "Dedicated window": "Open in a dedicated window",
+    "New tab": "New tab",
+    "Commands": "Commands",
+    "Main agent": "Lead agent"
   }
 }

@@ -1607,6 +1607,9 @@
       "Tailer detected": "감지됨",
       "Tailer response": "응답",
       "Close": "닫기"
+    },
+    "NEEDS_YOU": {
+      "Title": "확인 필요"
     }
   },
   "SUBAGENTS": {
@@ -4486,5 +4489,34 @@
     "Stage file": "파일 스테이지",
     "Unstage folder": "폴더 전체 스테이지 해제",
     "Unstage file": "파일 스테이지 해제"
+  },
+  "PALETTE": {
+    "Placeholder": "세션, 에이전트, 도구 또는 페이지로 이동…",
+    "Empty": "결과 없음",
+    "Hint": "↑↓ 이동 · ↵ 실행 · esc 닫기",
+    "Sessions": "세션",
+    "Agents": "에이전트",
+    "Actions": "작업",
+    "Pages": "페이지",
+    "New session": "새 세션",
+    "All sessions": "모든 세션 보기",
+    "Spawn agent": "에이전트 시작",
+    "Git": "Git 기록",
+    "Database": "데이터베이스 탐색기",
+    "Docker": "Docker 컨테이너",
+    "SSH": "SSH 연결",
+    "Terminal": "터미널 열기",
+    "Links": "개발 링크",
+    "Quick note": "빠른 메모",
+    "Project brief": "프로젝트 브리프",
+    "Todo": "할 일 목록",
+    "Assets": "세션 자산",
+    "Focus mode": "집중 모드",
+    "Code editor": "코드 편집기 레이아웃",
+    "Standard layout": "표준 레이아웃",
+    "Dedicated window": "전용 창에서 열기",
+    "New tab": "새 탭",
+    "Commands": "명령",
+    "Main agent": "메인 에이전트"
   }
 }

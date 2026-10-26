@@ -1607,6 +1607,9 @@
       "Tailer detected": "検出内容",
       "Tailer response": "応答",
       "Close": "閉じる"
+    },
+    "NEEDS_YOU": {
+      "Title": "対応待ち"
     }
   },
   "SUBAGENTS": {
@@ -4486,5 +4489,34 @@
     "Stage file": "ファイルをステージ",
     "Unstage folder": "フォルダー全体のステージを解除",
     "Unstage file": "ファイルのステージを解除"
+  },
+  "PALETTE": {
+    "Placeholder": "セッション、エージェント、ツール、ページへ移動…",
+    "Empty": "該当なし",
+    "Hint": "↑↓ 移動 · ↵ 実行 · esc 閉じる",
+    "Sessions": "セッション",
+    "Agents": "エージェント",
+    "Actions": "アクション",
+    "Pages": "ページ",
+    "New session": "新しいセッション",
+    "All sessions": "すべてのセッションを表示",
+    "Spawn agent": "エージェントを起動",
+    "Git": "Git 履歴",
+    "Database": "データベースエクスプローラー",
+    "Docker": "Docker コンテナ",
+    "SSH": "SSH 接続",
+    "Terminal": "ターミナルを開く",
+    "Links": "開発リンク",
+    "Quick note": "クイックメモ",
+    "Project brief": "プロジェクト概要",
+    "Todo": "ToDo リスト",
+    "Assets": "セッションのアセット",
+    "Focus mode": "フォーカスモード",
+    "Code editor": "コードエディターレイアウト",
+    "Standard layout": "標準レイアウト",
+    "Dedicated window": "専用ウィンドウで開く",
+    "New tab": "新しいタブ",
+    "Commands": "コマンド",
+    "Main agent": "メインエージェント"
   }
 }

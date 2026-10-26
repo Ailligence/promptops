@@ -147,7 +147,7 @@ import { SwalService } from '@core/services/swal.service';
       font-size: 0.75rem;
       color: rgba(100, 116, 139, 0.6);
       padding: 0.35rem 0.5rem;
-      background: rgba(99, 102, 241, 0.04);
+      background: oklch(from var(--po-accent) l c h / 4%);
       border-radius: 6px;
     }
     .note-textarea {
@@ -162,7 +162,7 @@ import { SwalService } from '@core/services/swal.service';
     }
     :host-context([data-bs-theme="dark"]) .note-textarea {
       background: rgba(30, 41, 59, 0.6);
-      border-color: rgba(99, 102, 241, 0.15);
+      border-color: oklch(from var(--po-accent) l c h / 15%);
       color: #e2e8f0;
     }
     .note-textarea:focus { outline: none; border-color: rgba(99, 102, 241, 0.4); }
@@ -184,7 +184,7 @@ import { SwalService } from '@core/services/swal.service';
     }
     .btn-save {
       padding: 0.4rem 0.8rem;
-      background: #6366f1;
+      background: var(--po-accent);
       color: #fff;
       border: none;
       border-radius: 8px;
@@ -209,14 +209,14 @@ import { SwalService } from '@core/services/swal.service';
     .existing-note-item {
       position: relative;
       padding: 0.5rem 0.6rem;
-      background: rgba(99, 102, 241, 0.04);
+      background: oklch(from var(--po-accent) l c h / 4%);
       border: 1px solid rgba(100, 116, 139, 0.08);
       border-radius: 8px;
       font-size: 0.78rem;
     }
     :host-context([data-bs-theme="dark"]) .existing-note-item {
       background: rgba(30, 41, 59, 0.5);
-      border-color: rgba(99, 102, 241, 0.1);
+      border-color: oklch(from var(--po-accent) l c h / 10%);
     }
     .existing-note-content {
       white-space: pre-wrap;

@@ -122,8 +122,8 @@ export const AVAILABLE_LANGUAGES: LanguageOption[] = [
         transform: scale(0.98);
       }
       .po-lang-cell.active {
-        border-color: var(--bs-primary, #6366f1);
-        background: color-mix(in srgb, var(--bs-primary, #6366f1) 10%, transparent);
+        border-color: var(--bs-primary, var(--po-accent));
+        background: color-mix(in srgb, var(--bs-primary, var(--po-accent)) 10%, transparent);
         box-shadow:
           0 0 0 1px var(--bs-primary, #6366f1),
           inset 0 1px 0 rgba(255, 255, 255, 0.04);
@@ -142,14 +142,14 @@ export const AVAILABLE_LANGUAGES: LanguageOption[] = [
         line-height: 1.15;
       }
       .po-lang-cell.active .po-lang-label {
-        color: var(--bs-primary-text-emphasis, var(--bs-primary, #6366f1));
+        color: var(--bs-primary-text-emphasis, var(--bs-primary, var(--po-accent)));
         font-weight: 600;
       }
       .po-lang-check {
         position: absolute;
         top: 0.375rem;
         inset-inline-end: 0.375rem;
-        color: var(--bs-primary, #6366f1);
+        color: var(--bs-primary, var(--po-accent));
       }
     `,
   ],

@@ -102,7 +102,7 @@ export interface ContextTransferModalResult {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      color: #6366F1;
+      color: var(--po-accent);
     }
     .close-btn {
       background: none;
@@ -138,16 +138,16 @@ export interface ContextTransferModalResult {
       gap: 0.4rem;
       padding: 0.38rem 0.75rem;
       border-radius: 999px;
-      border: 1px solid rgba(99, 102, 241, 0.25);
-      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid oklch(from var(--po-accent) l c h / 25%);
+      background: oklch(from var(--po-accent) l c h / 8%);
       font-size: 0.82rem;
       font-weight: 600;
-      color: #4F46E5;
+      color: var(--po-accent);
     }
     .provider-chip.from { opacity: 0.85; }
     .provider-chip.to {
-      background: rgba(99, 102, 241, 0.18);
-      border-color: rgba(99, 102, 241, 0.45);
+      background: oklch(from var(--po-accent) l c h / 18%);
+      border-color: oklch(from var(--po-accent) l c h / 45%);
     }
     .arrow { color: #6366F1; }
 
@@ -160,7 +160,7 @@ export interface ContextTransferModalResult {
     }
     :host-context([data-bs-theme="dark"]) .prompt-preview {
       background: rgba(30, 41, 59, 0.5);
-      border-color: rgba(99, 102, 241, 0.15);
+      border-color: oklch(from var(--po-accent) l c h / 15%);
     }
     .prompt-preview-label {
       font-size: 0.7rem;
@@ -192,7 +192,7 @@ export interface ContextTransferModalResult {
     .remember-row input[type="checkbox"] {
       width: 14px;
       height: 14px;
-      accent-color: #6366F1;
+      accent-color: var(--po-accent);
       cursor: pointer;
     }
 
@@ -202,7 +202,7 @@ export interface ContextTransferModalResult {
       gap: 0.5rem;
       margin-top: 0.9rem;
       font-size: 0.82rem;
-      color: #6366F1;
+      color: var(--po-accent);
       font-weight: 600;
     }
 
@@ -230,20 +230,20 @@ export interface ContextTransferModalResult {
     .btn-cancel:hover:not(:disabled) { background: rgba(100, 116, 139, 0.15); }
     .btn-secondary {
       background: transparent;
-      border-color: rgba(99, 102, 241, 0.35);
-      color: #4F46E5;
+      border-color: oklch(from var(--po-accent) l c h / 35%);
+      color: var(--po-accent);
     }
     .btn-secondary:hover:not(:disabled) {
-      background: rgba(99, 102, 241, 0.08);
-      border-color: rgba(99, 102, 241, 0.55);
+      background: oklch(from var(--po-accent) l c h / 8%);
+      border-color: oklch(from var(--po-accent) l c h / 55%);
     }
     .btn-confirm {
-      background: #6366F1;
+      background: var(--po-accent);
       color: #fff;
     }
     .btn-confirm:hover:not(:disabled) {
-      background: #4F46E5;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+      background: var(--po-accent);
+      box-shadow: 0 0 0 3px oklch(from var(--po-accent) l c h / 18%);
     }
     .btn-cancel:disabled, .btn-secondary:disabled, .btn-confirm:disabled {
       opacity: 0.5;

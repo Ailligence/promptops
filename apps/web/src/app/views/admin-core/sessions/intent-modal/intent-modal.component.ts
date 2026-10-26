@@ -817,7 +817,7 @@ const EXAMPLE_INTENTS: { i18nKey: string }[] = [
       transition: border-color 0.2s;
     }
     .intent-textarea:focus {
-      border-color: rgba(99, 102, 241, 0.5);
+      border-color: oklch(from var(--po-accent) l c h / 50%);
     }
     .intent-textarea::placeholder {
       color: var(--po-text-secondary);
@@ -1355,7 +1355,7 @@ const EXAMPLE_INTENTS: { i18nKey: string }[] = [
       color: var(--po-text-tertiary);
       padding: 2px 6px;
       border-radius: 4px;
-      background: rgba(99, 102, 241, 0.1);
+      background: oklch(from var(--po-accent) l c h / 10%);
     }
     .btn-cancel {
       padding: 0.45rem 1rem;
@@ -1396,17 +1396,17 @@ const EXAMPLE_INTENTS: { i18nKey: string }[] = [
     }
     .btn-stop-delete {
       color: var(--po-error);
-      border-color: rgba(248, 81, 73, 0.4);
+      border-color: oklch(from var(--po-error) l c h / 40%);
     }
     .btn-stop-delete:hover {
-      background: rgba(248, 81, 73, 0.1);
+      background: oklch(from var(--po-error) l c h / 10%);
     }
     .btn-delete {
       background: var(--po-error);
     }
     .plan-header-compact.stopped {
-      background: rgba(248, 81, 73, 0.1);
-      border-color: rgba(248, 81, 73, 0.3);
+      background: oklch(from var(--po-error) l c h / 10%);
+      border-color: oklch(from var(--po-error) l c h / 30%);
     }
     .plan-header-compact.stopped > iconify-icon {
       color: var(--po-error);
@@ -1512,11 +1512,11 @@ const EXAMPLE_INTENTS: { i18nKey: string }[] = [
       transition: border-color 0.2s, box-shadow 0.2s;
     }
     .wave-column[data-status="running"] {
-      border-color: rgba(99, 102, 241, 0.5);
-      box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.25), 0 0 12px rgba(99, 102, 241, 0.15);
+      border-color: oklch(from var(--po-accent) l c h / 50%);
+      box-shadow: 0 0 0 1px oklch(from var(--po-accent) l c h / 25%), 0 0 12px oklch(from var(--po-accent) l c h / 15%);
     }
     .wave-column[data-status="done"] {
-      border-color: rgba(63, 185, 80, 0.4);
+      border-color: oklch(from var(--po-success) l c h / 40%);
       opacity: 0.85;
     }
     .wave-column[data-status="waiting"] {
@@ -1560,12 +1560,12 @@ const EXAMPLE_INTENTS: { i18nKey: string }[] = [
       white-space: nowrap;
     }
     .wave-status.running {
-      background: rgba(99, 102, 241, 0.15);
+      background: oklch(from var(--po-accent) l c h / 15%);
       color: #8b91ff;
     }
     .wave-status.done {
-      background: rgba(63, 185, 80, 0.15);
-      color: #3fb950;
+      background: oklch(from var(--po-success) l c h / 15%);
+      color: var(--po-success);
     }
     .wave-status.waiting {
       background: rgba(139, 148, 158, 0.12);
@@ -1574,7 +1574,7 @@ const EXAMPLE_INTENTS: { i18nKey: string }[] = [
     .wave-spinner {
       width: 10px;
       height: 10px;
-      border: 2px solid rgba(99, 102, 241, 0.25);
+      border: 2px solid oklch(from var(--po-accent) l c h / 25%);
       border-top-color: #8b91ff;
       border-radius: 50%;
       animation: wave-spin 0.7s linear infinite;

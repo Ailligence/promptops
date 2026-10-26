@@ -1607,6 +1607,9 @@
       "Tailer detected": "Erkannt",
       "Tailer response": "Antwort",
       "Close": "Schließen"
+    },
+    "NEEDS_YOU": {
+      "Title": "Wartet auf dich"
     }
   },
   "SUBAGENTS": {
@@ -4486,5 +4489,34 @@
     "Stage file": "Datei stagen",
     "Unstage folder": "Ganzen Ordner unstagen",
     "Unstage file": "Datei unstagen"
+  },
+  "PALETTE": {
+    "Placeholder": "Zu Sitzung, Agent, Werkzeug oder Seite wechseln…",
+    "Empty": "Keine Treffer",
+    "Hint": "↑↓ bewegen · ↵ ausführen · Esc schließen",
+    "Sessions": "Sitzungen",
+    "Agents": "Agenten",
+    "Actions": "Aktionen",
+    "Pages": "Seiten",
+    "New session": "Neue Sitzung",
+    "All sessions": "Alle Sitzungen anzeigen",
+    "Spawn agent": "Agent starten",
+    "Git": "Git-Verlauf",
+    "Database": "Datenbank-Explorer",
+    "Docker": "Docker-Container",
+    "SSH": "SSH-Verbindungen",
+    "Terminal": "Terminal öffnen",
+    "Links": "Dev-Links",
+    "Quick note": "Schnellnotiz",
+    "Project brief": "Projekt-Brief",
+    "Todo": "Aufgabenliste",
+    "Assets": "Sitzungs-Assets",
+    "Focus mode": "Fokusmodus",
+    "Code editor": "Code-Editor-Layout",
+    "Standard layout": "Standardlayout",
+    "Dedicated window": "In eigenem Fenster öffnen",
+    "New tab": "Neuer Tab",
+    "Commands": "Befehle",
+    "Main agent": "Haupt-Agent"
   }
 }

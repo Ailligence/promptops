@@ -1,0 +1,380 @@
+// =============================================================================
+//  Signal Box: structural skin for the panel
+// -----------------------------------------------------------------------------
+//  The session list is a mimic diagram: each workspace is a track drawn as a
+//  1px line, each session a station with one lamp, sub-agents branch off it.
+//  Loads after the minimal skin, so it wins on equal specificity.
+// =============================================================================
+
+html[data-po-ui="minimal"] {
+  // ── Mimic diagram ───────────────────────────────────────────────────────────
+  .session-sidebar {
+    background: var(--po-bg-1);
+
+    .sidebar-header {
+      min-height: 40px;
+      border-bottom: 1px solid var(--po-border-subtle);
+    }
+    .sidebar-title {
+      font-size: var(--po-label-size);
+      font-weight: 600;
+      letter-spacing: var(--po-label-tracking);
+      color: var(--po-text-tertiary);
+    }
+
+    // Workspace = the track's engraved label.
+    .workspace-header,
+    .folder-header {
+      gap: var(--po-space-2);
+      min-height: 28px;
+      margin-top: var(--po-space-2);
+      border-radius: var(--po-radius-sm);
+      background: transparent !important;
+      border: 0 !important;
+    }
+    .workspace-name,
+    .folder-name {
+      font-size: var(--po-label-size);
+      font-weight: 600;
+      letter-spacing: var(--po-label-tracking);
+      text-transform: uppercase;
+      color: var(--po-text-secondary) !important;
+    }
+    .workspace-chevron { color: var(--po-text-tertiary); }
+    .workspace-badge,
+    .folder-badge {
+      margin-inline-start: auto;
+      padding: 0;
+      background: transparent !important;
+      font-family: var(--po-font-mono);
+      font-variant-numeric: tabular-nums;
+      font-size: var(--po-text-xs);
+      color: var(--po-text-tertiary) !important;
+    }
+    .attention-badge {
+      background: transparent !important;
+      border: 0 !important;
+      color: var(--po-error) !important;
+      font-family: var(--po-font-mono);
+      font-size: var(--po-text-xs);
+      .attention-dot { display: none; }
+    }
+
+    // The track: a 1px line running down the left of every workspace's
+    // stations, at the lamps' center.
+    .workspace-sessions {
+      position: relative;
+      &::before {
+        content: "";
+        position: absolute;
+        inset-block: 2px;
+        inset-inline-start: 19px;
+        width: 1px;
+        background: var(--po-track-dim);
+        pointer-events: none;
+      }
+    }
+
+    // Station: lamp on the track, name, then only what asks for attention.
+    .session-item {
+      position: relative;
+      min-height: 30px;
+      gap: 10px;
+      margin: 0 var(--po-space-1);
+      border: 0 !important;
+      border-radius: var(--po-radius-sm);
+      background: transparent;
+      transition: background var(--po-duration-fast) var(--po-ease-out);
+
+      &.nested { padding-inline-start: 11px; }
+      &:hover { background: var(--po-bg-2); }
+
+      .session-name {
+        font-size: var(--po-text-base);
+        font-weight: 450;
+        color: var(--po-text-primary);
+      }
+      .session-workspace { color: var(--po-text-tertiary); font-size: var(--po-text-xs); }
+    }
+    .session-lamp { position: relative; z-index: 1; }
+
+    // Route set: the selected station. Violet bar on the inner edge, raised plate.
+    .session-item.active,
+    .workspace-header.solo.active {
+      background: var(--po-bg-3) !important;
+      box-shadow: inset 0 0 0 1px oklch(from var(--po-accent) l c h / 45%);
+      .session-name,
+      .workspace-name { color: var(--po-text-primary) !important; }
+    }
+
+    // Stop signal: the row itself does not shout; the lamp does, and the
+    // waiting time sits beside it in the lamp's color.
+    .session-item.needs-attention,
+    .workspace-header.needs-attention,
+    .sub-agent-item.needs-attention {
+      background: oklch(from var(--po-error) l c h / 7%) !important;
+      .session-name,
+      .sub-agent-title { color: var(--po-text-primary) !important; }
+    }
+    .attention-timer {
+      font-family: var(--po-font-mono);
+      font-variant-numeric: tabular-nums;
+      font-size: var(--po-text-xs);
+      color: var(--po-error) !important;
+      background: transparent !important;
+      padding: 0;
+    }
+    .pending-badge {
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      border-radius: var(--po-radius-sm);
+      background: var(--po-error) !important;
+      color: var(--po-error-on) !important;
+      font-family: var(--po-font-mono);
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    // Parked: lamp off, name struck through, kept on the track until cleared.
+    .session-item.standby,
+    .workspace-header.standby {
+      opacity: 1;
+      .session-name,
+      .workspace-name {
+        color: var(--po-text-tertiary) !important;
+        text-decoration: line-through;
+        text-decoration-color: var(--po-border-strong);
+      }
+    }
+
+    // Sub-agents branch off the station: a short 1px spur, a smaller lamp.
+    .sub-agent-item {
+      position: relative;
+      gap: 8px;
+      min-height: 24px;
+      padding-inline-start: 34px;
+      border-radius: var(--po-radius-sm);
+      background: transparent;
+      .po-lamp { width: 6px; height: 6px; }
+      .provider-logo { opacity: 0.7; filter: grayscale(1); }
+      &:hover { background: var(--po-bg-2); }
+      &.active { background: var(--po-bg-3); }
+    }
+    .sub-agent-connector {
+      position: absolute;
+      inset-inline-start: 19px;
+      top: 50%;
+      width: 11px;
+      height: 1px;
+      border: 0 !important;
+      background: var(--po-track-dim);
+    }
+    .sub-agent-title {
+      font-size: var(--po-text-sm);
+      color: var(--po-text-secondary);
+    }
+
+    // Status icons that now live on the lamp.
+    .aa-indicator,
+    .eco-indicator,
+    .standby-icon,
+    .device-status-icon {
+      color: var(--po-text-tertiary) !important;
+    }
+    .aa-indicator { color: var(--po-warning) !important; }
+
+    // Floor plan / plugin entries: a quiet plate above the diagram.
+    .plugin-entry {
+      border-radius: var(--po-radius-sm);
+      border: 1px solid var(--po-border-subtle);
+      background: transparent;
+      &:hover { background: var(--po-bg-2); }
+    }
+  }
+}
+
+html[data-po-ui="minimal"] .session-sidebar {
+  // The lamp already says "running": no animated ring around the row.
+  .po-running-surface::before { display: none !important; }
+}
+
+// =============================================================================
+//  Session canvas (html[data-po-canvas], set on /admin/sessions)
+// -----------------------------------------------------------------------------
+//  No navigation rail, no session tree, no side strip: the agents own the
+//  screen. Sessions live in the dock (bottom bar), the full tree slides in
+//  as a sheet, everything else is ⌘K.
+// =============================================================================
+html[data-po-canvas] {
+  --po-sidebar-offset: 0px;
+  --po-bottombar-h: 40px;
+
+  .po-sidebar { display: none !important; }
+  .po-main { margin-inline-start: 0; }
+
+  // ── Dock: the bottom bar becomes the session switcher ──
+  .bottom-bar.in-session {
+    height: var(--po-bottombar-h);
+    border-top: 1px solid var(--po-border-subtle);
+    background: var(--po-bg-1);
+
+    .bb-scroll { flex: 0 1 auto; }
+    .bb-scroll > :first-child { margin-inline-start: 0 !important; }
+    .spacer { display: none; }
+    .version { display: none; }
+    // Efficiency keeps one cell (its % ); the report opens on click.
+    .token-section .tc:not(.title):not(:last-child) { display: none; }
+  }
+
+  // ── Session tree as a slide-over sheet ──
+  .canvas-sheet-scrim {
+    position: fixed;
+    inset: 0 0 var(--po-bottombar-h) 0;
+    z-index: 1040;
+    background: oklch(0 0 0 / 0.4);
+  }
+  app-session-sidebar {
+    position: fixed !important;
+    top: 0;
+    bottom: var(--po-bottombar-h);
+    inset-inline-start: 0;
+    z-index: 1041;
+    width: min(340px, 86vw) !important;
+    border-inline-end: 1px solid var(--po-border-strong);
+    box-shadow: var(--po-shadow-lg);
+    transform: translateX(-104%);
+    visibility: hidden;
+    transition: transform var(--po-duration-base) var(--po-ease-out), visibility 0s linear var(--po-duration-base);
+
+    &.canvas-sheet-open {
+      transform: none;
+      visibility: visible;
+      transition: transform var(--po-duration-base) var(--po-ease-out);
+    }
+  }
+  &[dir="rtl"] app-session-sidebar:not(.canvas-sheet-open) { transform: translateX(104%); }
+  .sidebar-resize-handle,
+  .session-sidebar + .resize-handle { display: none; }
+
+  // ── One-line header ──
+  .session-header-bar {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 var(--po-space-3);
+    border-bottom: 1px solid var(--po-border-subtle);
+    background: var(--po-bg-1);
+
+    > .device-banner { flex-basis: 100%; }
+    // Row 1 survives only as its plugin buttons and the external-editor
+    // launcher, at the right end of the line; path, status and the classic
+    // tool badges live in ⌘K.
+    > .header-top {
+      order: 3;
+      padding: 0 !important;
+      border: 0 !important;
+      background: transparent !important;
+      .header-title-group { display: none !important; }
+      .header-actions > :not(app-plugin-session-buttons):not(.editor-badge):not(.editor-menu-wrap):not(.editor-picker) { display: none !important; }
+    }
+    > .header-tabs-row {
+      flex: 1;
+      min-width: 0;
+      border: 0 !important;
+      padding: 0 !important;
+      background: transparent !important;
+    }
+  }
+  .canvas-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--po-space-2);
+    max-width: 38%;
+    margin-inline-end: var(--po-space-4);
+    flex-shrink: 0;
+  }
+  .cb-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--po-text-md);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--po-text-primary);
+  }
+  .cb-ws {
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--po-font-mono);
+    font-size: var(--po-text-xs);
+    color: var(--po-text-tertiary);
+  }
+  .header-tabs-row {
+    // The dock owns session switching: no second session strip in the header.
+    > .header-tabs-scroll,
+    > .tab-add-btn,
+    > .terminals-toggle-btn,
+    > .dedicated-window-btn,
+    > .focus-toggle-btn,
+    > .dev-links-toggle-btn,
+    > .layout-mode-toggle { display: none !important; }
+  }
+  .canvas-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--po-space-1);
+    flex-shrink: 0;
+  }
+  .cb-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid var(--po-border-strong);
+    border-radius: var(--po-radius-sm);
+    background: transparent;
+    color: var(--po-text-secondary);
+    font-size: var(--po-text-sm);
+    cursor: pointer;
+    transition: background var(--po-duration-fast) var(--po-ease-out), color var(--po-duration-fast) var(--po-ease-out);
+
+    &:hover { background: var(--po-bg-3); color: var(--po-text-primary); }
+    &:focus-visible { outline: 2px solid var(--po-accent); outline-offset: 1px; }
+    &.on {
+      border-color: var(--po-accent);
+      background: oklch(from var(--po-accent) l c h / 14%);
+      color: var(--po-text-primary);
+    }
+    &.cb-cmd { width: 28px; padding: 0; justify-content: center; }
+  }
+
+  // ── The agents own the rest: graphite bed, violet only on real focus ──
+  .terminal-area.has-subagents .main-pane,
+  .subagent-pane {
+    margin: 6px !important;
+    border: 1px solid var(--po-border-subtle) !important;
+    border-radius: var(--po-radius-lg) !important;
+  }
+  .main-pane.pane-focused,
+  .subagent-pane.pane-focused,
+  .ide-terminal-area.pane-focused {
+    box-shadow: inset 0 0 0 1px var(--po-accent) !important;
+    animation: none !important;
+  }
+  .action-center-wrapper.ac-collapsed { display: none !important; }
+  .canvas-hidden { display: none !important; }
+}
+
+// Outside the canvas the canvas-only pieces never show.
+html:not([data-po-canvas]) {
+  .canvas-bar,
+  .canvas-actions { display: none !important; }
+}

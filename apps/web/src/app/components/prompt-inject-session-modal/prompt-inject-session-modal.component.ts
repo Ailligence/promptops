@@ -141,7 +141,7 @@ export type PromptInjectTarget =
     .target-tab:hover { background: rgba(99,102,241,0.04); border-color: rgba(99,102,241,0.15); color: #6366f1; }
     .target-tab.active {
       background: rgba(99,102,241,0.08); border-color: rgba(99,102,241,0.3);
-      color: #6366f1;
+      color: var(--po-accent);
     }
 
     .select-section { margin-top: 0.25rem; }

@@ -214,3 +214,76 @@
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+// =============================================================================
+//  Signal Box primitives
+// -----------------------------------------------------------------------------
+//  .po-lamp      a signal lamp: the one place saturated color lives.
+//                --working (green) · --idle (amber) · --blocked (red, the
+//                only state that asks for you) · --off (exited, kept on the
+//                track until cleared) · --set (route set: violet, selection)
+//  .po-label     engraved panel label: small caps-tracked, tertiary ink.
+//  .po-num       tabular figures for every number on the panel.
+// =============================================================================
+.po-lamp {
+  --lamp: var(--po-lamp-off, var(--po-text-tertiary));
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--lamp);
+  box-shadow: 0 0 0 1px oklch(from var(--lamp) l c h / 35%), 0 0 6px 0 oklch(from var(--lamp) l c h / 45%);
+  // Lamp warm-up: a lamp comes on over 160ms, it does not blink on.
+  transition: background 160ms var(--po-ease-out), box-shadow 160ms var(--po-ease-out);
+
+  &--working { --lamp: var(--po-success); }
+  &--idle    { --lamp: var(--po-warning); }
+  &--blocked { --lamp: var(--po-error); }
+  &--set     { --lamp: var(--po-accent); }
+  &--off {
+    --lamp: var(--po-lamp-off, var(--po-text-tertiary));
+    box-shadow: inset 0 0 0 1px var(--po-border-strong);
+    background: transparent;
+  }
+
+  // A red lamp that nobody has answered breathes, slowly. Static when the
+  // user asked for less motion.
+  @media (prefers-reduced-motion: no-preference) {
+    &--blocked { animation: po-lamp-call 2.4s var(--po-ease-in-out) infinite; }
+  }
+}
+
+@keyframes po-lamp-call {
+  0%, 100% { box-shadow: 0 0 0 1px oklch(from var(--lamp) l c h / 35%), 0 0 6px 0 oklch(from var(--lamp) l c h / 45%); }
+  50%      { box-shadow: 0 0 0 3px oklch(from var(--lamp) l c h / 18%), 0 0 12px 2px oklch(from var(--lamp) l c h / 55%); }
+}
+
+.po-label {
+  font-family: var(--po-font-body);
+  font-size: var(--po-label-size, 0.6875rem);
+  font-weight: 600;
+  letter-spacing: var(--po-label-tracking, 0.09em);
+  text-transform: uppercase;
+  color: var(--po-text-tertiary);
+}
+
+.po-num {
+  font-family: var(--po-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "zero" 1;
+}
+
+// Browser surfaces carry the panel too.
+::selection {
+  background: oklch(from var(--po-accent) l c h / 45%);
+  color: var(--po-text-primary);
+}
+:root {
+  caret-color: var(--po-accent-text, var(--po-accent));
+  scrollbar-color: var(--po-border-strong) transparent;
+  accent-color: var(--po-accent);
+}
+
+// The track bed every terminal sits on (mirrors SIGNAL_TERMINAL_THEME.background).
+:root { --po-terminal-bg: #14171a; }

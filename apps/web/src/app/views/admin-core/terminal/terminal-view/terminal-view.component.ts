@@ -33,7 +33,7 @@ import { SwalService } from '@core/services/swal.service';
       display: flex;
       flex-direction: column;
       height: calc(100vh - 70px);
-      background: var(--bs-body-bg, #0d1117);
+      background: var(--po-terminal-bg);
     }
 
     /* ── Header ── */
@@ -70,9 +70,9 @@ import { SwalService } from '@core/services/swal.service';
       margin-left: 0.25rem;
     }
     .btn-icon-close:hover {
-      background: var(--po-error-bg, rgba(248, 81, 73, 0.12));
-      color: var(--bs-danger, #f85149);
-      border-color: var(--bs-danger, #f85149);
+      background: var(--po-error-bg, oklch(from var(--po-error) l c h / 12%));
+      color: var(--bs-danger, var(--po-error));
+      border-color: var(--bs-danger, var(--po-error));
     }
 
     /* ── Empty state ── */
@@ -123,8 +123,8 @@ import { SwalService } from '@core/services/swal.service';
       color: var(--bs-body-color, #c9d1d9);
     }
     .terminal-tab.active {
-      color: var(--bs-primary, #58a6ff);
-      border-bottom-color: var(--bs-primary, #58a6ff);
+      color: var(--bs-primary, var(--po-info));
+      border-bottom-color: var(--bs-primary, var(--po-info));
     }
     .tab-close {
       background: none;
@@ -137,7 +137,7 @@ import { SwalService } from '@core/services/swal.service';
     }
     .tab-close:hover {
       opacity: 1;
-      color: var(--bs-danger, #f85149);
+      color: var(--bs-danger, var(--po-error));
     }
 
     /* ── Panels ── */

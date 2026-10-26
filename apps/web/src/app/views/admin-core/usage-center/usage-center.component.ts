@@ -426,7 +426,7 @@ function readLegendPref(): boolean {
     .uc-btn:hover:not(:disabled) { border-color: var(--bs-primary, #6366f1); color: var(--bs-primary, #6366f1); }
     .uc-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .uc-btn.primary {
-      background: linear-gradient(90deg, #6366f1, #818cf8);
+      background: linear-gradient(90deg, var(--po-accent), var(--po-accent-text));
       border-color: transparent; color: #fff;
     }
     .uc-btn.primary:hover:not(:disabled) { filter: brightness(1.05); color: #fff; }
@@ -436,7 +436,7 @@ function readLegendPref(): boolean {
     .uc-scan-report {
       display: flex; flex-wrap: wrap; gap: 0.9rem; align-items: center;
       padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--bs-border-color);
-      background: rgba(99,102,241,0.04);
+      background: oklch(from var(--po-accent) l c h / 4%);
       font-size: 0.68rem; color: var(--po-text-secondary, #6c7a8d);
     }
     .uc-scan-report i { color: var(--bs-primary, #6366f1); }
@@ -452,9 +452,9 @@ function readLegendPref(): boolean {
     .uc-btn-link:hover { color: #ef4444; background: rgba(239,68,68,0.08); }
 
     .uc-legend {
-      border: 1px solid rgba(99,102,241,0.18);
+      border: 1px solid oklch(from var(--po-accent) l c h / 18%);
       border-radius: 10px;
-      background: linear-gradient(180deg, rgba(99,102,241,0.04), rgba(167,139,250,0.03));
+      background: linear-gradient(180deg, oklch(from var(--po-accent) l c h / 4%), rgba(167,139,250,0.03));
       overflow: hidden;
     }
     .uc-legend.open { background: linear-gradient(180deg, rgba(99,102,241,0.06), rgba(167,139,250,0.04)); }
@@ -471,7 +471,7 @@ function readLegendPref(): boolean {
       display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 0.85rem 1.2rem;
       padding: 0.5rem 0.95rem 0.95rem;
-      border-top: 1px dashed rgba(99,102,241,0.18);
+      border-top: 1px dashed oklch(from var(--po-accent) l c h / 18%);
     }
     @media (max-width: 720px) { .uc-legend-body { grid-template-columns: 1fr; } }
     .uc-legend-item {
@@ -479,7 +479,7 @@ function readLegendPref(): boolean {
     }
     .uc-legend-dot {
       width: 8px; height: 8px; border-radius: 50%; margin-top: 0.4rem; flex-shrink: 0;
-      box-shadow: 0 0 0 3px rgba(99,102,241,0.08);
+      box-shadow: 0 0 0 3px oklch(from var(--po-accent) l c h / 8%);
     }
     .uc-legend-dot.indigo  { background: #6366f1; }
     .uc-legend-dot.purple  { background: #a78bfa; box-shadow: 0 0 0 3px rgba(167,139,250,0.12); }
@@ -500,11 +500,11 @@ function readLegendPref(): boolean {
       display: inline-block;
       font-size: 0.65rem;
       font-family: 'JetBrains Mono', 'Fira Code', monospace;
-      background: rgba(99,102,241,0.08);
-      color: var(--bs-primary, #6366f1);
+      background: oklch(from var(--po-accent) l c h / 8%);
+      color: var(--bs-primary, var(--po-accent));
       padding: 0.15rem 0.4rem;
       border-radius: 4px;
-      border: 1px solid rgba(99,102,241,0.15);
+      border: 1px solid oklch(from var(--po-accent) l c h / 15%);
     }
     .uc-legend-note {
       margin-top: 0.35rem; display: flex; align-items: center; gap: 0.3rem;
@@ -545,7 +545,7 @@ function readLegendPref(): boolean {
       border-radius: 10px; padding: 0.85rem 1rem;
       background: var(--bs-card-bg, var(--bs-body-bg));
       display: flex; flex-direction: column; gap: 0.25rem;
-      border-left: 3px solid rgba(99,102,241,0.5);
+      border-left: 3px solid oklch(from var(--po-accent) l c h / 50%);
     }
     .uc-card.accent-indigo  { border-left-color: #6366f1; }
     .uc-card.accent-purple  { border-left-color: #a78bfa; }
@@ -598,7 +598,7 @@ function readLegendPref(): boolean {
 
     .uc-trend {
       display: flex; flex-direction: column; gap: 0.4rem;
-      color: var(--bs-primary, #6366f1);
+      color: var(--bs-primary, var(--po-accent));
     }
     .uc-trend-svg { width: 100%; height: 80px; }
     .uc-trend-area { fill: rgba(99,102,241,0.12); }
@@ -658,7 +658,7 @@ function readLegendPref(): boolean {
       display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
       margin: 0 0 0.75rem; padding: 0.45rem 0.7rem; border-radius: 8px;
       font-size: 0.75rem; border: 1px solid rgba(63,185,80,0.35);
-      background: rgba(63,185,80,0.08);
+      background: oklch(from var(--po-success) l c h / 8%);
     }
     .uc-export-notice.error { border-color: rgba(239,68,68,0.35); background: rgba(239,68,68,0.08); }
     .uc-export-notice > i { color: #3fb950; }

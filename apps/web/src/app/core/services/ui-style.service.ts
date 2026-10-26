@@ -50,19 +50,10 @@ export class UiStyleService {
     this.store.select(getUser).subscribe((user: any) => {
       if (!user || this.manualChoice) return;
 
-      const pref = user?.ui_preferences?.ui_style;
-      if (pref === 'minimal' || pref === 'classic') {
-        // Genuine manual choice saved in the local profile: honor it everywhere and
-        // mirror it to the boot cache for anti-flash at the next start.
-        this.cache(pref);
-        this.force(pref);
-      } else {
-        // Never expressed a preference / never switched → minimal default.
-        // Drop any stale cache (e.g. a legacy A/B classic assignment) so the
-        // next boot resolves to minimal with no flash.
-        this.clearCache();
-        this.force('minimal');
-      }
+      // One skin only (the Signal Box panel): a stored 'classic' choice from
+      // before the redesign is dropped rather than honored.
+      this.clearCache();
+      this.force('minimal');
     });
 
     // Minimal keeps the sidenav closed: the pin button is hidden by the skin,
@@ -80,7 +71,7 @@ export class UiStyleService {
 
   /** Manual switch (topbar icon): applies now and saves it in the local profile. */
   set(style: UiStyle): void {
-    if (style === this.style()) return;
+    if (style !== 'minimal' || style === this.style()) return;
     this.manualChoice = style;
     this.cache(style);
     this.force(style);
@@ -132,9 +123,8 @@ export class UiStyleService {
 
 function readInitial(): UiStyle {
   try {
-    // Minimal is the default; only an explicit cached 'classic' opts out.
-    return localStorage.getItem(STORAGE_KEY) === 'classic' ? 'classic' : 'minimal';
-  } catch {
-    return 'minimal';
-  }
+    // Classic is retired: clear a stale opt-out so it cannot flash on boot.
+    if (localStorage.getItem(STORAGE_KEY) === 'classic') localStorage.removeItem(STORAGE_KEY);
+  } catch { /* storage unavailable */ }
+  return 'minimal';
 }

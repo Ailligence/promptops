@@ -238,7 +238,7 @@ import { TooltipDirective } from '../../../../common/tooltip.directive';
       background: var(--po-error-bg);
       color: var(--po-error);
       font-size: 0.8rem;
-      border-bottom: 1px solid rgba(248, 81, 73, 0.2);
+      border-bottom: 1px solid oklch(from var(--po-error) l c h / 20%);
     }
 
     /* ── Content ── */

@@ -270,8 +270,8 @@ type EditorModel = {
       display: flex; gap: 8px; align-items: flex-start;
       font-size: 11.5px; line-height: 1.4;
       padding: 8px 14px; margin: 10px 16px 0;
-      background: rgba(99,102,241,0.08);
-      border: 1px solid rgba(99,102,241,0.25);
+      background: oklch(from var(--po-accent) l c h / 8%);
+      border: 1px solid oklch(from var(--po-accent) l c h / 25%);
       border-radius: 6px;
     }
     .ssh-error-banner {
@@ -351,7 +351,7 @@ type EditorModel = {
     }
     .ssh-row input:focus, .ssh-row textarea:focus {
       outline: none; border-color: #6366f1;
-      box-shadow: 0 0 0 2px rgba(99,102,241,0.15);
+      box-shadow: 0 0 0 2px oklch(from var(--po-accent) l c h / 15%);
     }
     .ssh-row textarea {
       font-family: ui-monospace, Menlo, monospace; font-size: 11.5px;

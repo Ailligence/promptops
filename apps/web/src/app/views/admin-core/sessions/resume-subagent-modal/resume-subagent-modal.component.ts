@@ -170,15 +170,15 @@ import { SubAgentService, ArchivedSubAgentEntry, MODE_PRESETS } from '../service
     }
     .scope-tab:hover { background: rgba(99, 102, 241, 0.04); border-color: rgba(99, 102, 241, 0.15); color: #818cf8; }
     .scope-tab.active {
-      background: rgba(99, 102, 241, 0.08);
-      border-color: rgba(99, 102, 241, 0.3);
-      color: #818cf8;
+      background: oklch(from var(--po-accent) l c h / 8%);
+      border-color: oklch(from var(--po-accent) l c h / 30%);
+      color: var(--po-accent-text);
     }
     .scope-count {
       font-size: 0.6rem;
       font-weight: 700;
-      background: rgba(99, 102, 241, 0.15);
-      color: #818cf8;
+      background: oklch(from var(--po-accent) l c h / 15%);
+      color: var(--po-accent-text);
       padding: 0 5px;
       border-radius: 999px;
     }
@@ -235,12 +235,12 @@ import { SubAgentService, ArchivedSubAgentEntry, MODE_PRESETS } from '../service
       transition: all var(--po-duration-fast);
     }
     .archived-card:hover {
-      background: rgba(99, 102, 241, 0.04);
-      border-color: rgba(99, 102, 241, 0.15);
+      background: oklch(from var(--po-accent) l c h / 4%);
+      border-color: oklch(from var(--po-accent) l c h / 15%);
     }
     .archived-card.selected {
-      background: rgba(99, 102, 241, 0.08);
-      border-color: rgba(99, 102, 241, 0.35);
+      background: oklch(from var(--po-accent) l c h / 8%);
+      border-color: oklch(from var(--po-accent) l c h / 35%);
     }
     :host-context([data-bs-theme="dark"]) .archived-card:hover { background: rgba(99, 102, 241, 0.06); }
     :host-context([data-bs-theme="dark"]) .archived-card.selected { background: rgba(99, 102, 241, 0.1); }
@@ -312,11 +312,11 @@ import { SubAgentService, ArchivedSubAgentEntry, MODE_PRESETS } from '../service
       letter-spacing: 0.03em;
     }
     .resume-badge.can-resume {
-      background: rgba(63, 185, 80, 0.12);
+      background: oklch(from var(--po-success) l c h / 12%);
       color: var(--po-success);
     }
     .resume-badge.re-spawn {
-      background: rgba(210, 153, 34, 0.12);
+      background: oklch(from var(--po-warning) l c h / 12%);
       color: var(--po-warning);
     }
 

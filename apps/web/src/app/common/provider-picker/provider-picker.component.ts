@@ -133,8 +133,8 @@ interface ProviderGroup {
       min-width: 0;
     }
     .provider-group[data-tier="cloud"] {
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.04), rgba(168, 85, 247, 0.03));
-      border-color: rgba(99, 102, 241, 0.18);
+      background: linear-gradient(135deg, oklch(from var(--po-accent) l c h / 4%), oklch(from var(--po-accent) l c h / 3%));
+      border-color: oklch(from var(--po-accent) l c h / 18%);
     }
     .provider-group[data-tier="local"] {
       background: linear-gradient(135deg, rgba(16, 185, 129, 0.04), rgba(52, 211, 153, 0.03));
@@ -160,7 +160,7 @@ interface ProviderGroup {
       flex-shrink: 0;
     }
     .group-icon[data-tier="cloud"] {
-      background: linear-gradient(135deg, #6366f1, #a855f7);
+      background: linear-gradient(135deg, var(--po-accent), #a855f7);
     }
     .group-icon[data-tier="local"] {
       background: linear-gradient(135deg, #10b981, #34d399);
@@ -195,7 +195,7 @@ interface ProviderGroup {
       background: linear-gradient(135deg, #10b981, #34d399);
     }
     .badge-pro {
-      background: linear-gradient(135deg, #6366f1, #a855f7);
+      background: linear-gradient(135deg, var(--po-accent), #a855f7);
     }
 
     .provider-tiles {
@@ -222,21 +222,21 @@ interface ProviderGroup {
     }
 
     .provider-tile:hover:not([disabled]) {
-      border-color: rgba(99, 102, 241, 0.45);
+      border-color: oklch(from var(--po-accent) l c h / 45%);
       background: var(--bs-body-bg, #fff);
     }
 
     .provider-tile.is-selected {
-      border-color: #6366f1;
-      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.18);
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(168, 85, 247, 0.08));
+      border-color: var(--po-accent);
+      box-shadow: 0 0 0 2px oklch(from var(--po-accent) l c h / 18%);
+      background: linear-gradient(135deg, oklch(from var(--po-accent) l c h / 8%), oklch(from var(--po-accent) l c h / 8%));
     }
 
     .provider-tile.is-unavailable { opacity: .7; }
     .provider-tile[disabled] { cursor: not-allowed; opacity: .5; }
 
     .tile-check-inline {
-      color: #6366f1;
+      color: var(--po-accent);
       font-size: 14px;
       flex-shrink: 0;
       margin-inline-start: auto;
@@ -284,8 +284,8 @@ interface ProviderGroup {
       gap: 8px;
       padding: 8px 12px;
       border-radius: 10px;
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(168, 85, 247, 0.08));
-      border: 1px solid rgba(99, 102, 241, 0.18);
+      background: linear-gradient(135deg, oklch(from var(--po-accent) l c h / 8%), oklch(from var(--po-accent) l c h / 8%));
+      border: 1px solid oklch(from var(--po-accent) l c h / 18%);
       color: var(--bs-body-color, #1f2937);
       font-size: 12.5px;
       line-height: 1.4;
@@ -295,7 +295,7 @@ interface ProviderGroup {
       border-color: rgba(16, 185, 129, 0.22);
     }
     .provider-microcopy i {
-      color: #6366f1;
+      color: var(--po-accent);
       font-size: 14px;
       flex-shrink: 0;
     }

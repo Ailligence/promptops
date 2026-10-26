@@ -43,7 +43,7 @@ import { DeviceWorkspaceStatus } from '@/store/sessions/session.state';
       font-size: 0.7rem;
       padding: 1px 8px;
       border-radius: 4px;
-      background: rgba(99, 102, 241, 0.12);
+      background: oklch(from var(--po-accent) l c h / 12%);
       color: var(--po-accent);
     }
 
@@ -60,13 +60,13 @@ import { DeviceWorkspaceStatus } from '@/store/sessions/session.state';
     .alert-banner.warning {
       background: var(--po-warning-bg);
       color: var(--po-warning);
-      border: 1px solid rgba(210, 153, 34, 0.2);
+      border: 1px solid oklch(from var(--po-warning) l c h / 20%);
     }
 
     .alert-banner.error {
       background: var(--po-error-bg);
       color: var(--po-error);
-      border: 1px solid rgba(248, 81, 73, 0.2);
+      border: 1px solid oklch(from var(--po-error) l c h / 20%);
     }
 
     .selected-path {
@@ -75,7 +75,7 @@ import { DeviceWorkspaceStatus } from '@/store/sessions/session.state';
       gap: 0.5rem;
       padding: 0.5rem 0.75rem;
       background: var(--po-success-bg);
-      border: 1px solid rgba(63, 185, 80, 0.2);
+      border: 1px solid oklch(from var(--po-success) l c h / 20%);
       border-radius: 0.5rem;
       margin-bottom: 1rem;
       color: var(--po-success);
@@ -121,8 +121,8 @@ import { DeviceWorkspaceStatus } from '@/store/sessions/session.state';
     }
 
     .action-card:hover:not(:disabled) {
-      background: rgba(99, 102, 241, 0.06);
-      border-color: rgba(99, 102, 241, 0.2);
+      background: oklch(from var(--po-accent) l c h / 6%);
+      border-color: oklch(from var(--po-accent) l c h / 20%);
     }
 
     .action-card:disabled {
@@ -155,7 +155,7 @@ import { DeviceWorkspaceStatus } from '@/store/sessions/session.state';
 
     .clone-form {
       background: var(--po-bg-2);
-      border: 1px solid rgba(99, 102, 241, 0.2);
+      border: 1px solid oklch(from var(--po-accent) l c h / 20%);
       border-radius: 0.5rem;
       padding: 0.85rem 1rem;
     }
@@ -217,7 +217,7 @@ import { DeviceWorkspaceStatus } from '@/store/sessions/session.state';
     }
 
     .clone-field input:focus {
-      border-color: rgba(99, 102, 241, 0.4);
+      border-color: oklch(from var(--po-accent) l c h / 40%);
     }
 
     .clone-field input::placeholder {
@@ -252,8 +252,8 @@ import { DeviceWorkspaceStatus } from '@/store/sessions/session.state';
 
     .btn-browse {
       padding: 0.4rem 0.7rem;
-      background: rgba(99, 102, 241, 0.1);
-      border: 1px solid rgba(99, 102, 241, 0.2);
+      background: oklch(from var(--po-accent) l c h / 10%);
+      border: 1px solid oklch(from var(--po-accent) l c h / 20%);
       border-radius: 0.35rem;
       color: var(--po-accent);
       font-size: 0.75rem;
@@ -264,7 +264,7 @@ import { DeviceWorkspaceStatus } from '@/store/sessions/session.state';
     }
 
     .btn-browse:hover {
-      background: rgba(99, 102, 241, 0.18);
+      background: oklch(from var(--po-accent) l c h / 18%);
     }
 
     .clone-progress {

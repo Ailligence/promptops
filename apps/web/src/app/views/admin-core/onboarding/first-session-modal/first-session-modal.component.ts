@@ -87,7 +87,7 @@ export type FirstSessionChoice = 'local' | 'cloud' | 'later';
       font-size: 22px;
       font-weight: 700;
       margin: 0 0 4px;
-      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      background: linear-gradient(135deg, var(--po-accent) 0%, #a855f7 100%);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -129,7 +129,7 @@ export type FirstSessionChoice = 'local' | 'cloud' | 'later';
 
     .fsm-option:hover:not([disabled]) {
       transform: translateY(-2px);
-      box-shadow: 0 10px 22px -10px rgba(99, 102, 241, 0.35);
+      box-shadow: 0 10px 22px -10px oklch(from var(--po-accent) l c h / 35%);
     }
 
     .fsm-option[data-accent="emerald"]:hover:not([disabled]) {
@@ -138,7 +138,7 @@ export type FirstSessionChoice = 'local' | 'cloud' | 'later';
     }
 
     .fsm-option[data-accent="indigo"]:hover:not([disabled]) {
-      border-color: rgba(99, 102, 241, 0.5);
+      border-color: oklch(from var(--po-accent) l c h / 50%);
     }
 
     .fsm-option[disabled] { opacity: .5; cursor: not-allowed; }
@@ -166,7 +166,7 @@ export type FirstSessionChoice = 'local' | 'cloud' | 'later';
       justify-content: center;
       color: #fff;
       font-size: 20px;
-      box-shadow: 0 6px 14px -6px rgba(99, 102, 241, 0.55);
+      box-shadow: 0 6px 14px -6px oklch(from var(--po-accent) l c h / 55%);
       margin-bottom: 6px;
     }
     .fsm-option[data-accent="emerald"] .opt-icon {
@@ -174,7 +174,7 @@ export type FirstSessionChoice = 'local' | 'cloud' | 'later';
       box-shadow: 0 6px 14px -6px rgba(16, 185, 129, 0.55);
     }
     .fsm-option[data-accent="indigo"] .opt-icon {
-      background: linear-gradient(135deg, #6366f1, #818cf8);
+      background: linear-gradient(135deg, var(--po-accent), var(--po-accent-text));
     }
 
     .opt-title { font-size: 16px; font-weight: 600; margin: 0; }
@@ -197,8 +197,8 @@ export type FirstSessionChoice = 'local' | 'cloud' | 'later';
       cursor: pointer;
     }
     .fsm-skip:hover:not(:disabled) {
-      color: #6366f1;
-      background: rgba(99, 102, 241, 0.08);
+      color: var(--po-accent);
+      background: oklch(from var(--po-accent) l c h / 8%);
     }
     .fsm-skip:disabled { opacity: .5; cursor: not-allowed; }
   `],

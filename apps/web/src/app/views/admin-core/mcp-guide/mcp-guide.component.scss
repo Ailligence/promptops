@@ -7,7 +7,7 @@
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: linear-gradient(135deg, var(--po-accent), var(--po-accent));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -70,8 +70,8 @@
       width: 1.6rem;
       height: 1.6rem;
       border-radius: 50%;
-      background: rgba(99, 102, 241, 0.12);
-      color: #6366f1;
+      background: oklch(from var(--po-accent) l c h / 12%);
+      color: var(--po-accent);
       font-weight: 700;
       font-size: 0.8rem;
       display: flex;
@@ -130,8 +130,8 @@
     width: 30px;
     height: 30px;
     border-radius: 8px;
-    background: rgba(99, 102, 241, 0.1);
-    color: #6366f1;
+    background: oklch(from var(--po-accent) l c h / 10%);
+    color: var(--po-accent);
     display: flex;
     align-items: center;
     justify-content: center;

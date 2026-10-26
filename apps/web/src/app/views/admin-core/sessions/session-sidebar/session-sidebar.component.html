@@ -224,6 +224,7 @@
             [appTooltip]="sa.userPrompt || sa.autoPrompt || (sa.title || sa.role)"
             (click)="onSubAgentClick(sa)">
             <div class="sub-agent-connector"></div>
+            <span [class]="'po-lamp po-lamp--' + lampState(sa)" role="img" [attr.aria-label]="'SESSIONS.Status ' + sa.status | translate"></span>
             <img [src]="getProviderLogo(sa.provider)" width="12" height="12" alt="" class="provider-logo" [appTooltip]="getProviderLabel(sa.provider)" />
             <span class="sub-agent-title">{{ sa.title || sa.role }}</span>
             @if (ecoService.enabled() && sa.sessionId && ecoService.isActiveForSession(sa.sessionId)) {
@@ -237,12 +238,9 @@
               </span>
             }
             @if (sa.status === 'waiting_input') {
-              <span class="attention-dot"></span>
               @if (minimal() && subAgentWaitingFor(sa); as wf) {
                 <span class="attention-timer" [appTooltip]="'SESSIONS.ATTENTION.Waiting tooltip' | translate: { time: wf }">{{ wf }}</span>
               }
-            } @else {
-              <span class="status-dot small" [class]="'status-' + sa.status"></span>
             }
           </div>
         }
@@ -271,20 +269,9 @@
               <iconify-icon icon="solar:moon-sleep-bold-duotone" width="13"></iconify-icon>
             </span>
           } @else if (session.status === 'waiting_input') {
-            <span class="attention-dot"></span>
             @if (minimal() && waitingFor(session.id); as wf) {
               <span class="attention-timer" [appTooltip]="'SESSIONS.ATTENTION.Waiting tooltip' | translate: { time: wf }">{{ wf }}</span>
             }
-          } @else if (minimal()) {
-            <!-- Different shape per status + accessible name: readable even
-                 without telling colors apart (UX audit 10/2026, P1). -->
-            <span class="status-glyph" [class]="'status-glyph status-' + session.status" role="img"
-                  [attr.aria-label]="'SESSIONS.Status ' + session.status | translate"
-                  [appTooltip]="'SESSIONS.Status ' + session.status | translate">
-              <iconify-icon [icon]="statusIcon(session.status)" width="11"></iconify-icon>
-            </span>
-          } @else {
-            <span class="status-dot" [class]="'status-' + session.status"></span>
           }
           @if (session.pendingInteractionCount > 0 && session.id !== activeSessionId()) {
             <span class="pending-badge">{{ session.pendingInteractionCount }}</span>
@@ -318,7 +305,7 @@
                 width="12"
                 (click)="$event.stopPropagation(); toggleWorkspace(group.workspace.id)"
               ></iconify-icon>
-              <iconify-icon class="workspace-icon" icon="solar:folder-bold-duotone" width="16"></iconify-icon>
+              <span [class]="'po-lamp session-lamp po-lamp--' + lampState(solo)" role="img" [attr.aria-label]="'SESSIONS.Status ' + solo.status | translate"></span>
               <span class="workspace-name">{{ group.workspace.name }}</span>
               <ng-container *ngTemplateOutlet="sessionMetaTpl; context: { session: solo }"></ng-container>
             </div>
@@ -344,7 +331,6 @@
               [icon]="isWorkspaceExpanded(group.workspace.id) ? 'solar:alt-arrow-down-bold' : 'solar:alt-arrow-right-bold'"
               width="12"
             ></iconify-icon>
-            <iconify-icon class="workspace-icon" icon="solar:folder-bold-duotone" width="16"></iconify-icon>
             <span class="workspace-name">{{ group.workspace.name }}</span>
             @if (minimal() && groupAttention(group); as ga) {
               <span class="attention-badge" [appTooltip]="attentionTooltip(ga)">
@@ -367,36 +353,7 @@
                   (click)="onSessionClick(session)"
                   (contextmenu)="onSessionContext($event, session)"
                 >
-                  <div class="session-icon">
-                    @if (session.standbyAt) {
-                      <!-- Parked: sleeping "zzz" replaces the provider icon -->
-                      <iconify-icon icon="mdi:sleep" width="16"></iconify-icon>
-                    } @else {
-                      @switch (session.provider) {
-                        @case ('claude-code-cli') {
-                          <iconify-icon icon="solar:magic-stick-3-bold-duotone" width="16"></iconify-icon>
-                        }
-                        @case ('codex') {
-                          <iconify-icon icon="solar:code-square-bold-duotone" width="16"></iconify-icon>
-                        }
-                        @case ('gemini-cli') {
-                          <iconify-icon icon="solar:star-bold-duotone" width="16"></iconify-icon>
-                        }
-                        @case ('antigravity') {
-                          <iconify-icon icon="solar:rocket-2-bold-duotone" width="16"></iconify-icon>
-                        }
-                        @case ('copilot') {
-                          <iconify-icon icon="solar:ghost-bold-duotone" width="16"></iconify-icon>
-                        }
-                        @case ('cursor') {
-                          <iconify-icon icon="solar:cursor-bold-duotone" width="16"></iconify-icon>
-                        }
-                        @default {
-                          <iconify-icon icon="solar:monitor-bold" width="16"></iconify-icon>
-                        }
-                      }
-                    }
-                  </div>
+                  <span [class]="'po-lamp session-lamp po-lamp--' + lampState(session)" role="img" [attr.aria-label]="'SESSIONS.Status ' + session.status | translate"></span>
                   @if (getDeviceStatus(session); as dws) {
                     <span class="device-status-icon" [class]="'device-' + dws" [appTooltip]="getDeviceStatusTooltip(dws)">
                       <iconify-icon [icon]="getDeviceStatusIcon(dws)" width="13"></iconify-icon>
@@ -429,36 +386,7 @@
           (click)="onSessionClick(session)"
           (contextmenu)="onSessionContext($event, session)"
         >
-          <div class="session-icon">
-            @if (session.standbyAt) {
-              <!-- Parked: sleeping "zzz" replaces the provider icon -->
-              <iconify-icon icon="mdi:sleep" width="18"></iconify-icon>
-            } @else {
-              @switch (session.provider) {
-                @case ('claude-code-cli') {
-                  <iconify-icon icon="solar:magic-stick-3-bold-duotone" width="18"></iconify-icon>
-                }
-                @case ('codex') {
-                  <iconify-icon icon="solar:code-square-bold-duotone" width="18"></iconify-icon>
-                }
-                @case ('gemini-cli') {
-                  <iconify-icon icon="solar:star-bold-duotone" width="18"></iconify-icon>
-                }
-                @case ('antigravity') {
-                  <iconify-icon icon="solar:rocket-2-bold-duotone" width="18"></iconify-icon>
-                }
-                @case ('copilot') {
-                  <iconify-icon icon="solar:ghost-bold-duotone" width="18"></iconify-icon>
-                }
-                @case ('cursor') {
-                  <iconify-icon icon="solar:cursor-bold-duotone" width="18"></iconify-icon>
-                }
-                @default {
-                  <iconify-icon icon="solar:monitor-bold" width="18"></iconify-icon>
-                }
-              }
-            }
-          </div>
+          <span [class]="'po-lamp session-lamp po-lamp--' + lampState(session)" role="img" [attr.aria-label]="'SESSIONS.Status ' + session.status | translate"></span>
           @if (getDeviceStatus(session); as dws) {
             <span class="device-status-icon" [class]="'device-' + dws" [appTooltip]="getDeviceStatusTooltip(dws)">
               <iconify-icon [icon]="getDeviceStatusIcon(dws)" width="13"></iconify-icon>
@@ -491,18 +419,9 @@
                 <iconify-icon icon="solar:moon-sleep-bold-duotone" width="13"></iconify-icon>
               </span>
             } @else if (session.status === 'waiting_input') {
-              <span class="attention-dot"></span>
               @if (minimal() && waitingFor(session.id); as wf) {
                 <span class="attention-timer" [appTooltip]="'SESSIONS.ATTENTION.Waiting tooltip' | translate: { time: wf }">{{ wf }}</span>
               }
-            } @else if (minimal()) {
-              <span class="status-glyph" [class]="'status-glyph status-' + session.status" role="img"
-                    [attr.aria-label]="'SESSIONS.Status ' + session.status | translate"
-                    [appTooltip]="'SESSIONS.Status ' + session.status | translate">
-                <iconify-icon [icon]="statusIcon(session.status)" width="11"></iconify-icon>
-              </span>
-            } @else {
-              <span class="status-dot" [class]="'status-' + session.status"></span>
             }
             @if (session.pendingInteractionCount > 0 && session.id !== activeSessionId()) {
               <span class="pending-badge">{{ session.pendingInteractionCount }}</span>
@@ -518,6 +437,7 @@
             [appTooltip]="sa.userPrompt || sa.autoPrompt || (sa.title || sa.role)"
             (click)="onSubAgentClick(sa)">
             <div class="sub-agent-connector"></div>
+            <span [class]="'po-lamp po-lamp--' + lampState(sa)" role="img" [attr.aria-label]="'SESSIONS.Status ' + sa.status | translate"></span>
             <img [src]="getProviderLogo(sa.provider)" width="12" height="12" alt="" class="provider-logo" [appTooltip]="getProviderLabel(sa.provider)" />
             <span class="sub-agent-title">{{ sa.title || sa.role }}</span>
             @if (ecoService.enabled() && sa.sessionId && ecoService.isActiveForSession(sa.sessionId)) {
@@ -531,12 +451,9 @@
               </span>
             }
             @if (sa.status === 'waiting_input') {
-              <span class="attention-dot"></span>
               @if (minimal() && subAgentWaitingFor(sa); as wf) {
                 <span class="attention-timer" [appTooltip]="'SESSIONS.ATTENTION.Waiting tooltip' | translate: { time: wf }">{{ wf }}</span>
               }
-            } @else {
-              <span class="status-dot small" [class]="'status-' + sa.status"></span>
             }
           </div>
         }

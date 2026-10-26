@@ -330,8 +330,8 @@ type Dialog = "export" | "import" | null;
       font-size: 0.8rem;
     }
     .br-choice.active {
-      border-color: var(--promptops-primary, #6366f1);
-      background: rgba(99, 102, 241, 0.06);
+      border-color: var(--promptops-primary, var(--po-accent));
+      background: oklch(from var(--po-accent) l c h / 6%);
     }
     .br-choice input { margin-top: 0.2rem; accent-color: var(--promptops-primary, #6366f1); }
     .br-choice > span { display: flex; flex-direction: column; gap: 0.1rem; }

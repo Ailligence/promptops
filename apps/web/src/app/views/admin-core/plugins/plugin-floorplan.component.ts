@@ -233,7 +233,7 @@ interface Hover { desk: FloorDesk; room: string; x: number; y: number }
     /* ── 3D ── */
     .fp-stage { position: relative; height: clamp(420px, 68vh, 760px); overflow: hidden; border-radius: 12px; cursor: grab; touch-action: none; user-select: none;
       perspective: 2600px; perspective-origin: 50% 50%; outline: none;
-      background: radial-gradient(ellipse at 50% 40%, rgba(99,102,241,.10), transparent 65%), var(--promptops-card-bg, rgba(127,127,127,.04));
+      background: radial-gradient(ellipse at 50% 40%, oklch(from var(--po-accent) l c h / 10%), transparent 65%), var(--promptops-card-bg, rgba(127,127,127,.04));
       border: 1px solid var(--promptops-border-color, rgba(127,127,127,.25)); }
     .fp-stage.fill { height: auto; flex: 1; min-height: 260px; }
     .fp-stage:focus-visible { box-shadow: 0 0 0 2px var(--promptops-primary, #6366f1); }

@@ -157,7 +157,7 @@ interface TooltipPosition {
     .tutorial-spotlight {
       position: fixed;
       border-radius: 8px;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.6), 0 0 20px 4px rgba(99, 102, 241, 0.25);
+      box-shadow: 0 0 0 3px oklch(from var(--po-accent) l c h / 60%), 0 0 20px 4px oklch(from var(--po-accent) l c h / 25%);
       pointer-events: none;
       transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 99991;
@@ -252,7 +252,7 @@ interface TooltipPosition {
       transition: background 0.2s, transform 0.2s;
     }
     .tutorial-dot.active {
-      background: #6366f1;
+      background: var(--po-accent);
       transform: scale(1.3);
     }
     .tutorial-dot:hover:not(.active) {
@@ -281,11 +281,11 @@ interface TooltipPosition {
     }
 
     .tutorial-btn-primary {
-      background: #6366f1;
+      background: var(--po-accent);
       color: #fff;
     }
     .tutorial-btn-primary:hover:not(:disabled) {
-      background: #4f46e5;
+      background: var(--po-accent);
     }
 
     .tutorial-btn-secondary {

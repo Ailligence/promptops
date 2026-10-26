@@ -219,8 +219,8 @@ import { PromptQueryService } from '../../prompt-library/services/prompt-query.s
     }
 
     .sub-agent-item {
-      background: rgba(99, 102, 241, 0.03);
-      border: 1px solid rgba(99, 102, 241, 0.12);
+      background: oklch(from var(--po-accent) l c h / 3%);
+      border: 1px solid oklch(from var(--po-accent) l c h / 12%);
       border-radius: 8px;
       padding: 0.5rem;
     }
@@ -232,7 +232,7 @@ import { PromptQueryService } from '../../prompt-library/services/prompt-query.s
       width: 22px;
       height: 22px;
       border-radius: 6px;
-      background: rgba(99, 102, 241, 0.12);
+      background: oklch(from var(--po-accent) l c h / 12%);
       color: var(--po-accent);
       font-size: 0.72rem;
       font-weight: 700;
@@ -252,7 +252,7 @@ import { PromptQueryService } from '../../prompt-library/services/prompt-query.s
       gap: 0.4rem;
       width: 100%;
       padding: 0.5rem;
-      border: 2px dashed rgba(99, 102, 241, 0.2);
+      border: 2px dashed oklch(from var(--po-accent) l c h / 20%);
       border-radius: 8px;
       background: transparent;
       color: var(--po-accent);
@@ -263,8 +263,8 @@ import { PromptQueryService } from '../../prompt-library/services/prompt-query.s
       transition: all 0.2s;
     }
     .btn-add-agent:hover {
-      border-color: rgba(99, 102, 241, 0.4);
-      background: rgba(99, 102, 241, 0.04);
+      border-color: oklch(from var(--po-accent) l c h / 40%);
+      background: oklch(from var(--po-accent) l c h / 4%);
       color: var(--po-accent);
       opacity: 1;
     }
@@ -285,7 +285,7 @@ import { PromptQueryService } from '../../prompt-library/services/prompt-query.s
       padding: 0.5rem 0.65rem;
       margin-top: 0.75rem;
       background: var(--po-error-bg);
-      border: 1px solid rgba(248, 81, 73, 0.3);
+      border: 1px solid oklch(from var(--po-error) l c h / 30%);
       border-radius: 6px;
       font-size: 0.8rem;
       color: var(--po-error);

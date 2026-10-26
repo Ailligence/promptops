@@ -206,7 +206,7 @@ export class SessionsGuideMockService {
       <div class="sg-mock-empty" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:24px;">
         <div style="font-size:38px;">📁</div>
         <div style="font-size:0.95rem; color:${muted}; text-align:center; max-width:320px;">${this.x('SESSIONS_GUIDE.mock.Empty')}</div>
-        <button class="sg-mock-new-workspace" style="display:inline-flex; align-items:center; gap:8px; padding:10px 18px; border:none; border-radius:10px; background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; font-weight:700; font-size:0.9rem; cursor:default; animation:sgPulseBtn 1.8s infinite;">
+        <button class="sg-mock-new-workspace" style="display:inline-flex; align-items:center; gap:8px; padding:10px 18px; border:none; border-radius:10px; background:linear-gradient(135deg,var(--po-accent),var(--po-accent)); color:#fff; font-weight:700; font-size:0.9rem; cursor:default; animation:sgPulseBtn 1.8s infinite;">
           <i class="ti ti-folder-plus"></i> ${this.x('SESSIONS.New workspace')}
         </button>
       </div>
@@ -215,7 +215,7 @@ export class SessionsGuideMockService {
       <div class="sg-mock-session" style="flex:1; display:none; flex-direction:column; min-height:0; overflow:hidden;">
         <!-- header -->
         <div style="display:flex; align-items:center; gap:10px; padding:8px 14px; border-bottom:1px solid ${border}; flex-shrink:0;">
-          <div style="width:26px; height:26px; border-radius:7px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff;"><i class="ti ti-wand"></i></div>
+          <div style="width:26px; height:26px; border-radius:7px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,var(--po-accent),var(--po-accent)); color:#fff;"><i class="ti ti-wand"></i></div>
           <span class="sg-mock-workspace" style="display:inline-flex; align-items:center; gap:5px; font-size:0.8rem; color:${muted};">
             <i class="ti ti-folder" style="font-size:14px;"></i> ~/projects/my-app
           </span>
@@ -227,12 +227,12 @@ export class SessionsGuideMockService {
         <div style="flex:1; display:flex; min-height:0; overflow:hidden;">
           <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
             <!-- main session terminal -->
-            <div class="sg-mock-main" style="flex:1; min-height:0; background:#0d1117; margin:8px; border-radius:8px; padding:14px; font-family:'Fira Code',monospace; font-size:0.78rem; line-height:1.7; color:#c9d1d9; overflow:auto;">
-              <div style="color:#6366f1; font-weight:600;">$ claude</div>
+            <div class="sg-mock-main" style="flex:1; min-height:0; background:var(--po-terminal-bg); margin:8px; border-radius:8px; padding:14px; font-family:'Fira Code',monospace; font-size:0.78rem; line-height:1.7; color:#c9d1d9; overflow:auto;">
+              <div style="color:var(--po-accent); font-weight:600;">$ claude</div>
               <div style="color:#8b949e;">${this.x('SESSIONS_GUIDE.mock.Control room')}</div>
-              <div style="margin-top:10px; color:#58a6ff;">&gt; ${this.x('SESSIONS_GUIDE.mock.User line')}</div>
+              <div style="margin-top:10px; color:var(--po-info);">&gt; ${this.x('SESSIONS_GUIDE.mock.User line')}</div>
               <div style="margin-top:6px;">${this.x('SESSIONS_GUIDE.mock.Assistant line')}</div>
-              <div style="margin-top:10px; color:#58a6ff;">&gt; <span style="display:inline-block; width:7px; height:15px; background:#58a6ff; animation:sgBlink 1s step-end infinite;"></span></div>
+              <div style="margin-top:10px; color:var(--po-info);">&gt; <span style="display:inline-block; width:7px; height:15px; background:var(--po-info); animation:sgBlink 1s step-end infinite;"></span></div>
             </div>
 
             <!-- sub-agents: 3 terminal columns -->
@@ -251,7 +251,7 @@ export class SessionsGuideMockService {
             <div class="sg-mock-composer" style="border:1px solid ${border}; border-radius:10px; padding:8px; background:var(--bs-body-bg);">
               <textarea class="sg-mock-input" rows="3" readonly placeholder="${this.x('SESSIONS_GUIDE.mock.Placeholder')}" style="width:100%; border:none; outline:none; resize:none; background:transparent; color:var(--bs-body-color); font-size:0.8rem; font-family:inherit;"></textarea>
               <div style="display:flex; justify-content:flex-end; margin-top:6px;">
-                <button class="sg-mock-spawn" style="display:inline-flex; align-items:center; gap:5px; padding:6px 12px; border:none; border-radius:8px; background:#6366f1; color:#fff; font-weight:600; font-size:0.78rem; cursor:default;">
+                <button class="sg-mock-spawn" style="display:inline-flex; align-items:center; gap:5px; padding:6px 12px; border:none; border-radius:8px; background:var(--po-accent); color:#fff; font-weight:600; font-size:0.78rem; cursor:default;">
                   <i class="ti ti-player-play" style="font-size:13px;"></i> ${this.x('SESSIONS.Spawn')}
                 </button>
               </div>
@@ -269,7 +269,7 @@ export class SessionsGuideMockService {
           <span style="display:inline-flex; align-items:center; gap:5px; color:${color};"><i class="ti ti-cpu" style="font-size:12px;"></i> ${escapeHtml(name)}</span>
           <span style="font-size:0.62rem; color:#22c55e;">● ${this.x('SESSIONS_GUIDE.mock.Running')}</span>
         </div>
-        <div class="sg-col-body" style="flex:1; background:#0d1117; padding:7px 9px; font-family:'Fira Code',monospace; font-size:0.66rem; line-height:1.55; color:#8b949e; overflow:hidden;"></div>
+        <div class="sg-col-body" style="flex:1; background:var(--po-terminal-bg); padding:7px 9px; font-family:'Fira Code',monospace; font-size:0.66rem; line-height:1.55; color:#8b949e; overflow:hidden;"></div>
       </div>
     `;
   }

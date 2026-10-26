@@ -268,18 +268,22 @@
     <div class="sessions-layout">
       <!-- Sidebar (absent in a session's dedicated window) -->
       @if (!dedicatedSessionId) {
+      @if (canvas.sessionsSheetOpen()) {
+        <div class="canvas-sheet-scrim" (click)="canvas.toggleSessionsSheet(false)"></div>
+      }
       <app-session-sidebar
+        [class.canvas-sheet-open]="canvas.sessionsSheetOpen()"
         [sessions]="sessions()"
         [workspaces]="workspaces()"
         [activeSessionId]="activeSessionId()"
-        [collapsed]="sidebarCollapsed()"
+        [collapsed]="false"
         [class.no-transition]="sidebarResizing()"
-        [style.width]="sidebarCollapsed() ? '48px' : sidebarWidth() + 'px'"
-        (selectSession)="selectSession($event)"
+        [style.width]="sidebarWidth() + 'px'"
+        (selectSession)="canvas.toggleSessionsSheet(false); selectSession($event)"
         (selectSubAgent)="onSidebarSelectSubAgent($event)"
-        (onCreateSession)="openCreateModal()"
+        (onCreateSession)="canvas.toggleSessionsSheet(false); openCreateModal()"
         (onPromoteSession)="openPromoteSessionModal($event)"
-        (toggleCollapse)="toggleSessionsSidebar()"
+        (toggleCollapse)="canvas.toggleSessionsSheet(false)"
         (onEditSession)="sidebarEditSession($event)"
         (onDestroySession)="sidebarDestroySession($event)"
         (onEditWorkspace)="sidebarEditWorkspace($event)"
@@ -407,6 +411,13 @@
             </div>
           </ng-template>
 
+          <!-- Stop board: sessions whose lamp is red, one click away. -->
+          <app-needs-you-strip
+            [sessions]="sessions()"
+            [activeSessionId]="activeSessionId()"
+            (select)="selectSession($event)"
+          ></app-needs-you-strip>
+
           <!-- Session Header (includes tab bar) -->
           <app-session-header
             [session]="session"
@@ -437,6 +448,9 @@
             (onAddNote)="openAddNoteModal(session.id)"
             (onProjectBrief)="openProjectBriefModal(session.id)"
             (onDevLinks)="openDevLinksModal(session.id)"
+            [agentsOpen]="!actionCenterCollapsed()"
+            (onToggleAgents)="setActionCenterCollapsed(!actionCenterCollapsed())"
+            (onOpenPalette)="canvas.togglePalette(true)"
           >
             <ng-container ngProjectAs="[poHeaderBar]">
               @if (saBarInHeader()) {
@@ -1300,6 +1314,7 @@
 
                 <!-- Session Assets Panel -->
                 <app-session-assets-panel
+                  [class.canvas-hidden]="!assetsShown()"
                   [workspacePath]="$safeNavigationMigration(session.workspace?.path)"
                   [sessionId]="session.id"
                   [sessionProvider]="session.provider"
@@ -1688,6 +1703,12 @@
 
   <!-- ═══ SESSIONS FIRST-RUN GUIDE (dedicated, separate from global tutorial) ═══ -->
   <app-sessions-guide-overlay />
+
+  <app-command-palette
+    [open]="canvas.paletteOpen()"
+    [commands]="paletteCommands()"
+    (closed)="canvas.togglePalette(false)"
+  ></app-command-palette>
 
   <!-- ═══ TAILER RESPONSE PREVIEW MODAL ═══ -->
   @if (interactionService.tailerResponse(); as tr) {

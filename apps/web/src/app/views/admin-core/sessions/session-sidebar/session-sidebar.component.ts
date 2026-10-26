@@ -648,17 +648,6 @@ const NO_SUB_AGENTS: SubAgent[] = [];
       flex-shrink: 0;
     }
     .attention-badge .attention-dot { width: 5px; height: 5px; box-shadow: none; }
-    .session-item.needs-attention .session-name,
-    .workspace-header.needs-attention .workspace-name,
-    .folder-header.needs-attention .folder-name {
-      color: var(--po-warning);
-    }
-    .workspace-header.needs-attention .workspace-icon {
-      color: var(--po-warning);
-    }
-    .session-item.needs-attention:not(.active) {
-      box-shadow: inset 2px 0 0 var(--po-warning);
-    }
 
     /* ── Device workspace status (icon-based, distinct from session status dot) ── */
     .device-status-icon {
@@ -689,7 +678,7 @@ const NO_SUB_AGENTS: SubAgent[] = [];
       background: rgba(255, 255, 255, 0.04);
     }
     .sub-agent-item.active {
-      background: linear-gradient(90deg, rgba(99, 102, 241, 0.18), rgba(168, 85, 247, 0.12));
+      background: linear-gradient(90deg, oklch(from var(--po-accent) l c h / 18%), oklch(from var(--po-accent) l c h / 12%));
       color: var(--po-text-primary);
     }
 
@@ -974,7 +963,7 @@ const NO_SUB_AGENTS: SubAgent[] = [];
       justify-content: center;
       flex-shrink: 0;
       color: var(--po-error);
-      filter: drop-shadow(0 0 3px rgba(248, 81, 73, 0.55));
+      filter: drop-shadow(0 0 3px oklch(from var(--po-error) l c h / 55%));
       animation: aa-indicator-pulse 1.6s ease-in-out infinite;
     }
     .aa-indicator.small {
@@ -984,11 +973,11 @@ const NO_SUB_AGENTS: SubAgent[] = [];
     @keyframes aa-indicator-pulse {
       0%, 100% {
         opacity: 1;
-        filter: drop-shadow(0 0 3px rgba(248, 81, 73, 0.55));
+        filter: drop-shadow(0 0 3px oklch(from var(--po-error) l c h / 55%));
       }
       50% {
         opacity: 0.72;
-        filter: drop-shadow(0 0 6px rgba(248, 81, 73, 0.85));
+        filter: drop-shadow(0 0 6px oklch(from var(--po-error) l c h / 85%));
       }
     }
 
@@ -999,17 +988,17 @@ const NO_SUB_AGENTS: SubAgent[] = [];
       justify-content: center;
       flex-shrink: 0;
       color: var(--po-success);
-      filter: drop-shadow(0 0 2px rgba(63, 185, 80, 0.4));
+      filter: drop-shadow(0 0 2px oklch(from var(--po-success) l c h / 40%));
     }
     .eco-indicator.small {
       font-size: 0;
     }
 
     .session-item.aa-on {
-      background: rgba(248, 81, 73, 0.06);
+      background: oklch(from var(--po-error) l c h / 6%);
     }
     .session-item.aa-on:hover {
-      background: rgba(248, 81, 73, 0.1);
+      background: oklch(from var(--po-error) l c h / 10%);
     }
     .session-item.active.aa-on {
       background: var(--po-error-bg);
@@ -1022,7 +1011,7 @@ const NO_SUB_AGENTS: SubAgent[] = [];
 
     .collapsed-session-icon.aa-on {
       color: var(--po-error);
-      border-left-color: rgba(248, 81, 73, 0.7);
+      border-left-color: oklch(from var(--po-error) l c h / 70%);
     }
     .collapsed-aa-dot {
       position: absolute;
@@ -1032,7 +1021,7 @@ const NO_SUB_AGENTS: SubAgent[] = [];
       height: 6px;
       border-radius: 50%;
       background: var(--po-error);
-      box-shadow: 0 0 5px rgba(248, 81, 73, 0.8);
+      box-shadow: 0 0 5px oklch(from var(--po-error) l c h / 80%);
       animation: aa-indicator-pulse 1.6s ease-in-out infinite;
     }
 
@@ -1278,15 +1267,20 @@ export class SessionSidebarComponent {
   private store = inject(Store);
   private translateService = inject(TranslateService);
 
-  /** Per-status glyph in minimal: a distinct shape on top of color. */
-  protected statusIcon(status: string): string {
-    switch (status) {
+  /**
+   * Signal aspect of a session or sub-agent lamp: working (green), idle
+   * (amber), blocked (red: waiting on you or failed) or off (exited/parked).
+   * Off is drawn hollow and blocked breathes, so state does not rest on hue alone.
+   */
+  protected lampState(item: { status: string; standbyAt?: string | null }): 'working' | 'idle' | 'blocked' | 'off' {
+    if (item.standbyAt) return 'off';
+    switch (item.status) {
       case 'running':
-      case 'in_progress': return 'solar:play-circle-bold';
-      case 'completed': return 'solar:check-circle-bold';
-      case 'error': return 'solar:danger-circle-bold';
-      case 'exited': return 'solar:stop-circle-bold';
-      default: return 'solar:pause-circle-linear';
+      case 'in_progress': return 'working';
+      case 'waiting_input':
+      case 'error': return 'blocked';
+      case 'exited': return 'off';
+      default: return 'idle';
     }
   }
 
@@ -1997,7 +1991,8 @@ export class SessionSidebarComponent {
       // Has a workspace path but no device_workspace record → not configured on this device
       return 'not_configured';
     }
-    return session.deviceWorkspace.status;
+    // A healthy workspace needs no mark: only problems earn space on the row.
+    return session.deviceWorkspace.status === 'configured' ? null : session.deviceWorkspace.status;
   }
 
   /** Handle click on a sub-agent: open its parent session with the pane focused. */

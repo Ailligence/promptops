@@ -1,5 +1,5 @@
 // Browser mode modal — full screen, 50% agent terminal / 50% Chrome mirror.
-$accent: #6366f1;
+$accent: var(--po-accent);
 
 :host { display: block; height: 100%; }
 
@@ -28,7 +28,7 @@ $accent: #6366f1;
 .bm-agent {
   padding: 0.1rem 0.5rem;
   border-radius: 999px;
-  background: rgba(99, 102, 241, 0.12);
+  background: oklch(from var(--po-accent) l c h / 12%);
   color: $accent;
   font-size: 0.8rem;
   max-width: 220px;
@@ -48,7 +48,7 @@ $accent: #6366f1;
   border: 1.5px solid var(--bs-border-color, #d1d5db);
   border-radius: 12px;
   background: var(--bs-body-bg, #fff);
-  &:focus-within { border-color: $accent; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18); }
+  &:focus-within { border-color: $accent; box-shadow: 0 0 0 3px oklch(from var(--po-accent) l c h / 18%); }
 }
 .bm-prompt-icon { color: $accent; }
 .bm-prompt-input {
@@ -103,7 +103,7 @@ $accent: #6366f1;
   border: 1px solid var(--bs-border-color, #d1d5db);
   border-radius: 12px;
   overflow: hidden;
-  background: #0d1117;
+  background: var(--po-terminal-bg);
 }
 .bm-pane-head {
   flex: 0 0 auto;

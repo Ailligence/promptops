@@ -28,6 +28,7 @@ $popover-header-color: null;
 
 // The minimal skin loads after Bootstrap so its density rules win.
 @import "minimal-ui";
+@import "signal-box";
 
 @import "shell/frame";
 @import "shell/topbar";

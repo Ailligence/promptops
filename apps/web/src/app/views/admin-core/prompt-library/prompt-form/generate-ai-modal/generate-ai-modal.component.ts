@@ -168,7 +168,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
       width: 40px;
       height: 40px;
       border-radius: 12px;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      background: linear-gradient(135deg, var(--po-accent), var(--po-accent));
       display: flex;
       align-items: center;
       justify-content: center;
@@ -225,14 +225,14 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
     }
 
     .provider-card:hover {
-      border-color: rgba(99, 102, 241, 0.3);
-      background: rgba(99, 102, 241, 0.03);
+      border-color: oklch(from var(--po-accent) l c h / 30%);
+      background: oklch(from var(--po-accent) l c h / 3%);
     }
 
     .provider-card.selected {
-      border-color: #6366f1;
-      background: rgba(99, 102, 241, 0.06);
-      color: #6366f1;
+      border-color: var(--po-accent);
+      background: oklch(from var(--po-accent) l c h / 6%);
+      color: var(--po-accent);
     }
 
     .provider-card i {

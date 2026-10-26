@@ -327,8 +327,8 @@ import {
     }
     .focus-chip:hover:not(:disabled) { border-color: rgba(99, 102, 241, 0.4); color: var(--po-text-primary); }
     .focus-chip.selected {
-      background: linear-gradient(135deg, rgba(99,102,241,0.18), rgba(139,92,246,0.18));
-      border-color: #6366f1;
+      background: linear-gradient(135deg, oklch(from var(--po-accent) l c h / 18%), oklch(from var(--po-accent) l c h / 18%));
+      border-color: var(--po-accent);
       color: var(--po-text-primary);
     }
     .focus-chip:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -455,7 +455,7 @@ import {
     }
     .btn-ghost:hover { border-color: var(--po-border-strong); color: var(--po-text-primary); }
     .btn-primary {
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      background: linear-gradient(135deg, var(--po-accent), var(--po-accent));
       color: #fff;
       border-color: transparent;
     }
@@ -473,7 +473,7 @@ import {
     .btn-stop {
       background: var(--po-error-bg);
       color: var(--po-error);
-      border-color: rgba(248, 81, 73, 0.4);
+      border-color: oklch(from var(--po-error) l c h / 40%);
     }
     .btn-stop:hover { background: rgba(248, 81, 73, 0.2); }
 

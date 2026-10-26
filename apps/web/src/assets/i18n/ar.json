@@ -1607,6 +1607,9 @@
       "Tailer detected": "ما تم اكتشافه",
       "Tailer response": "الرد",
       "Close": "إغلاق"
+    },
+    "NEEDS_YOU": {
+      "Title": "بانتظارك"
     }
   },
   "SUBAGENTS": {
@@ -4486,5 +4489,34 @@
     "Stage file": "تجهيز الملف",
     "Unstage folder": "إلغاء تجهيز المجلد بالكامل",
     "Unstage file": "إلغاء تجهيز الملف"
+  },
+  "PALETTE": {
+    "Placeholder": "انتقل إلى جلسة أو وكيل أو أداة أو صفحة…",
+    "Empty": "لا توجد نتائج",
+    "Hint": "↑↓ تنقّل · ↵ تنفيذ · esc إغلاق",
+    "Sessions": "الجلسات",
+    "Agents": "الوكلاء",
+    "Actions": "الإجراءات",
+    "Pages": "الصفحات",
+    "New session": "جلسة جديدة",
+    "All sessions": "عرض كل الجلسات",
+    "Spawn agent": "تشغيل وكيل",
+    "Git": "سجل Git",
+    "Database": "مستكشف قاعدة البيانات",
+    "Docker": "حاويات Docker",
+    "SSH": "اتصالات SSH",
+    "Terminal": "فتح طرفية",
+    "Links": "روابط التطوير",
+    "Quick note": "ملاحظة سريعة",
+    "Project brief": "موجز المشروع",
+    "Todo": "قائمة المهام",
+    "Assets": "موارد الجلسة",
+    "Focus mode": "وضع التركيز",
+    "Code editor": "تخطيط محرر الشيفرة",
+    "Standard layout": "التخطيط القياسي",
+    "Dedicated window": "فتح في نافذة مستقلة",
+    "New tab": "علامة تبويب جديدة",
+    "Commands": "الأوامر",
+    "Main agent": "الوكيل الرئيسي"
   }
 }

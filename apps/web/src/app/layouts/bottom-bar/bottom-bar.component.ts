@@ -28,6 +28,7 @@ import { KebabMenuComponent, KebabMenuItem } from '@/app/common/kebab-menu/kebab
 import { EscCloseDirective } from '@/app/common/esc-close.directive';
 import { ClaudeHookService } from '../../views/admin-core/sessions/services/claude-hook.service';
 import { GITHUB_ISSUES_URL, openExternal } from '@core/local-mode';
+import { SessionDockComponent } from '../../views/admin-core/sessions/session-dock/session-dock.component';
 
 /**
  * Script names, make targets and script files come from the workspace on disk, i.e.
@@ -66,7 +67,7 @@ const OPTIMIZATION_META: Record<string, { name: string; icon: string; descriptio
 @Component({
   selector: 'app-bottom-bar',
   standalone: true,
-  imports: [TranslateModule, RouterModule, NgbDropdownModule, VoiceAgentComponent, KebabMenuComponent, EscCloseDirective],
+  imports: [TranslateModule, RouterModule, NgbDropdownModule, VoiceAgentComponent, KebabMenuComponent, EscCloseDirective, SessionDockComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <div class="bottom-bar" [class.in-session]="inSession()">
@@ -81,6 +82,11 @@ const OPTIMIZATION_META: Record<string, { name: string; icon: string; descriptio
           <app-voice-agent #voiceLeft class="bb-voice bb-voice-left" [showGuideButton]="true" [bubbleAbove]="true"
                            [expandable]="true" (expand)="setVoiceDockExpanded(true)"></app-voice-agent>
         }
+      }
+
+      <!-- Session canvas: the dock of sessions owns the left of the bar. -->
+      @if (inSession()) {
+        <app-session-dock></app-session-dock>
       }
 
       <!-- Left group: horizontally scrollable on narrow screens (mobile-tabbar style) -->
@@ -173,51 +179,6 @@ const OPTIMIZATION_META: Record<string, { name: string; icon: string; descriptio
       <!-- Right cells that collapse into the ⋮ menu on narrow screens -->
       <div class="bb-right">
 
-      <!-- Minimal: mobile relocated here from the hidden header (mic moved to far left). -->
-      @if (uiStyle() === 'minimal') {
-        @if (isDesktop) {
-          <button class="bottom-bar-cell link bb-icon bb-mobile" (click)="openRemoteAccessModal()" [title]="'CLOUD.Locked tooltip' | translate">
-            <i class="ti ti-device-mobile"></i>
-            <span class="bb-mobile-label">{{ 'BOTTOM_BAR.Mobile' | translate }}</span>
-          </button>
-        }
-        @if (inSession()) {
-          <button class="bottom-bar-cell link bb-icon" type="button" (click)="openShortcutsModal()"
-                  [title]="'BOTTOM_BAR.Keyboard shortcuts' | translate" [attr.aria-label]="'BOTTOM_BAR.Keyboard shortcuts' | translate">
-            <i class="ti ti-keyboard"></i>
-          </button>
-        }
-      }
-
-      <!-- Interface switcher — always here (classic + minimal). -->
-      <div ngbDropdown placement="top-end" class="bb-ui-switch">
-        <button ngbDropdownToggle class="bottom-bar-cell link bb-icon" type="button" [attr.aria-label]="'BOTTOM_BAR.Interface style' | translate" [title]="'BOTTOM_BAR.Interface' | translate">
-          <i class="ti ti-layout-2"></i>
-          UI
-        </button>
-        <div ngbDropdownMenu class="dropdown-menu-end">
-          <button ngbDropdownItem type="button" (click)="setUiStyle('classic')">
-            <i class="ti ti-layout-navbar me-1"></i> {{ 'BOTTOM_BAR.Classic' | translate }}
-            @if (uiStyle() === 'classic') { <i class="ti ti-check ms-1"></i> }
-          </button>
-          <button ngbDropdownItem type="button" (click)="setUiStyle('minimal')">
-            <i class="ti ti-layout-sidebar-right-collapse me-1"></i> {{ 'BOTTOM_BAR.Minimal' | translate }}
-            @if (uiStyle() === 'minimal') { <i class="ti ti-check ms-1"></i> }
-          </button>
-        </div>
-      </div>
-
-      <!-- Right cells -->
-      <a class="bottom-bar-cell link" (click)="openLanguageModal()">
-        <i class="ti ti-world"></i>
-        {{ currentLang().toUpperCase() }}
-      </a>
-      <!-- No feedback page in this edition: Support opens the project's GitHub issues. -->
-      <a class="bottom-bar-cell link" (click)="openSupport()">
-        <i class="ti ti-lifebuoy"></i>
-        {{ 'TOPBAR.Support' | translate }}
-      </a>
-
       <!-- Desktop update button -->
       @if (desktopUpdate.isDesktop) {
         @switch (desktopUpdate.info().state) {
@@ -257,11 +218,6 @@ const OPTIMIZATION_META: Record<string, { name: string; icon: string; descriptio
                 <span class="update-dot"></span>
                 v{{ versionService.state().latestVersion }}
               </a>
-            } @else {
-              <a class="bottom-bar-cell link" (click)="checkForUpdates()">
-                <i class="ti ti-refresh"></i>
-                {{ 'BOTTOM_BAR.Updates' | translate }}
-              </a>
             }
           }
         }
@@ -269,7 +225,7 @@ const OPTIMIZATION_META: Record<string, { name: string; icon: string; descriptio
 
       </div><!-- /bb-right -->
 
-      <!-- ⋮ menu replacing the right cells on narrow screens -->
+      <!-- ⋮ menu: shortcuts, language, support, updates -->
       <div class="bb-more">
         <app-kebab-menu
           [items]="moreMenuItems()"
@@ -759,7 +715,7 @@ const OPTIMIZATION_META: Record<string, { name: string; icon: string; descriptio
     .bb-right { display: contents; }
 
     .bb-more {
-      display: none;
+      display: inline-flex;
       align-items: center;
       height: 100%;
       padding: 0 var(--po-space-2);
@@ -1789,16 +1745,14 @@ export class BottomBarComponent implements OnDestroy {
   moreMenuItems(): KebabMenuItem[] {
     const items: KebabMenuItem[] = [];
     const t = (key: string, params?: Record<string, unknown>): string => this.translate.instant(key, params);
-    if (this.uiStyle() === 'minimal' && this.isDesktop) {
+    if (this.isDesktop) {
       items.push({ id: 'mobile', label: t('BOTTOM_BAR.Connect mobile'), icon: 'solar:smartphone-bold' });
     }
-    if (this.uiStyle() === 'minimal' && this.inSession()) {
+    if (this.inSession()) {
       items.push({ id: 'shortcuts', label: t('BOTTOM_BAR.Keyboard shortcuts'), icon: 'solar:keyboard-bold' });
     }
     items.push(
-      { id: 'ui-classic', label: `${t('BOTTOM_BAR.Classic UI')}${this.uiStyle() === 'classic' ? '  ✓' : ''}`, icon: 'solar:widget-2-bold', divider: items.length > 0 },
-      { id: 'ui-minimal', label: `${t('BOTTOM_BAR.Minimal UI')}${this.uiStyle() === 'minimal' ? '  ✓' : ''}`, icon: 'solar:sidebar-minimalistic-bold' },
-      { id: 'language', label: t('BOTTOM_BAR.Language code', { code: this.currentLang().toUpperCase() }), icon: 'solar:global-bold', divider: true },
+      { id: 'language', label: t('BOTTOM_BAR.Language code', { code: this.currentLang().toUpperCase() }), icon: 'solar:global-bold', divider: items.length > 0 },
       { id: 'support', label: t('TOPBAR.Support'), icon: 'solar:chat-round-call-bold' },
     );
     if (this.desktopUpdate.isDesktop) {

@@ -174,8 +174,8 @@ type SwitcherMode = "picker" | "global";
         gap: 6px;
         padding: 4px 8px;
         border-radius: 999px;
-        border: 1px solid rgba(99, 102, 241, 0.3);
-        background: rgba(99, 102, 241, 0.08);
+        border: 1px solid oklch(from var(--po-accent) l c h / 30%);
+        background: oklch(from var(--po-accent) l c h / 8%);
         color: inherit;
         font-size: 12px;
         line-height: 1;
@@ -186,7 +186,7 @@ type SwitcherMode = "picker" | "global";
         display: none !important;
       }
       .pa-chip:hover:not(:disabled) {
-        background: rgba(99, 102, 241, 0.16);
+        background: oklch(from var(--po-accent) l c h / 16%);
       }
       .pa-chip-compact {
         padding: 3px 6px;
@@ -259,7 +259,7 @@ type SwitcherMode = "picker" | "global";
         font-size: 10px;
       }
       .pa-item-standard {
-        border-left: 2px solid var(--bs-primary, #6366f1);
+        border-left: 2px solid var(--bs-primary, var(--po-accent));
       }
       .pa-support {
         font-size: 10px;
@@ -285,7 +285,7 @@ type SwitcherMode = "picker" | "global";
         padding: 6px 12px;
       }
       .pa-item-active {
-        background: rgba(99, 102, 241, 0.12);
+        background: oklch(from var(--po-accent) l c h / 12%);
       }
       .pa-item .pa-dot {
         width: 10px;
@@ -303,7 +303,7 @@ type SwitcherMode = "picker" | "global";
         margin: 4px 0;
       }
       .pa-badge-active {
-        background: var(--bs-primary, #6366f1);
+        background: var(--bs-primary, var(--po-accent));
         color: #fff;
         padding: 1px 6px;
         border-radius: 4px;

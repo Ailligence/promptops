@@ -65,9 +65,9 @@ const REPO_URL = "https://github.com/shellonback/promptops";
       border-radius: 10px;
       font-size: 0.8rem;
       font-weight: 500;
-      background: rgba(79, 70, 229, 0.06);
-      color: var(--po-accent, #4f46e5);
-      border: 1px solid rgba(79, 70, 229, 0.15);
+      background: oklch(from var(--po-accent) l c h / 6%);
+      color: var(--po-accent, var(--po-accent));
+      border: 1px solid oklch(from var(--po-accent) l c h / 15%);
       cursor: pointer;
     }
     .about-link:hover { background: rgba(79, 70, 229, 0.12); }

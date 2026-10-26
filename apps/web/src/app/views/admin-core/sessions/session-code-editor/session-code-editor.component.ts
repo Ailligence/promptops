@@ -1066,12 +1066,12 @@ function setupMonacoTheme(): void {
     .sr-text { color: var(--po-text-primary); overflow: hidden; text-overflow: ellipsis; font-family: var(--po-font-mono, ui-monospace, monospace); white-space: pre; }
     .sr-pre { color: var(--po-text-secondary); }
     .sr-match {
-      background: var(--po-accent-muted-bg, rgba(99, 102, 241, 0.22));
+      background: var(--po-accent-muted-bg, oklch(from var(--po-accent) l c h / 22%));
       color: var(--po-text-primary);
       border-radius: 2px;
       padding: 0 1px;
       font-weight: 600;
-      box-shadow: inset 0 -1px 0 var(--po-info, #6366f1);
+      box-shadow: inset 0 -1px 0 var(--po-info, var(--po-accent));
     }
     .search-result-item.sr-active .sr-match { background: var(--po-info, #6366f1); color: #fff; }
     .search-empty { padding: 16px; text-align: center; color: var(--po-text-tertiary); font-size: 0.78rem; }

@@ -1607,6 +1607,9 @@
       "Tailer detected": "Detectado",
       "Tailer response": "Resposta",
       "Close": "Fechar"
+    },
+    "NEEDS_YOU": {
+      "Title": "Precisa de você"
     }
   },
   "SUBAGENTS": {
@@ -4486,5 +4489,34 @@
     "Stage file": "Adicionar arquivo ao stage",
     "Unstage folder": "Remover a pasta inteira do stage",
     "Unstage file": "Remover arquivo do stage"
+  },
+  "PALETTE": {
+    "Placeholder": "Ir para uma sessão, agente, ferramenta ou página…",
+    "Empty": "Nenhum resultado",
+    "Hint": "↑↓ mover · ↵ executar · esc fechar",
+    "Sessions": "Sessões",
+    "Agents": "Agentes",
+    "Actions": "Ações",
+    "Pages": "Páginas",
+    "New session": "Nova sessão",
+    "All sessions": "Mostrar todas as sessões",
+    "Spawn agent": "Iniciar um agente",
+    "Git": "Histórico do Git",
+    "Database": "Explorador de banco de dados",
+    "Docker": "Contêineres Docker",
+    "SSH": "Conexões SSH",
+    "Terminal": "Abrir um terminal",
+    "Links": "Links de desenvolvimento",
+    "Quick note": "Nota rápida",
+    "Project brief": "Brief do projeto",
+    "Todo": "Lista de tarefas",
+    "Assets": "Recursos da sessão",
+    "Focus mode": "Modo foco",
+    "Code editor": "Layout de editor de código",
+    "Standard layout": "Layout padrão",
+    "Dedicated window": "Abrir numa janela dedicada",
+    "New tab": "Nova aba",
+    "Commands": "Comandos",
+    "Main agent": "Agente principal"
   }
 }

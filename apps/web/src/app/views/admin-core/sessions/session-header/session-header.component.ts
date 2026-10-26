@@ -50,12 +50,12 @@ function pathSegments(path: string): string[] {
     .device-banner-warning {
       background: var(--po-warning-bg);
       color: var(--po-warning);
-      border-bottom: 1px solid rgba(210, 153, 34, 0.15);
+      border-bottom: 1px solid oklch(from var(--po-warning) l c h / 15%);
     }
     .device-banner-error {
       background: var(--po-error-bg);
       color: var(--po-error);
-      border-bottom: 1px solid rgba(248, 81, 73, 0.15);
+      border-bottom: 1px solid oklch(from var(--po-error) l c h / 15%);
     }
 
     /* ── Row 1: provider + path + status + actions ── */
@@ -324,7 +324,7 @@ function pathSegments(path: string): string[] {
       gap: 0.3rem;
       height: 26px;
       padding: 0 0.5rem;
-      border: 1px solid rgba(139, 92, 246, 0.2);
+      border: 1px solid oklch(from var(--po-accent) l c h / 20%);
       border-radius: 6px;
       background: transparent;
       color: var(--po-text-secondary);
@@ -337,26 +337,26 @@ function pathSegments(path: string): string[] {
       white-space: nowrap;
     }
     .focus-toggle-btn:hover {
-      background: rgba(139, 92, 246, 0.12);
-      border-color: rgba(139, 92, 246, 0.4);
+      background: oklch(from var(--po-accent) l c h / 12%);
+      border-color: oklch(from var(--po-accent) l c h / 40%);
       color: var(--po-accent);
     }
     .focus-toggle-btn.active {
-      background: rgba(139, 92, 246, 0.2);
-      border-color: rgba(139, 92, 246, 0.5);
+      background: oklch(from var(--po-accent) l c h / 20%);
+      border-color: oklch(from var(--po-accent) l c h / 50%);
       color: var(--po-accent);
-      box-shadow: 0 0 8px rgba(139, 92, 246, 0.25);
+      box-shadow: 0 0 8px oklch(from var(--po-accent) l c h / 25%);
     }
     .focus-label {
       font-size: 0.7rem;
       font-weight: 600;
-      background: linear-gradient(135deg, #8391a2, #a78bfa);
+      background: linear-gradient(135deg, #8391a2, var(--po-accent-text));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
     .focus-toggle-btn.active .focus-label {
-      background: linear-gradient(135deg, #c4b5fd, #818cf8);
+      background: linear-gradient(135deg, #c4b5fd, var(--po-accent-text));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -500,7 +500,7 @@ function pathSegments(path: string): string[] {
       color: var(--po-text-primary, var(--po-text-secondary));
     }
     .lmt-label.active {
-      background: rgba(139, 92, 246, 0.18);
+      background: oklch(from var(--po-accent) l c h / 18%);
       color: var(--po-accent);
       font-weight: 600;
     }
@@ -1208,6 +1208,19 @@ export class SessionHeaderComponent implements OnDestroy {
   onOpenDocker = output<void>();
   onOpenGitExplorer = output<void>();
   onOpenTeamBoard = output<void>();
+
+  /** Signal aspect for the header lamp (see SessionSidebarComponent.lampState). */
+  protected lampState(status: string): 'working' | 'idle' | 'blocked' | 'off' {
+    switch (status) {
+      case 'running':
+      case 'in_progress': return 'working';
+      case 'waiting_input':
+      case 'error': return 'blocked';
+      case 'exited':
+      case 'standby': return 'off';
+      default: return 'idle';
+    }
+  }
   onOpenSsh = output<void>();
   onOpenTerminals = output<void>();
   /** Open the session in its dedicated window, or (inside that window) go back to the main one. */
@@ -1218,6 +1231,10 @@ export class SessionHeaderComponent implements OnDestroy {
   onToggleLayoutMode = output<void>();
   onToggleFocusMode = output<void>();
   onOpenIntent = output<void>();
+  /** Canvas: the spawner sheet (action center) is open. */
+  agentsOpen = input<boolean>(false);
+  onToggleAgents = output<void>();
+  onOpenPalette = output<void>();
   onSetupWorkspace = output<string>();
   onDevLinks = output<void>();
   layoutMode = input<string>('standard');

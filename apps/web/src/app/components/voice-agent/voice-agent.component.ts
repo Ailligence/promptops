@@ -249,7 +249,7 @@ import { EscCloseDirective } from '@/app/common/esc-close.directive';
       position: absolute;
       inset: -8px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(139,92,246,0.45) 0%, rgba(99,102,241,0.18) 45%, transparent 70%);
+      background: radial-gradient(circle, oklch(from var(--po-accent) l c h / 45%) 0%, oklch(from var(--po-accent) l c h / 18%) 45%, transparent 70%);
       filter: blur(8px);
       z-index: -1;
       animation: idle-aura 3.2s ease-in-out infinite;
@@ -285,7 +285,7 @@ import { EscCloseDirective } from '@/app/common/esc-close.directive';
     }
     .voice-dock.listening .voice-orb::before {
       inset: -12px;
-      background: radial-gradient(circle, rgba(236,72,153,0.55) 0%, rgba(139,92,246,0.30) 45%, transparent 75%);
+      background: radial-gradient(circle, rgba(236,72,153,0.55) 0%, oklch(from var(--po-accent) l c h / 30%) 45%, transparent 75%);
       filter: blur(11px);
       animation: listen-aura 1.8s ease-in-out infinite;
     }
@@ -308,12 +308,12 @@ import { EscCloseDirective } from '@/app/common/esc-close.directive';
     }
     .voice-dock.listening .orb-wrap::after {
       animation-delay: 0.9s;
-      border-color: rgba(139,92,246,0.55);
+      border-color: oklch(from var(--po-accent) l c h / 55%);
     }
 
     /* Processing: warm conic spin */
     .voice-dock.processing .voice-orb {
-      background: conic-gradient(from 0deg, #6366f1, #ec4899, #f59e0b, #ec4899, #6366f1);
+      background: conic-gradient(from 0deg, var(--po-accent), #ec4899, #f59e0b, #ec4899, var(--po-accent));
       animation: orb-rotate 1.2s linear infinite;
       box-shadow: 0 4px 16px rgba(245,158,11,0.45), 0 0 22px rgba(236,72,153,0.35);
     }
@@ -354,7 +354,7 @@ import { EscCloseDirective } from '@/app/common/esc-close.directive';
       padding: 2px 7px;
       border-radius: 999px;
       background: var(--po-bg-3, rgba(27,33,41,0.92));
-      border: 1px solid rgba(99,102,241,0.35);
+      border: 1px solid oklch(from var(--po-accent) l c h / 35%);
       color: rgba(139,156,246,0.95);
       line-height: 1.4;
       cursor: pointer;
@@ -369,7 +369,7 @@ import { EscCloseDirective } from '@/app/common/esc-close.directive';
       height: 17px;
       border-radius: 50%;
       border: none;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      background: linear-gradient(135deg, var(--po-accent), var(--po-accent));
       color: #fff;
       font-size: 10px;
       font-weight: 700;
@@ -379,7 +379,7 @@ import { EscCloseDirective } from '@/app/common/esc-close.directive';
       justify-content: center;
       padding: 0;
       line-height: 1;
-      box-shadow: 0 1px 4px rgba(99,102,241,0.45);
+      box-shadow: 0 1px 4px oklch(from var(--po-accent) l c h / 45%);
       transition: transform 0.15s;
     }
     .dock-help:hover { transform: scale(1.15); }
@@ -406,7 +406,7 @@ import { EscCloseDirective } from '@/app/common/esc-close.directive';
     }
     .dock-min:hover {
       color: #8b9cf6;
-      border-color: rgba(99,102,241,0.5);
+      border-color: oklch(from var(--po-accent) l c h / 50%);
       transform: scale(1.1);
     }
 
@@ -488,7 +488,7 @@ import { EscCloseDirective } from '@/app/common/esc-close.directive';
       height: 13px;
       border-radius: 50%;
       border: 1.5px solid var(--bs-body-bg, #161b22);
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      background: linear-gradient(135deg, var(--po-accent), var(--po-accent));
       color: #fff;
       font-size: 9px;
       font-weight: 700;
@@ -496,7 +496,7 @@ import { EscCloseDirective } from '@/app/common/esc-close.directive';
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 1px 3px rgba(99,102,241,0.45);
+      box-shadow: 0 1px 3px oklch(from var(--po-accent) l c h / 45%);
       transition: transform 0.15s;
       padding: 0;
       line-height: 1;
@@ -509,10 +509,10 @@ import { EscCloseDirective } from '@/app/common/esc-close.directive';
       width: 24px;
       height: 24px;
       margin-left: 2px;
-      border: 1px solid rgba(99,102,241,0.28);
+      border: 1px solid oklch(from var(--po-accent) l c h / 28%);
       border-radius: 7px;
-      background: rgba(99,102,241,0.12);
-      color: rgba(99,102,241,0.95);
+      background: oklch(from var(--po-accent) l c h / 12%);
+      color: oklch(from var(--po-accent) l c h / 95%);
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -521,8 +521,8 @@ import { EscCloseDirective } from '@/app/common/esc-close.directive';
       transition: background 0.15s, border-color 0.15s, transform 0.1s;
     }
     .voice-list-btn:hover {
-      background: rgba(99,102,241,0.22);
-      border-color: rgba(99,102,241,0.5);
+      background: oklch(from var(--po-accent) l c h / 22%);
+      border-color: oklch(from var(--po-accent) l c h / 50%);
     }
     .voice-list-btn:active { transform: scale(0.94); }
 
@@ -539,9 +539,9 @@ import { EscCloseDirective } from '@/app/common/esc-close.directive';
       font-size: 0.5rem;
       font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
       font-weight: 600;
-      color: rgba(99,102,241,0.95);
-      background: rgba(99,102,241,0.12);
-      border: 1px solid rgba(99,102,241,0.28);
+      color: oklch(from var(--po-accent) l c h / 95%);
+      background: oklch(from var(--po-accent) l c h / 12%);
+      border: 1px solid oklch(from var(--po-accent) l c h / 28%);
       border-radius: 4px;
       white-space: nowrap;
       letter-spacing: 0.02em;
@@ -550,8 +550,8 @@ import { EscCloseDirective } from '@/app/common/esc-close.directive';
       transition: background 0.15s, border-color 0.15s, color 0.15s;
     }
     .shortcut-chip:hover {
-      background: rgba(99,102,241,0.22);
-      border-color: rgba(99,102,241,0.5);
+      background: oklch(from var(--po-accent) l c h / 22%);
+      border-color: oklch(from var(--po-accent) l c h / 50%);
     }
     .shortcut-chip.disabled {
       color: rgba(139,148,158,0.85);
@@ -560,9 +560,9 @@ import { EscCloseDirective } from '@/app/common/esc-close.directive';
       opacity: 0.85;
     }
     .shortcut-chip.disabled:hover {
-      color: rgba(99,102,241,0.95);
-      background: rgba(99,102,241,0.12);
-      border-color: rgba(99,102,241,0.4);
+      color: oklch(from var(--po-accent) l c h / 95%);
+      background: oklch(from var(--po-accent) l c h / 12%);
+      border-color: oklch(from var(--po-accent) l c h / 40%);
       opacity: 1;
     }
 
@@ -572,7 +572,7 @@ import { EscCloseDirective } from '@/app/common/esc-close.directive';
       right: 0;
       min-width: 220px;
       max-width: 320px;
-      background: var(--bs-body-bg, #0d1117);
+      background: var(--po-terminal-bg);
       border: 1px solid var(--bs-border-color, #30363d);
       border-radius: 10px;
       padding: 0.6rem 0.75rem;
@@ -700,8 +700,8 @@ import { EscCloseDirective } from '@/app/common/esc-close.directive';
       width: 72px;
       height: 72px;
       border-radius: 50%;
-      background: rgba(248,81,73,0.1);
-      color: #f85149;
+      background: oklch(from var(--po-error) l c h / 10%);
+      color: var(--po-error);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -740,7 +740,7 @@ import { EscCloseDirective } from '@/app/common/esc-close.directive';
       padding: 0.55rem 1.2rem;
       border: none;
       border-radius: 8px;
-      background: linear-gradient(135deg, #ec4899, #8b5cf6);
+      background: linear-gradient(135deg, #ec4899, var(--po-accent));
       color: #fff;
       font-size: 0.82rem;
       font-weight: 600;

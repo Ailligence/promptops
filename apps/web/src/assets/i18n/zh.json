@@ -1607,6 +1607,9 @@
       "Tailer detected": "检测到",
       "Tailer response": "回复",
       "Close": "关闭"
+    },
+    "NEEDS_YOU": {
+      "Title": "等你处理"
     }
   },
   "SUBAGENTS": {
@@ -4486,5 +4489,34 @@
     "Stage file": "暂存文件",
     "Unstage folder": "取消暂存整个文件夹",
     "Unstage file": "取消暂存文件"
+  },
+  "PALETTE": {
+    "Placeholder": "前往会话、代理、工具或页面…",
+    "Empty": "无匹配结果",
+    "Hint": "↑↓ 移动 · ↵ 执行 · esc 关闭",
+    "Sessions": "会话",
+    "Agents": "代理",
+    "Actions": "操作",
+    "Pages": "页面",
+    "New session": "新建会话",
+    "All sessions": "显示所有会话",
+    "Spawn agent": "启动代理",
+    "Git": "Git 历史",
+    "Database": "数据库浏览器",
+    "Docker": "Docker 容器",
+    "SSH": "SSH 连接",
+    "Terminal": "打开终端",
+    "Links": "开发链接",
+    "Quick note": "快速笔记",
+    "Project brief": "项目简报",
+    "Todo": "待办清单",
+    "Assets": "会话资源",
+    "Focus mode": "专注模式",
+    "Code editor": "代码编辑器布局",
+    "Standard layout": "标准布局",
+    "Dedicated window": "在独立窗口中打开",
+    "New tab": "新标签页",
+    "Commands": "命令",
+    "Main agent": "主代理"
   }
 }

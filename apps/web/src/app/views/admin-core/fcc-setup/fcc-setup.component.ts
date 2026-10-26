@@ -152,7 +152,7 @@ const TIER_META: Record<string, { label: string; icon: string; color: string; de
                   <p>{{ 'FCC_SETUP.F private' | translate }}</p>
                 </div>
                 <div class="feature-card">
-                  <div class="feature-icon" style="background: linear-gradient(135deg, #6366f1, #a855f7);"><iconify-icon icon="solar:code-bold-duotone" width="18"></iconify-icon></div>
+                  <div class="feature-icon" style="background: linear-gradient(135deg, var(--po-accent), #a855f7);"><iconify-icon icon="solar:code-bold-duotone" width="18"></iconify-icon></div>
                   <h4>{{ 'FCC_SETUP.F agentic title' | translate }}</h4>
                   <p>{{ 'FCC_SETUP.F agentic' | translate }}</p>
                 </div>
@@ -172,7 +172,7 @@ const TIER_META: Record<string, { label: string; icon: string; color: string; de
                   <p>{{ 'FCC_SETUP.F cross' | translate }}</p>
                 </div>
                 <div class="feature-card">
-                  <div class="feature-icon" style="background: linear-gradient(135deg, #8b5cf6, #c084fc);"><iconify-icon icon="solar:branching-paths-up-bold-duotone" width="18"></iconify-icon></div>
+                  <div class="feature-icon" style="background: linear-gradient(135deg, var(--po-accent), var(--po-accent-text));"><iconify-icon icon="solar:branching-paths-up-bold-duotone" width="18"></iconify-icon></div>
                   <h4>{{ 'FCC_SETUP.F git title' | translate }}</h4>
                   <p>{{ 'FCC_SETUP.F git' | translate }}</p>
                 </div>
@@ -593,8 +593,8 @@ const TIER_META: Record<string, { label: string; icon: string; color: string; de
     .hero {
       padding: 22px;
       border-radius: 14px;
-      background: linear-gradient(135deg, rgba(99,102,241,.07), rgba(168,85,247,.04), rgba(236,72,153,.03));
-      border: 1px solid rgba(99,102,241,.15);
+      background: linear-gradient(135deg, oklch(from var(--po-accent) l c h / 7%), oklch(from var(--po-accent) l c h / 4%), rgba(236,72,153,.03));
+      border: 1px solid oklch(from var(--po-accent) l c h / 15%);
     }
     .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; align-items: start; }
     @media (max-width: 880px) { .hero-grid { grid-template-columns: 1fr; } }
@@ -602,7 +602,7 @@ const TIER_META: Record<string, { label: string; icon: string; color: string; de
     .hero-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .hero-badge {
       width: 36px; height: 36px; border-radius: 9px;
-      background: linear-gradient(135deg, #6366f1, #a855f7);
+      background: linear-gradient(135deg, var(--po-accent), #a855f7);
       color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
     .hero-title { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -.02em; }

@@ -313,7 +313,7 @@ export function previewUrl(row: Pick<PortRow, 'protocol' | 'localPort'>): string
 
     .fp-inline-input {
       width: 100%; height: 20px; padding: 0 6px; font: inherit; color: inherit;
-      background: var(--po-bg-0, #0d1117);
+      background: var(--po-terminal-bg);
       border: 1px solid var(--po-info, #3794ff); border-radius: 2px; outline: none;
     }
     .fp-add-row td { height: 30px; }
@@ -350,7 +350,7 @@ export function previewUrl(row: Pick<PortRow, 'protocol' | 'localPort'>): string
     .fp-ai-desc { color: var(--po-text-secondary, #9da5b4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
     .fp-ai-cmd {
       max-width: 100%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 1px 6px; border-radius: 3px;
-      font-size: 0.7rem; color: var(--po-text-primary, #e6edf3); background: var(--po-bg-0, #0d1117);
+      font-size: 0.7rem; color: var(--po-text-primary, #e6edf3); background: var(--po-terminal-bg);
     }
     @container (max-width: 520px) { .fp-ai-row .fp-ai-spacer { display: none; } }
     .fp-ai-foot { display: flex; justify-content: flex-end; padding: 6px 8px; border-top: 1px solid var(--po-border-subtle, rgba(128,128,128,.25)); }
@@ -365,7 +365,7 @@ export function previewUrl(row: Pick<PortRow, 'protocol' | 'localPort'>): string
 
     .fp-preview { flex: 1; min-width: 0; display: flex; flex-direction: column; }
     .fp-preview-bar { display: flex; align-items: center; gap: 4px; padding: 3px 6px; border-bottom: 1px solid var(--po-border-subtle, rgba(128,128,128,.25)); }
-    .fp-preview-url { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; padding: 1px 8px; border-radius: 3px; background: var(--po-bg-0, #0d1117); color: var(--po-text-secondary, #9da5b4); }
+    .fp-preview-url { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; padding: 1px 8px; border-radius: 3px; background: var(--po-terminal-bg); color: var(--po-text-secondary, #9da5b4); }
     .fp-preview iframe { flex: 1; border: 0; background: #fff; }
 
     .fp-toast {

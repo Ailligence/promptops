@@ -132,6 +132,16 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     this.renderer.setStyle(document.body, 'overflow', null);
     this.renderer.setStyle(document.body, 'paddingRight', null);
   }
+  /**
+   * The session screen is a canvas: no navigation rail, the dock in the bottom
+   * bar and ⌘K replace it (see _signal-box.scss, html[data-po-canvas]).
+   */
+  private applyCanvas(url: string): void {
+    const on = url.includes('/admin/sessions');
+    if (on) document.documentElement.setAttribute('data-po-canvas', '');
+    else document.documentElement.removeAttribute('data-po-canvas');
+  }
+
   ngOnInit(): void {
     // Track fullscreen routes (no footer, no padding)
     this.router.events.pipe(
@@ -140,9 +150,11 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     ).subscribe((e) => {
       this.isFullscreenView.set(isFullscreenUrl(e.urlAfterRedirects));
       this.sharedPageStyle.set(usesSharedPageStyle(e.urlAfterRedirects));
+      this.applyCanvas(e.urlAfterRedirects);
     });
     this.isFullscreenView.set(isFullscreenUrl(this.router.url));
     this.sharedPageStyle.set(usesSharedPageStyle(this.router.url));
+    this.applyCanvas(this.router.url);
 
     // Global session interaction listener
     this.interactionService.init();

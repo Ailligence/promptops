@@ -51,6 +51,10 @@ import { setPaneResizing } from '../pane-resize-flag';
 import { SessionHistoryService } from '../services/session-history.service';
 import { SessionSidebarComponent } from '../session-sidebar/session-sidebar.component';
 import { SessionHeaderComponent } from '../session-header/session-header.component';
+import { NeedsYouStripComponent } from '../needs-you-strip/needs-you-strip.component';
+import { CommandPaletteComponent, type PaletteCommand, type PaletteLamp } from '@components/command-palette/command-palette.component';
+import { SessionCanvasService } from '@core/services/session-canvas.service';
+import { Router } from '@angular/router';
 import { SessionTerminalComponent } from '../session-terminal/session-terminal.component';
 import { SubAgentTerminalComponent } from '../sub-agent-terminal/sub-agent-terminal.component';
 import { WorkerChatComponent } from '../worker-chat/worker-chat.component';
@@ -154,6 +158,7 @@ import { BuiltinPluginsService } from '../../plugins/builtin-plugins.service';
 import { ForwardPortsPanelComponent } from '../forward-ports-panel/forward-ports-panel.component';
 import { ForwardPortsService } from '@core/services/forward-ports.service';
 import { CloudFeatureModalComponent } from '@components/cloud-feature-modal/cloud-feature-modal.component';
+import { SIGNAL_TERMINAL_THEME } from '@core/helper/terminal-theme';
 
 /** View state as saved for a session, plus its layout mode (standard / code). */
 type ViewStateWithLayout = SessionViewState & { layoutMode?: LayoutMode };
@@ -177,6 +182,8 @@ function safeSetItem(key: string, value: string): void {
     TranslateModule,
     SessionSidebarComponent,
     SessionHeaderComponent,
+    NeedsYouStripComponent,
+    CommandPaletteComponent,
     SessionTerminalComponent,
     SubAgentTerminalComponent,
     WorkerChatComponent,
@@ -282,8 +289,8 @@ function safeSetItem(key: string, value: string): void {
       margin: 8px;
       border-radius: 12px;
       overflow: hidden;
-      border: 1px solid rgba(99, 102, 241, 0.16);
-      background: #10121a;
+      border: 1px solid oklch(from var(--po-accent) l c h / 16%);
+      background: var(--po-terminal-bg);
       box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
     }
 
@@ -342,7 +349,7 @@ function safeSetItem(key: string, value: string): void {
       gap: 6px;
       background: rgba(16, 18, 26, 0.92);
       backdrop-filter: blur(2px);
-      color: #a5b4fc;
+      color: var(--po-accent-text);
       text-align: center;
     }
     .standby-cover .standby-cover-title {
@@ -446,7 +453,7 @@ function safeSetItem(key: string, value: string): void {
       display: flex;
       flex: 1;
       min-height: 0;
-      background: var(--po-bg-0, #0d1117);
+      background: var(--po-terminal-bg);
     }
     .solo-bar { cursor: default; }
     /* Agent | Ports tabs inside the pane header (a single agent): same height as the row. */
@@ -559,7 +566,7 @@ function safeSetItem(key: string, value: string): void {
       border-radius: 12px;
       overflow: hidden;
       border: 1px solid var(--po-border-subtle, rgba(128, 128, 128, 0.25));
-      background: #0c0e16;
+      background: var(--po-terminal-bg);
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
     }
 
@@ -647,8 +654,8 @@ function safeSetItem(key: string, value: string): void {
       align-items: center;
       gap: 2px;
       padding: 4px;
-      background: #0c0e16;
-      border: 1px solid rgba(168, 85, 247, 0.3);
+      background: var(--po-terminal-bg);
+      border: 1px solid oklch(from var(--po-accent) l c h / 30%);
       border-radius: 8px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
       z-index: 40;
@@ -659,7 +666,7 @@ function safeSetItem(key: string, value: string): void {
     }
     .sa-actions-flyout:hover .sa-actions-trigger,
     .sa-actions-flyout:focus-within .sa-actions-trigger {
-      background: rgba(99, 102, 241, 0.2);
+      background: oklch(from var(--po-accent) l c h / 20%);
       color: var(--po-accent);
     }
 
@@ -955,7 +962,7 @@ function safeSetItem(key: string, value: string): void {
       display: flex;
       align-items: center;
       gap: 6px;
-      color: var(--po-primary, #6366f1);
+      color: var(--po-primary, var(--po-accent));
       border-top: 1px solid var(--po-border-subtle);
       border-radius: 0 0 6px 6px;
     }
@@ -984,7 +991,7 @@ function safeSetItem(key: string, value: string): void {
       justify-content: center;
       width: 26px;
       height: 26px;
-      border: 2px solid rgba(248, 81, 73, 0.35);
+      border: 2px solid oklch(from var(--po-error) l c h / 35%);
       border-radius: 6px;
       background: var(--po-error-bg);
       color: var(--po-error);
@@ -994,9 +1001,9 @@ function safeSetItem(key: string, value: string): void {
     }
     .btn-aa-overlay:hover {
       opacity: 1;
-      background: rgba(248, 81, 73, 0.2);
-      border-color: rgba(248, 81, 73, 0.5);
-      box-shadow: 0 0 10px rgba(248, 81, 73, 0.35);
+      background: oklch(from var(--po-error) l c h / 20%);
+      border-color: oklch(from var(--po-error) l c h / 50%);
+      box-shadow: 0 0 10px oklch(from var(--po-error) l c h / 35%);
     }
 
     /* ── Eco Mode toggle ── */
@@ -1006,7 +1013,7 @@ function safeSetItem(key: string, value: string): void {
       justify-content: center;
       width: 26px;
       height: 26px;
-      border: 2px solid rgba(63, 185, 80, 0.35);
+      border: 2px solid oklch(from var(--po-success) l c h / 35%);
       border-radius: 6px;
       background: var(--po-success-bg);
       color: var(--po-success);
@@ -1016,22 +1023,22 @@ function safeSetItem(key: string, value: string): void {
     }
     .btn-eco-overlay:hover {
       opacity: 1;
-      background: rgba(63, 185, 80, 0.2);
-      border-color: rgba(63, 185, 80, 0.5);
-      box-shadow: 0 0 10px rgba(63, 185, 80, 0.35);
+      background: oklch(from var(--po-success) l c h / 20%);
+      border-color: oklch(from var(--po-success) l c h / 50%);
+      box-shadow: 0 0 10px oklch(from var(--po-success) l c h / 35%);
     }
     .btn-eco-overlay.eco-on {
-      border-color: rgba(63, 185, 80, 0.45);
-      background: rgba(63, 185, 80, 0.12);
+      border-color: oklch(from var(--po-success) l c h / 45%);
+      background: oklch(from var(--po-success) l c h / 12%);
       color: var(--po-success);
       opacity: 0.85;
     }
     .btn-eco-overlay.eco-on:hover {
       opacity: 1;
-      background: rgba(248, 81, 73, 0.15);
-      border-color: rgba(248, 81, 73, 0.45);
+      background: oklch(from var(--po-error) l c h / 15%);
+      border-color: oklch(from var(--po-error) l c h / 45%);
       color: var(--po-error);
-      box-shadow: 0 0 10px rgba(248, 81, 73, 0.3);
+      box-shadow: 0 0 10px oklch(from var(--po-error) l c h / 30%);
     }
     /* ── Hide-main (cover) toggle — shown when sub-agents exist ── */
     .btn-cover-overlay {
@@ -1094,7 +1101,7 @@ function safeSetItem(key: string, value: string): void {
       padding: 0;
       border-radius: 5px;
       /* Auto-approve armed is worth a hint, not a red frame: a hairline. */
-      border: 1px solid rgba(248, 81, 73, 0.25);
+      border: 1px solid oklch(from var(--po-error) l c h / 25%);
       user-select: none;
     }
     .aa-qs-btn {
@@ -1125,7 +1132,7 @@ function safeSetItem(key: string, value: string): void {
     /* QUICK segment — yellow */
     .aa-qs-btn.quick.active {
       color: var(--po-warning);
-      background: rgba(210, 153, 34, 0.14);
+      background: oklch(from var(--po-warning) l c h / 14%);
       border-color: transparent;
       box-shadow: none;
     }
@@ -1135,7 +1142,7 @@ function safeSetItem(key: string, value: string): void {
     /* AI segment — purple */
     .aa-qs-btn.ai.active {
       color: var(--po-accent);
-      background: rgba(168, 85, 247, 0.14);
+      background: oklch(from var(--po-accent) l c h / 14%);
       border-color: transparent;
       box-shadow: none;
     }
@@ -1202,7 +1209,7 @@ function safeSetItem(key: string, value: string): void {
     .main-pane.pane-focused,
     .subagent-pane.pane-focused,
     .ide-terminal-area.pane-focused {
-      box-shadow: inset 0 0 0 2.5px rgba(139, 92, 246, 0.55),
+      box-shadow: inset 0 0 0 2.5px oklch(from var(--po-accent) l c h / 55%),
                   0 0 14px 3px rgba(139, 92, 246, 0.22);
       border-radius: 12px;
       animation: pane-pulse 2s ease-in-out infinite;
@@ -1210,11 +1217,11 @@ function safeSetItem(key: string, value: string): void {
 
     @keyframes pane-pulse {
       0%, 100% {
-        box-shadow: inset 0 0 0 2.5px rgba(139, 92, 246, 0.55),
+        box-shadow: inset 0 0 0 2.5px oklch(from var(--po-accent) l c h / 55%),
                     0 0 14px 3px rgba(139, 92, 246, 0.22);
       }
       50% {
-        box-shadow: inset 0 0 0 2.5px rgba(139, 92, 246, 0.35),
+        box-shadow: inset 0 0 0 2.5px oklch(from var(--po-accent) l c h / 35%),
                     0 0 8px 1px rgba(139, 92, 246, 0.10);
       }
     }
@@ -1333,8 +1340,8 @@ function safeSetItem(key: string, value: string): void {
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: rgba(168, 85, 247, 0.95);
-      background: rgba(168, 85, 247, 0.14);
+      color: oklch(from var(--po-accent) l c h / 95%);
+      background: oklch(from var(--po-accent) l c h / 14%);
       padding: 2px 5px;
       border-radius: 4px;
       flex-shrink: 0;
@@ -1397,28 +1404,28 @@ function safeSetItem(key: string, value: string): void {
     /* QUICK — yellow */
     .aa-opt.quick iconify-icon { color: var(--po-warning); }
     .aa-opt.quick:hover {
-      border-color: rgba(210, 153, 34, 0.6);
-      background: rgba(210, 153, 34, 0.1);
+      border-color: oklch(from var(--po-warning) l c h / 60%);
+      background: oklch(from var(--po-warning) l c h / 10%);
     }
     .aa-opt.quick.active {
       border-color: var(--po-warning);
-      background: rgba(210, 153, 34, 0.3);
+      background: oklch(from var(--po-warning) l c h / 30%);
       color: #fff;
-      box-shadow: 0 0 10px rgba(210, 153, 34, 0.5);
+      box-shadow: 0 0 10px oklch(from var(--po-warning) l c h / 50%);
     }
     .aa-opt.quick.active iconify-icon { color: #fff; }
 
     /* AI — purple */
     .aa-opt.ai iconify-icon { color: var(--po-accent); }
     .aa-opt.ai:hover {
-      border-color: rgba(168, 85, 247, 0.6);
-      background: rgba(168, 85, 247, 0.1);
+      border-color: oklch(from var(--po-accent) l c h / 60%);
+      background: oklch(from var(--po-accent) l c h / 10%);
     }
     .aa-opt.ai.active {
       border-color: var(--po-accent);
-      background: rgba(168, 85, 247, 0.3);
+      background: oklch(from var(--po-accent) l c h / 30%);
       color: #fff;
-      box-shadow: 0 0 10px rgba(168, 85, 247, 0.55);
+      box-shadow: 0 0 10px oklch(from var(--po-accent) l c h / 55%);
     }
     .aa-opt.ai.active iconify-icon { color: #fff; }
 
@@ -1432,14 +1439,14 @@ function safeSetItem(key: string, value: string): void {
     .main-pane.aa-picked-quick,
     .subagent-pane.aa-picked-quick,
     .ide-terminal-area.aa-picked-quick {
-      box-shadow: inset 0 0 0 3px rgba(210, 153, 34, 0.9),
+      box-shadow: inset 0 0 0 3px oklch(from var(--po-warning) l c h / 90%),
                   0 0 18px 3px rgba(210, 153, 34, 0.45) !important;
       border-radius: 3px;
     }
     .main-pane.aa-picked-ai,
     .subagent-pane.aa-picked-ai,
     .ide-terminal-area.aa-picked-ai {
-      box-shadow: inset 0 0 0 3px rgba(168, 85, 247, 0.9),
+      box-shadow: inset 0 0 0 3px oklch(from var(--po-accent) l c h / 90%),
                   0 0 18px 3px rgba(168, 85, 247, 0.45) !important;
       border-radius: 3px;
     }
@@ -1454,7 +1461,7 @@ function safeSetItem(key: string, value: string): void {
       letter-spacing: 0.03em;
       padding: 2px 6px;
       border-radius: 4px;
-      background: rgba(210, 153, 34, 0.2);
+      background: oklch(from var(--po-warning) l c h / 20%);
       color: var(--po-warning);
       animation: badge-pulse 1.2s ease-in-out infinite;
       white-space: nowrap;
@@ -1523,9 +1530,9 @@ function safeSetItem(key: string, value: string): void {
       height: auto !important;
       flex: none !important;
       border-radius: 8px;
-      border: 1px solid rgba(99, 102, 241, 0.35);
+      border: 1px solid oklch(from var(--po-accent) l c h / 35%);
       background: var(--po-bg-2);
-      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.2);
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px oklch(from var(--po-accent) l c h / 20%);
       animation: sa-expand-in 0.2s ease-out;
     }
     @keyframes sa-expand-in {
@@ -1562,19 +1569,19 @@ function safeSetItem(key: string, value: string): void {
       transition: background 0.15s, color 0.15s;
     }
     .btn-expand-subagent:hover {
-      background: rgba(99, 102, 241, 0.2);
+      background: oklch(from var(--po-accent) l c h / 20%);
       color: var(--po-accent);
     }
     .btn-expand-subagent.sa-btn-locked {
       color: var(--po-warning);
     }
     .btn-expand-subagent.sa-btn-locked:hover {
-      background: rgba(210, 153, 34, 0.15);
+      background: oklch(from var(--po-warning) l c h / 15%);
       color: var(--po-warning);
     }
     /* Visible lock next to the status when the actions are in the flyout. */
     .sa-lock-indicator {
-      background: rgba(210, 153, 34, 0.12);
+      background: oklch(from var(--po-warning) l c h / 12%);
     }
 
     /* ── Sub-agent layout mode toggle ── */
@@ -1612,8 +1619,8 @@ function safeSetItem(key: string, value: string): void {
     /* Full focus toggle next to the layout modes: active = accent, like the old button in the header */
     .btn-sa-mode.sa-focus-btn.active {
       color: var(--po-accent);
-      background: rgba(139, 92, 246, 0.2);
-      box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.5);
+      background: oklch(from var(--po-accent) l c h / 20%);
+      box-shadow: 0 0 0 1px oklch(from var(--po-accent) l c h / 50%);
     }
     .btn-sa-mode.sa-focus-btn:hover { color: var(--po-accent); }
 
@@ -1653,14 +1660,14 @@ function safeSetItem(key: string, value: string): void {
       color: var(--po-text-primary, #e6edf3);
     }
     .sa-tab.sa-tab-active {
-      background: var(--po-bg-0, #0d1117);
+      background: var(--po-terminal-bg);
       border-color: var(--po-border-subtle, rgba(128, 128, 128, 0.25));
       box-shadow: inset 0 2px 0 var(--po-text-primary, #e6edf3);
       color: var(--po-text-primary, #e6edf3);
       font-weight: 600;
     }
     .sa-tab.sa-tab-locked {
-      border-color: rgba(210, 153, 34, 0.35);
+      border-color: oklch(from var(--po-warning) l c h / 35%);
       border-style: solid;
     }
     .sa-tab.sa-tab-locked .sa-tab-destroy {
@@ -1669,17 +1676,17 @@ function safeSetItem(key: string, value: string): void {
     }
     .sa-tab.sa-tab-needs-input {
       animation: sa-tab-glow 1.5s ease-in-out infinite;
-      border-color: rgba(210, 153, 34, 0.5) !important;
+      border-color: oklch(from var(--po-warning) l c h / 50%) !important;
       opacity: 1 !important;
     }
     @keyframes sa-tab-glow {
       0%, 100% {
-        background: rgba(210, 153, 34, 0.1);
-        box-shadow: 0 0 8px rgba(210, 153, 34, 0.25);
+        background: oklch(from var(--po-warning) l c h / 10%);
+        box-shadow: 0 0 8px oklch(from var(--po-warning) l c h / 25%);
       }
       50% {
-        background: rgba(210, 153, 34, 0.3);
-        box-shadow: 0 0 14px rgba(210, 153, 34, 0.5);
+        background: oklch(from var(--po-warning) l c h / 30%);
+        box-shadow: 0 0 14px oklch(from var(--po-warning) l c h / 50%);
       }
     }
 
@@ -1785,20 +1792,20 @@ function safeSetItem(key: string, value: string): void {
       padding: 2px 8px;
       border-radius: 4px;
       background: var(--po-accent-muted-bg);
-      border: 1px solid rgba(99, 102, 241, 0.15);
+      border: 1px solid oklch(from var(--po-accent) l c h / 15%);
       color: var(--po-text-secondary);
       font-size: 0.62rem;
       cursor: pointer;
       transition: all 0.15s;
     }
     .sa-minimized-chip:hover {
-      background: rgba(99, 102, 241, 0.18);
+      background: oklch(from var(--po-accent) l c h / 18%);
       color: var(--po-accent);
-      border-color: rgba(99, 102, 241, 0.35);
+      border-color: oklch(from var(--po-accent) l c h / 35%);
     }
     .sa-minimized-chip.chip-needs-input {
       animation: sa-tab-glow 1.5s ease-in-out infinite;
-      border-color: rgba(210, 153, 34, 0.5);
+      border-color: oklch(from var(--po-warning) l c h / 50%);
       color: var(--po-warning);
     }
 
@@ -1844,7 +1851,7 @@ function safeSetItem(key: string, value: string): void {
 
     /* ── Drop zone (visible only while dragging files) ── */
     .sa-drag-over {
-      outline: 2px dashed rgba(99, 102, 241, 0.55);
+      outline: 2px dashed oklch(from var(--po-accent) l c h / 55%);
       outline-offset: -6px;
       border-radius: 14px;
     }
@@ -1864,15 +1871,15 @@ function safeSetItem(key: string, value: string): void {
       background: rgba(23, 24, 36, 0.9);
       backdrop-filter: blur(14px) saturate(1.4);
       -webkit-backdrop-filter: blur(14px) saturate(1.4);
-      border: 1px solid rgba(99, 102, 241, 0.4);
+      border: 1px solid oklch(from var(--po-accent) l c h / 40%);
       border-radius: 12px;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 24px rgba(99, 102, 241, 0.2);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 24px oklch(from var(--po-accent) l c h / 20%);
       pointer-events: none;
       user-select: none;
       white-space: nowrap;
     }
     .sa-drop-overlay iconify-icon {
-      color: #818cf8;
+      color: var(--po-accent-text);
     }
 
     /* ── Grid mode: responsive 2D grid ── */
@@ -1924,7 +1931,7 @@ function safeSetItem(key: string, value: string): void {
     .sa-grid-handle-row::after { left: 0; right: 0; top: 3px; height: 2px; }
     .sa-grid-handle:hover::after,
     .sa-reordering .sa-grid-handle::after {
-      background: rgba(129, 140, 248, 0.55);
+      background: oklch(from var(--po-accent) l c h / 55%);
     }
     .btn-sa-mode.sa-mode-auto {
       display: inline-flex;
@@ -1977,13 +1984,13 @@ function safeSetItem(key: string, value: string): void {
     }
     .subagents-terminals.grid-mode .subagent-pane.sa-drop-target {
       transform: scale(0.992);
-      box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.14), 0 10px 28px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 0 0 4px oklch(from var(--po-accent) l c h / 14%), 0 10px 28px rgba(0, 0, 0, 0.35);
     }
     @media (prefers-reduced-motion: reduce) {
       .subagents-terminals.grid-mode .subagent-pane { transition: none; }
     }
     .subagents-terminals.grid-mode .subagent-pane {
-      background: #0c0e16;
+      background: var(--po-terminal-bg);
     }
     .subagents-terminals.grid-mode .subagent-pane.sa-pane-locked .btn-close-subagent {
       opacity: 0.2;
@@ -2029,7 +2036,7 @@ function safeSetItem(key: string, value: string): void {
 
     /* Main pane border + label in focus mode */
     .sessions-page.focus-mode .terminal-area.has-subagents .main-pane {
-      border: 1px solid rgba(99, 102, 241, 0.35);
+      border: 1px solid oklch(from var(--po-accent) l c h / 35%);
       border-radius: 8px;
       overflow: hidden;
     }
@@ -2049,21 +2056,21 @@ function safeSetItem(key: string, value: string): void {
     }
     .sessions-page.focus-mode .focus-pane-label.fpl-main {
       color: rgba(165, 180, 252, 0.7);
-      background: rgba(99, 102, 241, 0.06);
-      border-bottom: 1px solid rgba(99, 102, 241, 0.15);
+      background: oklch(from var(--po-accent) l c h / 6%);
+      border-bottom: 1px solid oklch(from var(--po-accent) l c h / 15%);
     }
 
     /* Sub-agents group border in focus mode */
     .sessions-page.focus-mode .subagents-accordion {
-      border: 1px solid rgba(63, 185, 80, 0.35) !important;
+      border: 1px solid oklch(from var(--po-success) l c h / 35%) !important;
       border-radius: 8px;
       overflow: hidden;
     }
     .sessions-page.focus-mode .subagents-accordion-header {
-      background: rgba(63, 185, 80, 0.06);
+      background: oklch(from var(--po-success) l c h / 6%);
     }
     .sessions-page.focus-mode .subagents-accordion-header:hover {
-      background: rgba(63, 185, 80, 0.12);
+      background: oklch(from var(--po-success) l c h / 12%);
     }
     .sessions-page.focus-mode .subagents-accordion-title {
       color: var(--po-success);
@@ -2172,7 +2179,7 @@ function safeSetItem(key: string, value: string): void {
       position: absolute;
       inset: 0;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(99, 102, 241, 0.28) 0%, rgba(168, 85, 247, 0.18) 45%, transparent 70%);
+      background: radial-gradient(circle, oklch(from var(--po-accent) l c h / 28%) 0%, oklch(from var(--po-accent) l c h / 18%) 45%, transparent 70%);
       filter: blur(8px);
       animation: bootstrap-halo-pulse 1.6s ease-in-out infinite;
     }
@@ -2185,7 +2192,7 @@ function safeSetItem(key: string, value: string): void {
       user-select: none;
       -webkit-user-drag: none;
       animation: bootstrap-logo-pop 1.6s ease-in-out infinite;
-      filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.22));
+      filter: drop-shadow(0 4px 12px oklch(from var(--po-accent) l c h / 22%));
     }
 
     .bootstrap-dots {
@@ -2197,7 +2204,7 @@ function safeSetItem(key: string, value: string): void {
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #6366f1, #a855f7);
+      background: linear-gradient(135deg, var(--po-accent), #a855f7);
       opacity: 0.35;
       animation: bootstrap-dot-bounce 1.2s ease-in-out infinite;
     }
@@ -2272,7 +2279,7 @@ function safeSetItem(key: string, value: string): void {
       font-weight: 700;
       margin: 0 0 8px;
       line-height: 1.25;
-      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      background: linear-gradient(135deg, var(--po-accent) 0%, #a855f7 100%);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -2314,8 +2321,8 @@ function safeSetItem(key: string, value: string): void {
 
     .quickstart-card:hover {
       transform: translateY(-3px);
-      box-shadow: 0 12px 24px -10px rgba(99, 102, 241, 0.32);
-      border-color: rgba(99, 102, 241, 0.35);
+      box-shadow: 0 12px 24px -10px oklch(from var(--po-accent) l c h / 32%);
+      border-color: oklch(from var(--po-accent) l c h / 35%);
     }
 
     .quickstart-card[data-accent="indigo"] .qs-icon { background: linear-gradient(135deg, #6366f1, #818cf8); }
@@ -2330,7 +2337,7 @@ function safeSetItem(key: string, value: string): void {
       align-items: center;
       justify-content: center;
       color: #fff;
-      box-shadow: 0 6px 14px -6px rgba(99, 102, 241, 0.55);
+      box-shadow: 0 6px 14px -6px oklch(from var(--po-accent) l c h / 55%);
       margin-bottom: 4px;
     }
 
@@ -2355,8 +2362,8 @@ function safeSetItem(key: string, value: string): void {
       width: 28px;
       height: 28px;
       border-radius: 50%;
-      background: rgba(99, 102, 241, 0.12);
-      color: #6366f1;
+      background: oklch(from var(--po-accent) l c h / 12%);
+      color: var(--po-accent);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -2365,7 +2372,7 @@ function safeSetItem(key: string, value: string): void {
 
     .quickstart-card:hover .qs-arrow {
       transform: translateX(3px);
-      background: #6366f1;
+      background: var(--po-accent);
       color: #fff;
     }
 
@@ -2381,8 +2388,8 @@ function safeSetItem(key: string, value: string): void {
     }
 
     .welcome-blank-link:hover {
-      color: #6366f1;
-      background: rgba(99, 102, 241, 0.08);
+      color: var(--po-accent);
+      background: oklch(from var(--po-accent) l c h / 8%);
     }
 
     @media (max-width: 600px) {
@@ -2495,7 +2502,7 @@ function safeSetItem(key: string, value: string): void {
       background: rgba(var(--bs-primary-rgb, 59, 130, 246), 0.10);
     }
     .ide-acc-warning {
-      background: rgba(210, 153, 34, 0.08);
+      background: oklch(from var(--po-warning) l c h / 8%);
     }
 
     .ide-accordion-title {
@@ -2643,7 +2650,7 @@ function safeSetItem(key: string, value: string): void {
     }
     .pu-bar {
       height: 100%;
-      background: var(--po-accent, #818cf8);
+      background: var(--po-accent, var(--po-accent-text));
       border-radius: 3px;
       transition: width 0.4s ease;
     }
@@ -2764,7 +2771,7 @@ function safeSetItem(key: string, value: string): void {
       transition: all 0.12s;
     }
     .ide-slot-run:hover {
-      background: rgba(63, 185, 80, 0.15);
+      background: oklch(from var(--po-success) l c h / 15%);
       color: var(--po-success);
     }
 
@@ -2774,7 +2781,7 @@ function safeSetItem(key: string, value: string): void {
       border: 1px solid var(--po-border-subtle);
       border-radius: 6px;
       margin-bottom: 0.3rem;
-      background: rgba(210, 153, 34, 0.05);
+      background: oklch(from var(--po-warning) l c h / 5%);
     }
 
     .ide-interaction-prompt {
@@ -2873,8 +2880,8 @@ function safeSetItem(key: string, value: string): void {
     .install-guide-card {
       max-width: 720px;
       width: 100%;
-      background: linear-gradient(180deg, rgba(99, 102, 241, 0.04), rgba(139, 92, 246, 0.02));
-      border: 1px solid rgba(139, 92, 246, 0.18);
+      background: linear-gradient(180deg, oklch(from var(--po-accent) l c h / 4%), oklch(from var(--po-accent) l c h / 2%));
+      border: 1px solid oklch(from var(--po-accent) l c h / 18%);
       border-radius: 14px;
       padding: 2rem 2.25rem 1.75rem;
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
@@ -2895,8 +2902,8 @@ function safeSetItem(key: string, value: string): void {
       height: 48px;
       flex-shrink: 0;
       border-radius: 12px;
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(139, 92, 246, 0.18));
-      color: #a78bfa;
+      background: linear-gradient(135deg, oklch(from var(--po-accent) l c h / 18%), oklch(from var(--po-accent) l c h / 18%));
+      color: var(--po-accent-text);
     }
 
     .install-guide-heading {
@@ -2921,9 +2928,9 @@ function safeSetItem(key: string, value: string): void {
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
-      background: rgba(139, 92, 246, 0.14);
+      background: oklch(from var(--po-accent) l c h / 14%);
       color: #c4b5fd;
-      border: 1px solid rgba(139, 92, 246, 0.25);
+      border: 1px solid oklch(from var(--po-accent) l c h / 25%);
       border-radius: 999px;
       padding: 0.25rem 0.7rem;
       font-size: 0.75rem;
@@ -2962,9 +2969,9 @@ function safeSetItem(key: string, value: string): void {
       background: rgba(255, 255, 255, 0.04);
     }
     .install-tab.active {
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.22), rgba(139, 92, 246, 0.22));
+      background: linear-gradient(135deg, oklch(from var(--po-accent) l c h / 22%), oklch(from var(--po-accent) l c h / 22%));
       color: #fff;
-      box-shadow: inset 0 0 0 1px rgba(139, 92, 246, 0.4);
+      box-shadow: inset 0 0 0 1px oklch(from var(--po-accent) l c h / 40%);
     }
     .install-tab-chip {
       font-size: 0.65rem;
@@ -2973,11 +2980,11 @@ function safeSetItem(key: string, value: string): void {
       letter-spacing: 0.05em;
       padding: 0.1rem 0.45rem;
       border-radius: 4px;
-      background: rgba(63, 185, 80, 0.2);
+      background: oklch(from var(--po-success) l c h / 20%);
       color: #7ee787;
     }
     .install-tab:not(.active) .install-tab-chip {
-      background: rgba(63, 185, 80, 0.1);
+      background: oklch(from var(--po-success) l c h / 10%);
     }
 
     .install-tab-panel {
@@ -3026,12 +3033,12 @@ function safeSetItem(key: string, value: string): void {
       transition: all 0.15s ease;
     }
     .manual-platform-pill:hover {
-      border-color: rgba(139, 92, 246, 0.35);
+      border-color: oklch(from var(--po-accent) l c h / 35%);
       color: #fff;
     }
     .manual-platform-pill.active {
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(139, 92, 246, 0.25));
-      border-color: rgba(139, 92, 246, 0.55);
+      background: linear-gradient(135deg, oklch(from var(--po-accent) l c h / 25%), oklch(from var(--po-accent) l c h / 25%));
+      border-color: oklch(from var(--po-accent) l c h / 55%);
       color: #fff;
     }
 
@@ -3042,7 +3049,7 @@ function safeSetItem(key: string, value: string): void {
       color: rgba(255, 255, 255, 0.45) !important;
     }
     .install-step-hint a {
-      color: #a78bfa;
+      color: var(--po-accent-text);
       text-decoration: underline;
     }
     .install-external-link {
@@ -3051,7 +3058,7 @@ function safeSetItem(key: string, value: string): void {
       gap: 0.35rem;
       margin-top: 0.4rem;
       font-size: 0.8rem;
-      color: #a78bfa;
+      color: var(--po-accent-text);
       text-decoration: none;
     }
     .install-external-link:hover {
@@ -3087,13 +3094,13 @@ function safeSetItem(key: string, value: string): void {
       gap: 0.7rem;
       padding: 0.75rem 0.9rem;
       margin-bottom: 1rem;
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.06));
-      border: 1px solid rgba(139, 92, 246, 0.28);
+      background: linear-gradient(135deg, oklch(from var(--po-accent) l c h / 10%), oklch(from var(--po-accent) l c h / 6%));
+      border: 1px solid oklch(from var(--po-accent) l c h / 28%);
       border-radius: 8px;
       color: rgba(255, 255, 255, 0.75);
     }
     .install-info-box iconify-icon {
-      color: #a78bfa;
+      color: var(--po-accent-text);
       flex-shrink: 0;
       margin-top: 2px;
     }
@@ -3278,8 +3285,8 @@ function safeSetItem(key: string, value: string): void {
       gap: 1rem;
       margin-bottom: 1.25rem;
       padding: 1rem 1.15rem;
-      background: linear-gradient(135deg, rgba(63, 185, 80, 0.1), rgba(63, 185, 80, 0.04));
-      border: 1px solid rgba(63, 185, 80, 0.25);
+      background: linear-gradient(135deg, oklch(from var(--po-success) l c h / 10%), oklch(from var(--po-success) l c h / 4%));
+      border: 1px solid oklch(from var(--po-success) l c h / 25%);
       border-radius: 10px;
     }
     .install-auto-text {
@@ -3331,14 +3338,14 @@ function safeSetItem(key: string, value: string): void {
       height: 24px;
       border: none;
       border-radius: 4px;
-      background: rgba(63, 185, 80, 0.12);
+      background: oklch(from var(--po-success) l c h / 12%);
       color: var(--po-success);
       cursor: pointer;
       transition: all 0.15s;
       flex-shrink: 0;
     }
     .install-run-btn:hover {
-      background: rgba(63, 185, 80, 0.3);
+      background: oklch(from var(--po-success) l c h / 30%);
       color: var(--po-success);
       transform: scale(1.1);
     }
@@ -3346,7 +3353,7 @@ function safeSetItem(key: string, value: string): void {
     /* ── Inline install terminal ── */
     .install-terminal-wrapper {
       margin: 1.25rem 0;
-      border: 1px solid rgba(63, 185, 80, 0.25);
+      border: 1px solid oklch(from var(--po-success) l c h / 25%);
       border-radius: 8px;
       overflow: hidden;
     }
@@ -3356,7 +3363,7 @@ function safeSetItem(key: string, value: string): void {
       align-items: center;
       justify-content: space-between;
       padding: 0.4rem 0.75rem;
-      background: rgba(63, 185, 80, 0.08);
+      background: oklch(from var(--po-success) l c h / 8%);
       font-size: 0.78rem;
       font-weight: 600;
       color: var(--po-success);
@@ -3413,8 +3420,8 @@ function safeSetItem(key: string, value: string): void {
       text-shadow: 0 0 12px rgba(88, 166, 255, 0.1);
     }
     .aa-terminal-banner.ai-mode .aa-ascii {
-      color: rgba(168, 85, 247, 0.22);
-      text-shadow: 0 0 12px rgba(168, 85, 247, 0.1);
+      color: oklch(from var(--po-accent) l c h / 22%);
+      text-shadow: 0 0 12px oklch(from var(--po-accent) l c h / 10%);
     }
     @keyframes aa-bounce-x {
       0%   { left: 5%; }
@@ -3483,11 +3490,11 @@ function safeSetItem(key: string, value: string): void {
       color: var(--po-info);
     }
     .tailer-preview-badge.heuristic {
-      background: rgba(210, 153, 34, 0.15);
+      background: oklch(from var(--po-warning) l c h / 15%);
       color: var(--po-warning);
     }
     .tailer-preview-badge.fast-path {
-      background: rgba(63, 185, 80, 0.15);
+      background: oklch(from var(--po-success) l c h / 15%);
       color: var(--po-success);
     }
     .tailer-preview-body {
@@ -3868,7 +3875,8 @@ export class SessionViewComponent implements OnInit, OnDestroy {
   }
   ideSubAgentsHeight = signal(this.savedResize['ideSubAgentsHeight'] ?? 250);
   actionCenterWidth = signal(this.savedResize['actionCenterWidth'] ?? 320);
-  actionCenterCollapsed = signal(this.savedResize['actionCenterCollapsed'] ?? false);
+  // Collapsed by default: the terminals own the width until you open the spawner.
+  actionCenterCollapsed = signal(this.savedResize['actionCenterCollapsed'] ?? true);
 
   // IDE layout mode signals
   ideRightWidth = signal<number | null>(this.savedResize['ideRightWidth'] ?? 420);
@@ -4144,9 +4152,105 @@ export class SessionViewComponent implements OnInit, OnDestroy {
     return [active];
   });
 
+  // ── Session canvas: dock requests, ⌘K palette, slide-over session tree ──
+  protected readonly canvas = inject(SessionCanvasService);
+  private readonly router = inject(Router);
+  /** Assets bar is out of the canvas until asked for (⌘K → Session assets). */
+  protected readonly assetsShown = signal(false);
+
+  private paletteLamp(status: string, standby?: string | null): PaletteLamp {
+    if (standby) return 'off';
+    if (status === 'running' || status === 'in_progress') return 'working';
+    if (status === 'waiting_input' || status === 'error') return 'blocked';
+    if (status === 'exited') return 'off';
+    return 'idle';
+  }
+
+  /** Everything the old toolbars, rail and bars held, one ⌘K away. */
+  private readonly paletteLang = toSignal(this.translateService.onLangChange, { initialValue: null });
+
+  protected readonly paletteCommands = computed<PaletteCommand[]>(() => {
+    this.paletteLang();
+    const t = (k: string) => this.translateService.instant(k);
+    const active = this.activeSession();
+    const urgency = { blocked: 0, idle: 1, working: 2, off: 3 } as const;
+    const sessions: PaletteCommand[] = this.sessions()
+      .map((s) => ({
+        id: 's-' + s.id,
+        group: 'Sessions' as const,
+        label: s.name,
+        hint: s.workspace?.name,
+        lamp: this.paletteLamp(s.status, s.standbyAt),
+        run: () => void this.selectSession(s.id),
+      }))
+      .sort((a, b) => urgency[a.lamp] - urgency[b.lamp]);
+    const agents: PaletteCommand[] = active
+      ? this.paneRoster().map((sa, i) => ({
+          id: 'a-' + sa.id,
+          group: 'Agents' as const,
+          label: sa.id === SessionViewComponent.MAIN_PANE_ID ? t('PALETTE.Main agent') : (sa.title || sa.role),
+          hint: `${this.modKey}+${i + 1}`,
+          lamp: this.paletteLamp(sa.status),
+          run: () => { this.subAgentsExpanded.set(true); this.switchSubAgentTab(sa.id); },
+        }))
+      : [];
+    const actions: PaletteCommand[] = [
+      { id: 'x-new', group: 'Actions', label: t('PALETTE.New session'), icon: 'tabler:plus', run: () => this.openCreateModal() },
+      { id: 'x-all', group: 'Actions', label: t('PALETTE.All sessions'), icon: 'tabler:layout-sidebar', run: () => this.canvas.toggleSessionsSheet(true) },
+    ];
+    if (active) {
+      const sid = active.id;
+      actions.push(
+        { id: 'x-spawn', group: 'Actions', label: t('PALETTE.Spawn agent'), icon: 'tabler:users-plus', run: () => this.setActionCenterCollapsed(false) },
+        ...(this.builtins.isOn('multi-session') ? [{ id: 'x-tab', group: 'Actions' as const, label: t('PALETTE.New tab'), icon: 'tabler:copy-plus', run: () => void this.addTabSession() }] : []),
+        ...(this.ff.canAccess('git_panel') ? [{ id: 'x-git', group: 'Actions' as const, label: t('PALETTE.Git'), icon: 'tabler:git-branch', run: () => this.openGitExplorer() }] : []),
+        ...(this.ff.canAccess('database_explorer') && this.builtins.isOn('database') ? [{ id: 'x-db', group: 'Actions' as const, label: t('PALETTE.Database'), icon: 'tabler:database', run: () => this.openDatabaseExplorer() }] : []),
+        ...(this.ff.canAccess('docker_integration') && this.builtins.isOn('docker') ? [{ id: 'x-docker', group: 'Actions' as const, label: t('PALETTE.Docker'), icon: 'tabler:brand-docker', run: () => this.openDockerPanel() }] : []),
+        ...(this.builtins.isOn('ssh') ? [{ id: 'x-ssh', group: 'Actions' as const, label: t('PALETTE.SSH'), icon: 'tabler:server', run: () => this.openSshPanel() }] : []),
+        { id: 'x-term', group: 'Actions', label: t('PALETTE.Terminal'), icon: 'tabler:terminal-2', run: () => this.openTerminalsPanel() },
+        { id: 'x-links', group: 'Actions', label: t('PALETTE.Links'), icon: 'tabler:world', run: () => this.openDevLinksModal(sid) },
+        { id: 'x-note', group: 'Actions', label: t('PALETTE.Quick note'), icon: 'tabler:note', run: () => this.openAddNoteModal(sid) },
+        { id: 'x-brief', group: 'Actions', label: t('PALETTE.Project brief'), icon: 'tabler:file-description', run: () => this.openProjectBriefModal(sid) },
+        { id: 'x-todo', group: 'Actions', label: t('PALETTE.Todo'), icon: 'tabler:checklist', run: () => this.openTodoModal(sid) },
+        { id: 'x-assets', group: 'Actions', label: t('PALETTE.Assets'), icon: 'tabler:folders', run: () => { this.assetsShown.set(true); setTimeout(() => this.assetsPanel?.togglePanel()); } },
+        { id: 'x-focus', group: 'Actions', label: t('PALETTE.Focus mode'), icon: 'tabler:arrows-maximize', hint: `${this.modKey}+${this.shortcutKey('focusMode')}`, run: () => this.toggleFocusMode() },
+        { id: 'x-layout', group: 'Actions', label: t(this.currentLayoutMode() === 'code' ? 'PALETTE.Standard layout' : 'PALETTE.Code editor'), icon: 'tabler:code', run: () => this.toggleLayoutMode() },
+        { id: 'x-window', group: 'Actions', label: t('PALETTE.Dedicated window'), icon: 'tabler:app-window', run: () => this.toggleDedicatedWindow() },
+      );
+    }
+    const page = (id: string, label: string, url: string, icon: string): PaletteCommand =>
+      ({ id: 'p-' + id, group: 'Pages', label: t('MENU.' + label), keywords: label, icon, run: () => void this.router.navigateByUrl(url) });
+    const pages = [
+      page('prompts', 'Prompts', '/admin/prompt-library', 'tabler:book'),
+      page('accounts', 'AI Accounts', '/admin/provider-accounts', 'tabler:key'),
+      page('usage', 'Usage', '/admin/usage', 'tabler:chart-donut-4'),
+      page('mcp', 'MCP', '/admin/mcp', 'tabler:plug-connected'),
+      page('plugins', 'Plugins', '/admin/plugins', 'tabler:puzzle'),
+      page('browser', 'Browser', '/admin/browser', 'tabler:world-www'),
+      page('evals', 'AI Agent Evals', '/admin/speed-test', 'tabler:gauge'),
+      page('gitwriter', 'AI Git Writer', '/admin/git-writer', 'tabler:file-pencil'),
+      page('settings', 'Settings', '/admin/settings', 'tabler:adjustments'),
+    ];
+    for (const a of actions) a.keywords ??= a.id.slice(2);
+    return [...sessions, ...agents, ...actions, ...pages];
+  });
+
+  /** ⌘K on macOS, Ctrl+Shift+K elsewhere (plain Ctrl+K is readline's kill-line). */
+  private readonly paletteKey = (event: KeyboardEvent): void => {
+    if (event.code !== 'KeyK' || event.altKey) return;
+    const hit = this.isMac ? event.metaKey && !event.ctrlKey && !event.shiftKey : event.ctrlKey && event.shiftKey && !event.metaKey;
+    if (!hit) return;
+    event.preventDefault();
+    event.stopPropagation();
+    this.canvas.togglePalette();
+  };
+
   constructor() {
     // Capture phase: must run before xterm swallows Alt+key (see onSubAgentKeyDown).
     document.addEventListener('keydown', this.keyDownCapture, true);
+    document.addEventListener('keydown', this.paletteKey, true);
+    this.canvas.selectRequests.pipe(takeUntilDestroyed()).subscribe((id) => void this.selectSession(id));
+    this.canvas.createRequests.pipe(takeUntilDestroyed()).subscribe(() => this.openCreateModal());
     // Remote sessions: host ⇄ computer file bridge (MCP send_to_local + out/ box).
     effect(() => {
       // Dedicated window: the remote outbox is collected (and consumed) only by the main window.
@@ -4838,6 +4942,9 @@ export class SessionViewComponent implements OnInit, OnDestroy {
     }
 
     document.removeEventListener('keydown', this.keyDownCapture, true);
+    document.removeEventListener('keydown', this.paletteKey, true);
+    this.canvas.togglePalette(false);
+    this.canvas.toggleSessionsSheet(false);
     this.cancelAutoFocusOnOpen();
     if (this.spawnFocusTimer) { clearTimeout(this.spawnFocusTimer); this.spawnFocusTimer = null; }
     this.cancelSidebarSubAgentFocus();
@@ -6174,7 +6281,9 @@ export class SessionViewComponent implements OnInit, OnDestroy {
 
   @HostListener('document:keydown.escape')
   onEscapeKey(): void {
-    if (this.modelMenu()) {
+    if (this.canvas.sessionsSheetOpen()) {
+      this.canvas.toggleSessionsSheet(false);
+    } else if (this.modelMenu()) {
       this.modelMenu.set(null);
     } else if (this.expandedSubAgentId()) {
       this.expandedSubAgentId.set(null);
@@ -8197,12 +8306,7 @@ export class SessionViewComponent implements OnInit, OnDestroy {
       cursorBlink: true,
       fontSize: 13,
       fontFamily: "'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace",
-      theme: {
-        background: '#0d1117',
-        foreground: '#aab8c5',
-        cursor: '#3fb950',
-        selectionBackground: '#1a3a2a',
-      },
+      theme: SIGNAL_TERMINAL_THEME,
       scrollback: 5000,
       allowProposedApi: true,
     });

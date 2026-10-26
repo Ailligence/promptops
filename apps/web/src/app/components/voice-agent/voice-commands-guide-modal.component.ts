@@ -157,7 +157,7 @@ const SUPPORTED_PATTERN_LANGS: SupportedLang[] = ['it', 'en'];
     .cat-chip:hover { color: #8b9cf6; border-color: rgba(99,102,241,0.5); }
     .cat-chip.active {
       background: rgba(99,102,241,0.18); color: #8b9cf6;
-      border-color: rgba(99,102,241,0.6);
+      border-color: oklch(from var(--po-accent) l c h / 60%);
     }
     .cmd-actions { display: inline-flex; align-items: center; gap: 0.3rem; justify-content: flex-end; }
     .cmd-expand {
@@ -170,7 +170,7 @@ const SUPPORTED_PATTERN_LANGS: SupportedLang[] = ['it', 'en'];
     .cmd-variants {
       display: flex; flex-wrap: wrap; gap: 0.3rem;
       padding: 0.3rem 0.3rem 0.55rem;
-      border-bottom: 1px dashed rgba(99,102,241,0.1);
+      border-bottom: 1px dashed oklch(from var(--po-accent) l c h / 10%);
     }
     .cmd-variant {
       font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -183,7 +183,7 @@ const SUPPORTED_PATTERN_LANGS: SupportedLang[] = ['it', 'en'];
     .cat-block summary {
       cursor: pointer; user-select: none;
       padding: 0.55rem 0.85rem;
-      background: rgba(99,102,241,0.08);
+      background: oklch(from var(--po-accent) l c h / 8%);
       display: flex; align-items: center; justify-content: space-between;
       font-weight: 600; font-size: 0.88rem;
     }
@@ -197,7 +197,7 @@ const SUPPORTED_PATTERN_LANGS: SupportedLang[] = ['it', 'en'];
       display: grid; grid-template-columns: minmax(180px, 1fr) 2fr auto;
       align-items: center; gap: 0.6rem;
       padding: 0.4rem 0.3rem;
-      border-bottom: 1px dashed rgba(99,102,241,0.1);
+      border-bottom: 1px dashed oklch(from var(--po-accent) l c h / 10%);
     }
     .cmd-row:last-child { border-bottom: none; }
     .cmd-example {
@@ -229,8 +229,8 @@ const SUPPORTED_PATTERN_LANGS: SupportedLang[] = ['it', 'en'];
     .shortcut-banner {
       display: flex; align-items: center; justify-content: space-between;
       gap: 0.75rem; padding: 0.75rem 1rem;
-      background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.12));
-      border: 1px solid rgba(99,102,241,0.25);
+      background: linear-gradient(135deg, oklch(from var(--po-accent) l c h / 12%), oklch(from var(--po-accent) l c h / 12%));
+      border: 1px solid oklch(from var(--po-accent) l c h / 25%);
       border-radius: 10px;
       margin-bottom: 1rem;
     }

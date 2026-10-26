@@ -25,21 +25,21 @@
   text-align: left;
 
   &:hover {
-    border-color: rgba(99, 102, 241, 0.3);
-    background: rgba(99, 102, 241, 0.03);
+    border-color: oklch(from var(--po-accent) l c h / 30%);
+    background: oklch(from var(--po-accent) l c h / 3%);
   }
 
   &.selected {
-    border-color: #6366f1;
-    background: rgba(99, 102, 241, 0.06);
+    border-color: var(--po-accent);
+    background: oklch(from var(--po-accent) l c h / 6%);
 
     .artifact-icon {
-      background: #6366f1;
+      background: var(--po-accent);
       color: #fff;
     }
 
     .artifact-name {
-      color: #6366f1;
+      color: var(--po-accent);
     }
 
     .artifact-check {
@@ -52,8 +52,8 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: rgba(99, 102, 241, 0.1);
-  color: #6366f1;
+  background: oklch(from var(--po-accent) l c h / 10%);
+  color: var(--po-accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -84,7 +84,7 @@
 
 .artifact-check {
   font-size: 1rem;
-  color: #6366f1;
+  color: var(--po-accent);
   opacity: 0;
   flex-shrink: 0;
   transition: opacity 0.15s;
@@ -94,7 +94,7 @@
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: linear-gradient(135deg, var(--po-accent), var(--po-accent));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -140,14 +140,14 @@
   transition: all 0.15s;
 
   &:hover {
-    border-color: rgba(99, 102, 241, 0.3);
-    background: rgba(99, 102, 241, 0.03);
+    border-color: oklch(from var(--po-accent) l c h / 30%);
+    background: oklch(from var(--po-accent) l c h / 3%);
   }
 
   &.active {
-    border-color: #6366f1;
-    background: rgba(99, 102, 241, 0.06);
-    color: #6366f1;
+    border-color: var(--po-accent);
+    background: oklch(from var(--po-accent) l c h / 6%);
+    color: var(--po-accent);
   }
 }
 
@@ -171,14 +171,14 @@
   font-weight: 600;
 
   &:hover {
-    border-color: rgba(99, 102, 241, 0.3);
-    background: rgba(99, 102, 241, 0.03);
+    border-color: oklch(from var(--po-accent) l c h / 30%);
+    background: oklch(from var(--po-accent) l c h / 3%);
   }
 
   &.selected {
-    border-color: #6366f1;
-    background: rgba(99, 102, 241, 0.06);
-    color: #6366f1;
+    border-color: var(--po-accent);
+    background: oklch(from var(--po-accent) l c h / 6%);
+    color: var(--po-accent);
   }
 
   i {
@@ -197,8 +197,8 @@
 }
 
 .context-chip {
-  background: rgba(99, 102, 241, 0.08);
-  color: #6366f1;
+  background: oklch(from var(--po-accent) l c h / 8%);
+  color: var(--po-accent);
   font-weight: 600;
   font-size: 0.72rem;
 }
@@ -227,7 +227,7 @@
   text-overflow: ellipsis;
 
   code {
-    color: #6366f1;
+    color: var(--po-accent);
     font-size: 0.72rem;
   }
 }
@@ -241,7 +241,7 @@
 .output-action {
   font-size: 0.78rem;
   text-decoration: none;
-  color: #6366f1;
+  color: var(--po-accent);
 
   &:disabled {
     opacity: 0.5;
@@ -281,12 +281,12 @@
   border-radius: 6px;
   font-size: 0.72rem;
   font-weight: 600;
-  color: #6366f1;
+  color: var(--po-accent);
   cursor: pointer;
   transition: background 0.15s;
 
   &:hover {
-    background: rgba(99, 102, 241, 0.08);
+    background: oklch(from var(--po-accent) l c h / 8%);
   }
 }
 
@@ -327,8 +327,8 @@
   transition: all 0.15s;
 
   &:hover {
-    background: rgba(99, 102, 241, 0.08);
-    color: #6366f1;
+    background: oklch(from var(--po-accent) l c h / 8%);
+    color: var(--po-accent);
   }
 }
 

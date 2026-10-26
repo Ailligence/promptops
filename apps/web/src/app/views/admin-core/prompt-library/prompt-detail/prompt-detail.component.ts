@@ -56,7 +56,7 @@ import { createSession } from "../../../../../store/sessions/session.actions";
       gap: 0.35rem;
       font-size: 0.85rem;
       font-weight: 500;
-      color: rgba(79, 70, 229, 0.7);
+      color: oklch(from var(--po-accent) l c h / 70%);
       text-decoration: none;
       transition: color 0.2s;
       cursor: pointer;
@@ -65,7 +65,7 @@ import { createSession } from "../../../../../store/sessions/session.actions";
       padding: 0;
     }
     .back-link:hover {
-      color: rgba(79, 70, 229, 1);
+      color: oklch(from var(--po-accent) l c h / 100%);
     }
 
     .detail-actions {
@@ -91,12 +91,12 @@ import { createSession } from "../../../../../store/sessions/session.actions";
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
     .btn-detail-primary {
-      background: rgba(79, 70, 229, 0.12);
-      color: #4f46e5;
+      background: oklch(from var(--po-accent) l c h / 12%);
+      color: var(--po-accent);
     }
     .btn-detail-primary:hover {
-      background: rgba(79, 70, 229, 0.22);
-      color: #4f46e5;
+      background: oklch(from var(--po-accent) l c h / 22%);
+      color: var(--po-accent);
     }
     .btn-detail-secondary {
       background: rgba(var(--bs-secondary-rgb), 0.1);
@@ -179,16 +179,16 @@ import { createSession } from "../../../../../store/sessions/session.actions";
       color: var(--bs-secondary-color);
     }
     .badge-visibility {
-      background: rgba(99, 102, 241, 0.1);
-      color: #6366f1;
+      background: oklch(from var(--po-accent) l c h / 10%);
+      color: var(--po-accent);
     }
     .badge-fork {
-      background: rgba(168, 85, 247, 0.1);
+      background: oklch(from var(--po-accent) l c h / 10%);
       color: #7c3aed;
     }
     .badge-version {
-      background: rgba(79, 70, 229, 0.08);
-      color: #4f46e5;
+      background: oklch(from var(--po-accent) l c h / 8%);
+      color: var(--po-accent);
     }
 
     /* ─── Body ─── */
@@ -211,7 +211,7 @@ import { createSession } from "../../../../../store/sessions/session.actions";
       transition: border-color 0.2s;
     }
     .prompt-body-editable:focus {
-      border-color: rgba(99, 102, 241, 0.4);
+      border-color: oklch(from var(--po-accent) l c h / 40%);
     }
 
     /* ─── Variables Chips ─── */
@@ -231,9 +231,9 @@ import { createSession } from "../../../../../store/sessions/session.actions";
       font-size: 0.75rem;
       font-weight: 500;
       font-family: 'JetBrains Mono', 'Fira Code', monospace;
-      background: rgba(99, 102, 241, 0.1);
-      color: #6366f1;
-      border: 1px solid rgba(99, 102, 241, 0.15);
+      background: oklch(from var(--po-accent) l c h / 10%);
+      color: var(--po-accent);
+      border: 1px solid oklch(from var(--po-accent) l c h / 15%);
     }
 
     /* ─── Category & Tags ─── */
@@ -276,8 +276,8 @@ import { createSession } from "../../../../../store/sessions/session.actions";
 
     /* ─── Prompt Generator ─── */
     .generator-card {
-      border: 1px solid rgba(79, 70, 229, 0.15);
-      background: rgba(79, 70, 229, 0.02);
+      border: 1px solid oklch(from var(--po-accent) l c h / 15%);
+      background: oklch(from var(--po-accent) l c h / 2%);
     }
 
     .generator-subtitle {
@@ -339,7 +339,7 @@ import { createSession } from "../../../../../store/sessions/session.actions";
       gap: 0.35rem;
       font-size: 0.78rem;
       font-weight: 600;
-      color: #4f46e5;
+      color: var(--po-accent);
       font-family: 'JetBrains Mono', monospace;
     }
 
@@ -377,14 +377,14 @@ import { createSession } from "../../../../../store/sessions/session.actions";
       font-weight: 600;
       border: none;
       cursor: pointer;
-      background: #4f46e5;
+      background: var(--po-accent);
       color: #fff;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .btn-generate:hover:not(:disabled) {
       background: #4338ca;
       transform: translateY(-1px);
-      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+      box-shadow: 0 4px 14px oklch(from var(--po-accent) l c h / 30%);
     }
     .btn-generate:disabled {
       opacity: 0.5;
@@ -434,15 +434,15 @@ import { createSession } from "../../../../../store/sessions/session.actions";
       border-radius: 8px;
       font-size: 0.75rem;
       font-weight: 600;
-      border: 1px solid rgba(79, 70, 229, 0.2);
+      border: 1px solid oklch(from var(--po-accent) l c h / 20%);
       cursor: pointer;
-      background: rgba(79, 70, 229, 0.08);
-      color: #4f46e5;
+      background: oklch(from var(--po-accent) l c h / 8%);
+      color: var(--po-accent);
       transition: all 0.2s;
     }
     .btn-copy-sm:hover {
-      background: rgba(79, 70, 229, 0.18);
-      border-color: rgba(79, 70, 229, 0.35);
+      background: oklch(from var(--po-accent) l c h / 18%);
+      border-color: oklch(from var(--po-accent) l c h / 35%);
     }
 
     .btn-inject-sm {
@@ -474,7 +474,7 @@ import { createSession } from "../../../../../store/sessions/session.actions";
       position: relative;
       padding-left: 1.75rem;
       padding-bottom: 1.25rem;
-      border-left: 2px solid rgba(79, 70, 229, 0.15);
+      border-left: 2px solid oklch(from var(--po-accent) l c h / 15%);
     }
     .version-item:last-child {
       border-left-color: transparent;
@@ -488,9 +488,9 @@ import { createSession } from "../../../../../store/sessions/session.actions";
       width: 0.75rem;
       height: 0.75rem;
       border-radius: 50%;
-      background: #4f46e5;
+      background: var(--po-accent);
       border: 2px solid #fff;
-      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3);
+      box-shadow: 0 0 0 2px oklch(from var(--po-accent) l c h / 30%);
     }
     .version-dot.latest {
       background: #16a34a;
@@ -500,7 +500,7 @@ import { createSession } from "../../../../../store/sessions/session.actions";
     .version-number {
       font-size: 0.78rem;
       font-weight: 700;
-      color: #4f46e5;
+      color: var(--po-accent);
     }
 
     .version-date {
@@ -527,7 +527,7 @@ import { createSession } from "../../../../../store/sessions/session.actions";
       margin-top: 0.75rem;
       font-size: 0.8rem;
       font-weight: 600;
-      color: #4f46e5;
+      color: var(--po-accent);
       text-decoration: none;
       transition: color 0.2s;
     }
@@ -590,8 +590,8 @@ import { createSession } from "../../../../../store/sessions/session.actions";
       width: 32px;
       height: 32px;
       border-radius: 8px;
-      background: rgba(79, 70, 229, 0.12);
-      color: #4f46e5;
+      background: oklch(from var(--po-accent) l c h / 12%);
+      color: var(--po-accent);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -603,7 +603,7 @@ import { createSession } from "../../../../../store/sessions/session.actions";
       padding-left: 2.5rem;
       padding-top: 0.5rem;
       padding-bottom: 0.5rem;
-      border-left: 2px solid rgba(168, 85, 247, 0.2);
+      border-left: 2px solid oklch(from var(--po-accent) l c h / 20%);
       margin-left: 0.95rem;
     }
     .workflow-agent:last-child {
@@ -616,21 +616,21 @@ import { createSession } from "../../../../../store/sessions/session.actions";
       top: 0;
       width: 2rem;
       height: 1.25rem;
-      border-bottom: 2px solid rgba(168, 85, 247, 0.2);
-      border-left: 2px solid rgba(168, 85, 247, 0.2);
+      border-bottom: 2px solid oklch(from var(--po-accent) l c h / 20%);
+      border-left: 2px solid oklch(from var(--po-accent) l c h / 20%);
       border-bottom-left-radius: 8px;
     }
 
     .workflow-agent-card {
-      background: rgba(168, 85, 247, 0.04);
-      border: 1px solid rgba(168, 85, 247, 0.12);
+      background: oklch(from var(--po-accent) l c h / 4%);
+      border: 1px solid oklch(from var(--po-accent) l c h / 12%);
       border-radius: 10px;
       padding: 0.75rem 1rem;
       transition: all 0.2s;
     }
     .workflow-agent-card:hover {
-      border-color: rgba(168, 85, 247, 0.25);
-      background: rgba(168, 85, 247, 0.06);
+      border-color: oklch(from var(--po-accent) l c h / 25%);
+      background: oklch(from var(--po-accent) l c h / 6%);
     }
     .workflow-agent-card.disabled {
       opacity: 0.5;
@@ -647,7 +647,7 @@ import { createSession } from "../../../../../store/sessions/session.actions";
       width: 26px;
       height: 26px;
       border-radius: 6px;
-      background: rgba(168, 85, 247, 0.12);
+      background: oklch(from var(--po-accent) l c h / 12%);
       color: #7c3aed;
       display: flex;
       align-items: center;
@@ -666,8 +666,8 @@ import { createSession } from "../../../../../store/sessions/session.actions";
       font-weight: 600;
       padding: 0.08rem 0.4rem;
       border-radius: 4px;
-      background: rgba(99, 102, 241, 0.08);
-      color: #6366f1;
+      background: oklch(from var(--po-accent) l c h / 8%);
+      color: var(--po-accent);
     }
 
     .workflow-agent-auto {
@@ -697,7 +697,7 @@ import { createSession } from "../../../../../store/sessions/session.actions";
       display: inline-flex;
       align-items: center;
       gap: 0.3rem;
-      background: rgba(168, 85, 247, 0.1);
+      background: oklch(from var(--po-accent) l c h / 10%);
       color: #7c3aed;
     }
   `,

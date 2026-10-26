@@ -4237,6 +4237,13 @@ export class SessionViewComponent implements OnInit, OnDestroy {
 
   /** ⌘K on macOS, Ctrl+Shift+K elsewhere (plain Ctrl+K is readline's kill-line). */
   private readonly paletteKey = (event: KeyboardEvent): void => {
+    // Capture phase: Esc closes the session sheet even while xterm has focus.
+    if (event.key === 'Escape' && this.canvas.sessionsSheetOpen()) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.canvas.toggleSessionsSheet(false);
+      return;
+    }
     if (event.code !== 'KeyK' || event.altKey) return;
     const hit = this.isMac ? event.metaKey && !event.ctrlKey && !event.shiftKey : event.ctrlKey && event.shiftKey && !event.metaKey;
     if (!hit) return;

@@ -68,7 +68,7 @@ function lampOf(s: SessionSummary): Lamp {
               [attr.aria-label]="'PALETTE.New session' | translate">
         <iconify-icon icon="tabler:plus" width="16"></iconify-icon>
       </button>
-      <app-notification-center class="dock-notify" [label]="'NOTIFICATIONS.Title' | translate"></app-notification-center>
+      <app-notification-center class="dock-notify"></app-notification-center>
       <button type="button" class="dock-cmd" (click)="canvas.togglePalette(true)"
               [attr.aria-label]="'PALETTE.Commands' | translate" [appTooltip]="'PALETTE.Placeholder' | translate">
         <iconify-icon icon="tabler:search" width="13"></iconify-icon>
